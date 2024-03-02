@@ -1,0 +1,19 @@
+- name: Python
+  percentage: 70
+  color: success 
+
+- name: PHP
+  percentage: 50
+  color: warning
+
+- name: C++
+  percentage: 50
+  color: info
+
+- name: React Native
+  percentage: 65
+  color: secondary
+
+- name: Mern Stack
+  percentage: 65
+  color: secondary

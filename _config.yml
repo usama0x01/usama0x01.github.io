@@ -1,0 +1,89 @@
+### Site Settings ###
+title               : Usama Arshad
+description         : >-
+                      Exploring the Digital Maze 🌐 | Penetration Tester 🔐 | Red Teamer 🦠 | Automation Enthusiast 🤖 | Embracing Open Source 🌟.
+baseurl             : ""                     # Change to empty quotes if you are hosting your site at <your-username>.github.io directly
+repository          : usama0x01/usama0x01.github.io     # Change to <your-username>/<your-username>.github.io (or remove it if you don't need remote projects)
+remote_theme        : usama0x01/portfolYOU
+
+
+### Plugins ###
+plugins:
+  - jemoji
+
+
+### Navbar Settings ###
+nav_exclude:                                            # The following paths are excluded from navbar
+  - pages/tags.html
+  - pages/404.html
+  - pages/index.md
+
+
+### Author Info ###
+author:
+  name              : Usama Arshad
+  image             : https://avatars.githubusercontent.com/u/58225989
+# behance           : your_username
+# dribbble          : your_username
+  email             : gusama21@gmail.com
+  facebook          : Xam.3xploiTeR
+  github            : usama0x01
+# gitlab            : your_username
+  instagram         : usama.py
+# kaggle            : your_username
+  linkedin          : usamaarshad1337
+  medium            : gusama21
+# soundcloud        : your_username
+# spotify           : your_username
+# stackoverflow     : your_user_id
+# tumblr            : your_username.tumblr.com
+# twitch            : your_username
+  twitter           : Xam_3xPloiTeR
+# vimeo             : your_username
+# youtube           : your_channel_name
+# keybase           : your_username
+# hackthebox        : 0000
+
+
+### Posts ###
+permalink: /blog/:title
+
+
+### Collections ###
+collections:
+  projects:
+    output: true
+    permalink: /projects/:name
+
+
+### Disqus ###
+disqus:
+  shortname: your-disqus-shortname                     # Your website Shortname on disqus
+
+
+### Analytics ###
+analytics:
+  enabled: true                                        # Set true to enable analytics
+  google:
+    tracking_id: UA-86107630-1
+
+
+### Defaults for collections ###
+defaults:
+  - scope:
+      path: ""
+      type: "projects"
+    values:
+      layout: "page"
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      comments: false                                   # Set to true to enable disqus comments
+
+### Exclude from processing ###
+exclude:
+  - README.md
+  - CONTRIBUTING.md
+  - LICENSE
+  - "*.log"
