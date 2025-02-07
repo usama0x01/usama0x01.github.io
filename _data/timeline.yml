@@ -1,56 +1,40 @@
-- title: Senior Information Security Consultant, SecurEyes, Riyadh, Saudi Arabia
-  from: 2024
-  to: present
-  jobtime: Full Time
-  description: <ul>
-               <li>Conduct detailed penetration tests on internal and external network infrastructures, web and mobile applications, and cloud environments, focusing on fintech companies and SAMA KSA compliance.</li>
-               <li>Lead and supervise a team of security engineers to ensure efficient execution of security assessments and penetration tests.</li>
-               <li>Carry out red teaming engagements, including social engineering and physical security evaluations.</li>
-               <li>Collaborate with security engineers to thoroughly test web, traditional, and mobile applications for vulnerabilities.</li>
-               <li>Design and implement advanced security testing scenarios tailored to client requirements.</li>
-               <li>Develop and automate penetration testing tools and scripts to streamline repetitive tasks and improve overall efficiency.</li>
-               <li>Perform on-site penetration testing activities for various clients.</li>
-               <li>Stay up-to-date with emerging threats, vulnerabilities, and new attack vectors to ensure testing methodologies remain current.</li>
-               <li>Deliver internal training sessions on industry best practices, security standards, and policies.</li>
-               <li>Review and verify security findings from team members, ensuring accurate reporting and validation of issues.</li>
-               <li>Draft comprehensive reports detailing findings, conclusions, and recommended steps for enhancing system security.</li>
-               <li>Manage client communications, including test scoping, execution planning, methodology discussions, and reporting, via calls and emails.</li>
-               </ul>
+- title: "Senior Information Security Consultant, SecurEyes, Riyadh, Saudi Arabia"
+  period: "2024 - Present"
+  type: "Full Time"
+  description: |
+    <ul>
+      <li>Leading penetration tests and compliance projects for fintech sectors.</li>
+      <li>Overseeing a team of security engineers in high-stakes security assessments.</li>
+      <li>Creating advanced security testing scenarios and automating tools for better efficiency.</li>
+      <li>Engaging in hands-on security testing, red team activities, and training initiatives.</li>
+      <li>Handling detailed client communications and reporting on security enhancements.</li>
+    </ul>
 
-- title: Senior Security Engineer, Ebryx LLC, Lahore, Pakistan
-  from: 2021
-  to: present
-  jobtime: Full Time
-  description: <ul>
-               <li>Web Application Pentest</li>
-               <li>Mobile Application Pentest</li>
-               <li>Internal/External Network Pentest</li>
-               <li>Red Teaming and Social Engineering campaigns</li>
-               <li>Develop Security Tools</li>
-               <li>Report writing and reviewing</li>
-               </ul>
+- title: "Senior Security Engineer, Ebryx LLC, Lahore, Pakistan"
+  period: "2021 - Present"
+  type: "Full Time"
+  description: |
+    <ul>
+      <li>Executing web and mobile application penetration testing along with network security evaluations.</li>
+      <li>Leading innovative red teaming and social engineering initiatives.</li>
+      <li>Developing and refining security tools, plus critically analyzing security reports.</li>
+    </ul>
 
-- title: Synack Red Team Member, Synack Red Team, USA
-  from: 2022
-  to: present
-  jobtime: Part Time
-  description: <ul>
-               <li>Identify vulnerabilities via assessments.</li>
-               <li>Test applications, networks, and platforms for flaws.</li>
-               <li>Collaborate with Synack's Red Team for insights.</li>
-               <li>Document and report vulnerabilities.</li>
-               <li>Enhance client security with actionable insights.</li>
-               <li>Stay updated on evolving cybersecurity trends.</li>
-               <li>Manage flexible part-time schedule.</li>
-               </ul>
+- title: "Synack Red Team Member, Synack Red Team, USA"
+  period: "2022 - Present"
+  type: "Part Time"
+  description: |
+    <ul>
+      <li>Identifying and documenting vulnerabilities across various platforms.</li>
+      <li>Working collaboratively with a diverse team to push the envelope on security insights.</li>
+      <li>Staying updated with the latest in cybersecurity and managing a dynamic work schedule.</li>
+    </ul>
 
-- title: Penetration Tester, Security Wall, Lahore, Pakistan
-  from: 2018
-  to: 2021
-  jobtime: Full Time
-  description: <ul>
-               <li>Web Application Pentest</li>
-               <li>Mobile Application Pentest</li>
-               <li>Internal/External Network Pentest</li>
-               <li>Report writing and reviewing</li>
-               </ul>
+- title: "Penetration Tester, Security Wall, Lahore, Pakistan"
+  period: "2018 - 2021"
+  type: "Full Time"
+  description: |
+    <ul>
+      <li>Focused on thorough penetration testing for web, mobile, and network infrastructures.</li>
+      <li>Prepared detailed reports and conducted reviews to ensure accuracy and depth in security assessments.</li>
+    </ul>
