@@ -596,10 +596,25 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
   font-family:var(--mono); font-size:var(--fs-meta); color:var(--hairline-hard); letter-spacing:.1em;
 }
 .honor h3{ font-size:1.2rem; letter-spacing:-.01em; }
+.honor h3 a{
+  display:inline-flex; align-items:baseline; gap:.4rem;
+  background-image:linear-gradient(var(--accent),var(--accent));
+  background-size:0% 1px; background-position:0 100%; background-repeat:no-repeat;
+  transition:background-size var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+.honor h3 a .arr{ font-family:var(--mono); font-size:.7em; color:var(--accent); }
+.honor h3 a:hover{ color:var(--accent); background-size:100% 1px; }
 .honor p{ font-size:var(--fs-small); color:var(--muted); max-width:40em; }
+.honor p b{ color:var(--text); font-weight:500; }
+.honor p a{
+  color:var(--text); border-bottom:1px solid var(--hairline-mid);
+  transition:color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
+}
+.honor p a:hover{ color:var(--accent); border-color:var(--accent); }
 .honor .meta{
   display:flex; flex-direction:column; align-items:flex-end; gap:.55rem;
 }
+.honor .pills{ display:flex; flex-wrap:wrap; justify-content:flex-end; gap:.4rem; }
 .honor .when{
   font-family:var(--mono); font-size:var(--fs-chip); letter-spacing:.13em;
   text-transform:uppercase; color:var(--accent); white-space:nowrap;
@@ -1080,9 +1095,9 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
 
         <article class="honor" data-reveal>
           <span class="no" aria-hidden="true">01</span>
-          <h3>CVE-2024-3681</h3>
-          <p>Original 0-day research and responsible disclosure, published to the CVE registry.</p>
-          <div class="meta"><span class="when">2024</span><i class="pill">0-Day</i></div>
+          <h3><a href="https://nvd.nist.gov/vuln/detail/CVE-2024-3681" target="_blank" rel="noopener">CVE-2024-3681<span class="arr" aria-hidden="true">↗</span></a></h3>
+          <p>Reflected XSS in the WordPress <b>Interactive World Maps</b> plugin (≤ 2.4.14) — original discovery and responsible disclosure. Catalogued by <a href="https://www.cve.org/CVERecord?id=CVE-2024-3681" target="_blank" rel="noopener">MITRE</a>, <a href="https://nvd.nist.gov/vuln/detail/CVE-2024-3681" target="_blank" rel="noopener">NVD</a>, and <a href="https://www.wordfence.com/threat-intel/vulnerabilities/researchers/usama-arshad" target="_blank" rel="noopener">Wordfence</a>.</p>
+          <div class="meta"><span class="when">Apr 2024</span><span class="pills"><i class="pill">0-Day</i><i class="pill">CVSS 6.1</i></span></div>
         </article>
 
         <article class="honor" data-reveal>
