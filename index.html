@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Usama Arshad — Offensive Security Lead</title>
+<meta name="description" content="Usama Arshad — OSCP-certified Offensive Security Lead in Riyadh. 9+ years across red team, AppSec, and cloud security. Currently leading offensive security at Tabby, MENA's largest BNPL fintech.">
+<link rel="canonical" href="https://www.usamaarshad.me/">
+<link rel="icon" href="assets/favicon.ico">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="theme-color" content="#131110">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Usama Arshad">
+<meta property="og:title" content="Usama Arshad — Offensive Security Lead">
+<meta property="og:description" content="Red Team · Fintech &amp; Cloud. 9+ years of offensive security; currently leading the offensive security function at Tabby, MENA's largest BNPL fintech.">
+<meta property="og:url" content="https://www.usamaarshad.me">
+<meta property="og:image" content="https://www.usamaarshad.me/avatar.jpg">
+<meta property="og:image:alt" content="Portrait of Usama Arshad">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@usama0x01">
+<meta name="twitter:title" content="Usama Arshad — Offensive Security Lead">
+<meta name="twitter:description" content="Red Team · Fintech &amp; Cloud. OSCP-certified, 9+ years, CVE-2024-3681, 3× national CTF champion.">
+<meta name="twitter:image" content="https://www.usamaarshad.me/avatar.jpg">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Usama Arshad",
+  "jobTitle": "Offensive Security Lead",
+  "url": "https://www.usamaarshad.me",
+  "email": "mailto:gusama21@gmail.com",
+  "image": "https://www.usamaarshad.me/avatar.jpg",
+  "address": { "@type": "PostalAddress", "addressLocality": "Riyadh", "addressCountry": "SA" },
+  "worksFor": { "@type": "Organization", "name": "Tabby" },
+  "alumniOf": { "@type": "CollegeOrUniversity", "name": "COMSATS University, Lahore" },
+  "sameAs": [
+    "https://github.com/usama0x01",
+    "https://www.linkedin.com/in/usama0x01",
+    "https://x.com/usama0x01",
+    "https://medium.com/@usama0x01",
+    "https://bugcrowd.com/Xam_3xPloiTeR",
+    "https://platform.synack.com/profile/usama-arshad"
+  ],
+  "knowsAbout": ["Red Teaming", "Application Security", "Cloud Security", "Penetration Testing", "Kubernetes Security", "DevSecOps"]
+}
+</script>
+
+<link rel="preload" href="assets/fonts/fraunces-normal-340-640.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/inter-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/jetbrainsmono-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+
+<script>document.documentElement.classList.add("js");</script>
+
+<style>
+/* ============================================================
+   EDITORIAL NOIR — design system
+   ============================================================ */
+/* self-hosted fonts (latin subsets) */
+@font-face{font-family:'Fraunces';font-style:normal;font-weight:340 640;font-display:swap;src:url(assets/fonts/fraunces-normal-340-640.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face{font-family:'Fraunces';font-style:italic;font-weight:340 640;font-display:swap;src:url(assets/fonts/fraunces-italic-340-640.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face{font-family:'Inter';font-style:normal;font-weight:400;font-display:swap;src:url(assets/fonts/inter-normal-400.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face{font-family:'Inter';font-style:normal;font-weight:500;font-display:swap;src:url(assets/fonts/inter-normal-500.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face{font-family:'Inter';font-style:normal;font-weight:600;font-display:swap;src:url(assets/fonts/inter-normal-600.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:400;font-display:swap;src:url(assets/fonts/jetbrainsmono-normal-400.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:500;font-display:swap;src:url(assets/fonts/jetbrainsmono-normal-500.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+:root{
+  /* palette */
+  --bg:            #131110;
+  --bg-elev:       #1a1714;
+  --bg-elev-2:     #211d19;
+  --ink:           #ede6da;   /* headlines */
+  --text:          #cfc7ba;   /* body */
+  --muted:         #9a9184;   /* meta */
+  --hairline:      rgba(237,230,218,.14);
+  --hairline-mid:  rgba(237,230,218,.28);
+  --hairline-hard: rgba(237,230,218,.55);
+  --accent:        #e5484d;
+  --accent-bright: #ee5c61;
+  --accent-ink:    #1a1112;   /* text on accent */
+  --accent-wash:   rgba(229,72,77,.09);
+
+  /* type */
+  --serif: "Fraunces", Georgia, "Times New Roman", serif;
+  --sans:  "Inter", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --mono:  "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --fs-hero:  clamp(3.7rem, 13vw, 10rem);
+  --fs-h2:    clamp(2.1rem, 4.2vw, 3.2rem);
+  --fs-h3:    clamp(1.25rem, 2vw, 1.55rem);
+  --fs-body:  1.0625rem;
+  --fs-small: .9rem;
+  --fs-meta:  .72rem;
+  --fs-chip:  .68rem;
+
+  /* spacing (8px base) */
+  --s-1: .25rem; --s-2: .5rem; --s-3: .75rem; --s-4: 1rem;
+  --s-5: 1.5rem; --s-6: 2rem;  --s-7: 3rem;   --s-8: 4rem;
+  --sec-pad: clamp(5rem, 10vw, 8.5rem);
+
+  /* misc */
+  --radius: 2px;
+  --ease: cubic-bezier(.33,.72,.3,1);
+  --t-fast: 220ms;
+  --container: 76rem;
+  --head-h: 4.25rem;
+}
+
+/* ---------- reset ---------- */
+*,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+html{ overflow-x:clip; scroll-padding-top:calc(var(--head-h) + 1.5rem); }
+@media (prefers-reduced-motion: no-preference){ html{ scroll-behavior:smooth; } }
+body{
+  overflow-x:clip;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  font-size:var(--fs-body);
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+img{ max-width:100%; height:auto; display:block; }
+ul,ol{ list-style:none; }
+a{ color:inherit; text-decoration:none; }
+button{ font:inherit; color:inherit; background:none; border:0; cursor:pointer; }
+h1,h2,h3{ font-family:var(--serif); font-weight:560; color:var(--ink); line-height:1.15; text-wrap:balance; font-optical-sizing:auto; }
+::selection{ background:var(--accent); color:var(--accent-ink); }
+:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; border-radius:var(--radius); }
+
+/* film grain */
+body::after{
+  content:"";
+  position:fixed; inset:0;
+  z-index:999;
+  pointer-events:none;
+  opacity:.06;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- primitives ---------- */
+.container{ max-width:var(--container); margin-inline:auto; padding-inline:clamp(1.25rem, 5vw, 4rem); }
+.kicker{
+  font-family:var(--mono); font-size:var(--fs-meta); font-weight:500;
+  text-transform:uppercase; letter-spacing:.18em; color:var(--accent);
+}
+.dot{ color:var(--accent); }
+
+.skip{
+  position:absolute; left:1rem; top:-4rem; z-index:200;
+  background:var(--accent); color:var(--accent-ink);
+  font-family:var(--mono); font-size:var(--fs-meta); text-transform:uppercase; letter-spacing:.12em;
+  padding:.7rem 1.1rem; border-radius:var(--radius);
+  transition:top var(--t-fast) var(--ease);
+}
+.skip:focus-visible{ top:1rem; }
+
+.btn{
+  display:inline-flex; align-items:center; gap:.6rem;
+  font-family:var(--mono); font-size:var(--fs-meta); font-weight:500;
+  text-transform:uppercase; letter-spacing:.14em;
+  padding:.9rem 1.4rem; border-radius:var(--radius);
+  border:1px solid var(--hairline-mid);
+  transition:color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease),
+             background var(--t-fast) var(--ease), transform var(--t-fast) var(--ease);
+}
+.btn svg{ flex:none; }
+.btn-solid{ background:var(--accent); border-color:var(--accent); color:var(--accent-ink); }
+.btn-solid:hover{ background:var(--accent-bright); border-color:var(--accent-bright); transform:translateY(-2px); }
+.btn-ghost{ color:var(--ink); }
+.btn-ghost:hover{ border-color:var(--accent); color:var(--accent); transform:translateY(-2px); }
+
+/* ---------- reveal on scroll ---------- */
+@media (prefers-reduced-motion: no-preference){
+  .js [data-reveal],
+  .js [data-stagger] > *{
+    opacity:0; transform:translateY(16px);
+    transition:opacity .5s var(--ease), transform .5s var(--ease);
+    transition-delay:var(--d, 0s);
+  }
+  .js [data-reveal].in,
+  .js [data-stagger].in > *{ opacity:1; transform:none; }
+  .js [data-stagger] > *{ transition-delay:calc(var(--i, 0) * 70ms); }
+}
+
+/* ============================================================
+   HEADER / NAV
+   ============================================================ */
+.site-head{
+  position:sticky; top:0; z-index:60;
+  height:var(--head-h);
+  border-bottom:1px solid transparent;
+  transition:border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+}
+.site-head.scrolled,
+body.menu-open .site-head{
+  background:rgba(19,17,16,.86);
+  -webkit-backdrop-filter:blur(12px);
+  backdrop-filter:blur(12px);
+  border-bottom-color:var(--hairline);
+}
+body.menu-open .site-head{ background:var(--bg); }
+.head-inner{
+  height:var(--head-h);
+  display:flex; align-items:center; gap:var(--s-6);
+}
+.wordmark{
+  font-family:var(--serif); font-size:1.15rem; font-weight:600; color:var(--ink);
+  letter-spacing:-.01em; margin-right:auto; white-space:nowrap;
+  transition:color var(--t-fast) var(--ease);
+}
+.wordmark:hover{ color:var(--accent); }
+
+.nav-list{ display:flex; align-items:center; gap:1.9rem; }
+.nav-list a{
+  position:relative;
+  font-family:var(--mono); font-size:var(--fs-meta); font-weight:500;
+  text-transform:uppercase; letter-spacing:.13em; color:var(--muted);
+  padding:.35rem 0;
+  transition:color var(--t-fast) var(--ease);
+}
+.nav-list a::after{
+  content:""; position:absolute; left:0; right:100%; bottom:0;
+  height:1px; background:var(--accent);
+  transition:right var(--t-fast) var(--ease);
+}
+.nav-list a:hover{ color:var(--ink); }
+.nav-list a:hover::after,
+.nav-list a.active::after{ right:0; }
+.nav-list a.active{ color:var(--accent); }
+
+.head-cta{ padding:.6rem 1.05rem; }
+
+.menu-btn{
+  display:none; align-items:center; gap:.7rem;
+  font-family:var(--mono); font-size:var(--fs-meta); font-weight:500;
+  text-transform:uppercase; letter-spacing:.14em; color:var(--ink);
+  padding:.5rem 0;
+}
+.menu-ico{ position:relative; width:22px; height:12px; display:inline-block; }
+.menu-ico i{
+  position:absolute; left:0; width:22px; height:1.5px; background:currentColor;
+  transition:transform var(--t-fast) var(--ease), top var(--t-fast) var(--ease);
+}
+.menu-ico i:first-child{ top:1px; }
+.menu-ico i:last-child{ top:9px; }
+body.menu-open .menu-ico i:first-child{ top:5px; transform:rotate(45deg); }
+body.menu-open .menu-ico i:last-child{ top:5px; transform:rotate(-45deg); }
+
+/* mobile menu */
+.mobile-menu{
+  position:fixed; inset:0; z-index:40;
+  background:var(--bg);
+  padding:calc(var(--head-h) + 2.5rem) clamp(1.25rem,5vw,4rem) 2.5rem;
+  display:flex; flex-direction:column;
+  visibility:hidden; opacity:0;
+  transition:opacity .3s var(--ease), visibility 0s .3s;
+  overflow-y:auto;
+}
+.mobile-menu.open{ visibility:visible; opacity:1; transition:opacity .3s var(--ease); }
+.mobile-nav li{ border-bottom:1px solid var(--hairline); }
+.mobile-nav a{
+  display:flex; align-items:baseline; gap:1.1rem;
+  font-family:var(--serif); font-size:clamp(1.8rem, 7vw, 2.6rem); font-weight:560; color:var(--ink);
+  padding:1.05rem 0;
+  transition:color var(--t-fast) var(--ease), padding-left var(--t-fast) var(--ease);
+}
+.mobile-nav a .no{ font-family:var(--mono); font-size:var(--fs-meta); color:var(--muted); letter-spacing:.14em; }
+.mobile-nav a:hover, .mobile-nav a.active{ color:var(--accent); padding-left:.5rem; }
+@media (prefers-reduced-motion: no-preference){
+  .mobile-menu li{ opacity:0; transform:translateY(14px); transition:opacity .4s var(--ease), transform .4s var(--ease); }
+  .mobile-menu.open li{ opacity:1; transform:none; }
+  .mobile-menu.open li:nth-child(1){ transition-delay:.05s; } .mobile-menu.open li:nth-child(2){ transition-delay:.1s; }
+  .mobile-menu.open li:nth-child(3){ transition-delay:.15s; } .mobile-menu.open li:nth-child(4){ transition-delay:.2s; }
+  .mobile-menu.open li:nth-child(5){ transition-delay:.25s; } .mobile-menu.open li:nth-child(6){ transition-delay:.3s; }
+  .mobile-menu.open li:nth-child(7){ transition-delay:.35s; }
+}
+.mobile-menu-foot{
+  margin-top:auto; padding-top:2rem;
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem;
+  font-family:var(--mono); font-size:var(--fs-meta); letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+}
+.mobile-menu-foot a{ color:var(--ink); }
+.mobile-menu-foot a:hover{ color:var(--accent); }
+body.menu-open{ overflow:hidden; }
+
+@media (max-width: 980px){
+  .nav-list, .head-cta{ display:none; }
+  .menu-btn{ display:inline-flex; }
+}
+
+/* ============================================================
+   HERO — the front page
+   ============================================================ */
+.hero{ padding-top:clamp(1.5rem, 4vw, 3rem); }
+
+.masthead{
+  border-top:2px solid var(--hairline-hard);
+  border-bottom:1px solid var(--hairline);
+  position:relative;
+  padding:.85rem 0 .8rem;
+}
+.masthead::before{
+  content:""; position:absolute; top:4px; left:0; right:0; height:1px;
+  background:var(--hairline-mid);
+}
+.masthead-meta{
+  display:flex; flex-wrap:wrap; justify-content:space-between; gap:.3rem 2rem;
+  font-family:var(--mono); font-size:var(--fs-meta); font-weight:500;
+  text-transform:uppercase; letter-spacing:.16em; color:var(--muted);
+}
+.masthead-meta .live{ color:var(--ink); }
+.masthead-meta .live::before{
+  content:""; display:inline-block; width:6px; height:6px; border-radius:50%;
+  background:var(--accent); margin-right:.55rem; vertical-align:2px;
+}
+
+.hero-name{
+  font-size:var(--fs-hero);
+  font-weight:600;
+  line-height:.92;
+  letter-spacing:-.035em;
+  margin:clamp(1.75rem, 4vw, 2.75rem) 0 clamp(1.9rem, 4.5vw, 3rem);
+}
+.hero-name .line{ display:block; }
+.hero-name .line-2{ margin-left:clamp(1.5rem, 8.5vw, 7rem); }
+
+.hero-deck{
+  display:flex; flex-wrap:wrap;
+  align-items:flex-end; justify-content:space-between;
+  gap:1.75rem clamp(2rem, 5vw, 4rem);
+  padding-bottom:clamp(2.25rem, 5vw, 3.75rem);
+}
+.deck-copy .kicker{ margin-bottom:1rem; }
+.deck{
+  font-size:clamp(1.1rem, 1.7vw, 1.3rem);
+  line-height:1.65;
+  color:var(--text);
+  max-width:42em;
+}
+.deck strong{ color:var(--ink); font-weight:600; }
+.cta-row{ display:flex; flex-wrap:wrap; gap:.9rem; margin-top:1.9rem; }
+
+.social-row{
+  display:flex; flex-wrap:wrap; gap:.4rem 1.7rem;
+  padding-bottom:.35rem;
+}
+.social-row a{
+  position:relative;
+  display:inline-flex; align-items:baseline; gap:.4rem;
+  font-family:var(--mono); font-size:var(--fs-meta); font-weight:500;
+  text-transform:uppercase; letter-spacing:.14em; color:var(--muted);
+  padding:.3rem 0;
+  transition:color var(--t-fast) var(--ease);
+}
+.social-row a::after{
+  content:""; position:absolute; left:0; right:100%; bottom:0;
+  height:1px; background:var(--accent);
+  transition:right var(--t-fast) var(--ease);
+}
+.social-row a:hover{ color:var(--ink); }
+.social-row a:hover::after{ right:0; }
+.social-row .arr{ color:var(--accent); font-family:var(--mono); }
+.social-row .brk{ display:none; }
+@media (max-width: 480px){
+  .social-row .brk{ display:block; flex-basis:100%; height:0; }
+}
+
+/* stats index */
+.stats{
+  display:grid; grid-template-columns:repeat(6, 1fr);
+  gap:1px; background:var(--hairline);
+  border-block:1px solid var(--hairline);
+}
+.stat{
+  background:var(--bg);
+  display:flex; flex-direction:column-reverse; justify-content:flex-end; gap:.55rem;
+  padding:1.6rem 1.3rem 1.5rem;
+}
+.stat dd{
+  font-family:var(--serif); font-size:clamp(2.1rem, 3.2vw, 2.9rem);
+  font-weight:560; line-height:1; color:var(--ink); letter-spacing:-.02em;
+}
+.stat dd span{ color:var(--accent); }
+.stat dt{
+  font-family:var(--mono); font-size:var(--fs-chip); font-weight:400;
+  text-transform:uppercase; letter-spacing:.1em; color:var(--muted); line-height:1.5;
+  min-height:3em;
+}
+@media (max-width: 1100px){ .stats{ grid-template-columns:repeat(3, 1fr); } }
+@media (max-width: 620px){ .stats{ grid-template-columns:repeat(2, 1fr); } .stat{ padding:1.25rem 1rem; } }
+
+/* ============================================================
+   SECTIONS
+   ============================================================ */
+.section{ padding-top:var(--sec-pad); }
+section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
+
+.sec-head{
+  display:flex; align-items:baseline; gap:clamp(1rem, 3vw, 2rem);
+  margin-bottom:clamp(2.5rem, 6vw, 4rem);
+}
+.sec-no{
+  font-family:var(--serif); font-weight:340;
+  font-size:clamp(3.6rem, 7.5vw, 6.75rem);
+  line-height:.8; letter-spacing:-.02em;
+  color:transparent;
+  -webkit-text-stroke:1px var(--hairline-mid);
+  user-select:none; flex:none;
+}
+.sec-title .kicker{ margin-bottom:.45rem; }
+.sec-title h2{ font-size:var(--fs-h2); letter-spacing:-.02em; }
+.sec-head::after{
+  content:""; flex:1; height:1px; min-width:2rem;
+  background:var(--hairline);
+  align-self:center; margin-top:1.5rem;
+}
+@media (max-width: 640px){ .sec-head::after{ display:none; } }
+
+/* ---------- 01 about ---------- */
+.about-grid{
+  display:grid; grid-template-columns:5fr 7fr;
+  gap:clamp(2.5rem, 6vw, 5rem);
+  align-items:start;
+}
+.pullquote{
+  border-top:2px solid var(--hairline-hard);
+  border-bottom:1px solid var(--hairline);
+  padding:1.75rem 0 2rem;
+}
+.pullquote p{
+  font-family:var(--serif); font-style:italic; font-weight:480;
+  font-size:clamp(1.45rem, 2.6vw, 2rem);
+  line-height:1.35; color:var(--ink); letter-spacing:-.01em;
+  text-wrap:balance;
+}
+.pullquote .mark{ color:var(--accent); font-style:normal; }
+.pullquote cite{
+  display:block; margin-top:1.25rem;
+  font-family:var(--mono); font-style:normal; font-size:var(--fs-chip);
+  text-transform:uppercase; letter-spacing:.15em; color:var(--muted);
+}
+/* case file — figure + fact sheet under the pull quote */
+.casefile{
+  margin-top:clamp(1.75rem, 4vw, 2.5rem);
+}
+.casefile-head{
+  display:grid; grid-template-columns:92px 1fr;
+  gap:1.1rem; align-items:end;
+  padding-bottom:1rem; border-bottom:1px solid var(--hairline);
+}
+.casefile-head img{
+  width:92px; aspect-ratio:1/1; object-fit:cover;
+  border:1px solid var(--hairline-mid);
+  filter:grayscale(1) contrast(1.05) brightness(.97);
+  transition:filter .45s var(--ease);
+}
+.casefile:hover .casefile-head img{ filter:grayscale(0) contrast(1) brightness(1); }
+.casefile-head figcaption{
+  font-family:var(--mono); font-size:var(--fs-chip); letter-spacing:.14em;
+  text-transform:uppercase; color:var(--muted); line-height:1.9;
+}
+.casefile-head figcaption b{ display:block; color:var(--ink); font-weight:500; }
+.factsheet div{
+  display:flex; align-items:baseline; gap:.75rem;
+  padding:.68rem 0;
+  border-bottom:1px solid var(--hairline);
+}
+.factsheet dt{
+  flex:none;
+  font-family:var(--mono); font-size:var(--fs-chip); font-weight:500;
+  text-transform:uppercase; letter-spacing:.14em; color:var(--muted);
+}
+.factsheet div::before{ display:none; }
+.factsheet .leader{
+  flex:1; min-width:1.25rem;
+  border-bottom:1px dotted var(--hairline-mid);
+  transform:translateY(-.28em);
+}
+.factsheet dd{
+  flex:none; max-width:60%;
+  font-size:.82rem; color:var(--ink); text-align:right; line-height:1.55;
+}
+
+.about-body p{ max-width:36em; }
+.about-body p + p{ margin-top:1.4rem; }
+.about-body .lead::first-letter{
+  font-family:var(--serif); font-weight:600;
+  font-size:3.15em; line-height:.78;
+  float:left; padding:.08em .14em 0 0;
+  color:var(--accent);
+}
+.about-body a{
+  color:var(--ink);
+  border-bottom:1px solid var(--hairline-mid);
+  transition:color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
+}
+.about-body a:hover{ color:var(--accent); border-color:var(--accent); }
+@media (max-width: 880px){
+  .about-grid{ grid-template-columns:1fr; }
+  .pullquote{ position:static; }
+}
+
+/* ---------- 02 experience ---------- */
+.xp-list{ border-bottom:1px solid var(--hairline); }
+.xp{
+  display:grid; grid-template-columns:minmax(170px, 230px) 1fr;
+  gap:clamp(1.25rem, 4vw, 3rem);
+  border-top:1px solid var(--hairline);
+  padding:clamp(1.75rem, 4vw, 2.75rem) 0;
+}
+.xp-meta{
+  font-family:var(--mono); font-size:var(--fs-meta); font-weight:500;
+  text-transform:uppercase; letter-spacing:.13em; color:var(--muted); line-height:2;
+}
+.xp-meta .idx{
+  display:block; color:var(--hairline-hard);
+  font-size:var(--fs-chip); margin-bottom:.4rem;
+}
+.xp-meta .dates{ display:block; color:var(--ink); }
+.xp-meta .place{ display:block; }
+.xp-tag{
+  display:inline-block; margin-top:.45rem;
+  font-size:var(--fs-chip); letter-spacing:.14em;
+  color:var(--accent);
+  border:1px solid rgba(229,72,77,.45); border-radius:var(--radius);
+  padding:.22rem .55rem;
+}
+.xp-body h3{ font-size:var(--fs-h3); letter-spacing:-.015em; }
+.xp-body .org{
+  margin-top:.35rem;
+  font-size:var(--fs-small); color:var(--muted);
+}
+.xp-body .org b{ color:var(--text); font-weight:500; }
+.xp-points{ margin-top:1.15rem; max-width:44em; }
+.xp-points li{
+  position:relative; padding-left:1.6rem;
+  font-size:var(--fs-small); line-height:1.7;
+}
+.xp-points li + li{ margin-top:.55rem; }
+.xp-points li::before{
+  content:"—"; position:absolute; left:0; top:0;
+  color:var(--accent); font-family:var(--mono);
+}
+@media (max-width: 720px){
+  .xp{ grid-template-columns:1fr; gap:1rem; }
+  .xp-meta{ display:flex; flex-wrap:wrap; align-items:center; gap:.25rem 1.25rem; line-height:1.6; }
+  .xp-meta .idx{ margin-bottom:0; }
+  .xp-tag{ margin-top:0; }
+}
+
+/* ---------- 03 expertise — ruled ledger ---------- */
+.domains{ border-bottom:1px solid var(--hairline); }
+.domain{
+  display:grid; grid-template-columns:minmax(200px, 21rem) 1fr;
+  gap:.9rem clamp(1.75rem, 4.5vw, 4rem);
+  border-top:1px solid var(--hairline);
+  padding:clamp(1.6rem, 3.5vw, 2.25rem) 0;
+  transition:background var(--t-fast) var(--ease);
+}
+.domain-head .no{
+  display:block; margin-bottom:.55rem;
+  font-family:var(--mono); font-size:var(--fs-meta); font-weight:500;
+  color:var(--accent); letter-spacing:.1em;
+}
+.domain-head h3{ font-size:clamp(1.25rem, 2vw, 1.5rem); letter-spacing:-.015em; max-width:11em; }
+.taglist{
+  padding-top:1.7rem;
+  font-family:var(--mono); font-size:.75rem;
+  line-height:2.1; letter-spacing:.05em; text-transform:uppercase;
+  color:var(--muted); max-width:46em;
+}
+.taglist li{ display:inline; transition:color var(--t-fast) var(--ease); }
+.taglist li:hover{ color:var(--ink); }
+.taglist li + li::before{ content:"·"; color:var(--accent); margin:0 .75em; }
+@media (max-width: 880px){
+  .domain{ grid-template-columns:1fr; gap:.35rem; }
+  .taglist{ padding-top:.4rem; }
+}
+
+/* ---------- 04 achievements ---------- */
+.honors{ border-bottom:1px solid var(--hairline); }
+.honor{
+  display:grid;
+  grid-template-columns:3.5rem minmax(200px, 17rem) 1fr auto;
+  gap:1rem 2rem; align-items:baseline;
+  border-top:1px solid var(--hairline);
+  padding:1.6rem 0;
+  transition:background var(--t-fast) var(--ease);
+}
+.honor .no{
+  font-family:var(--mono); font-size:var(--fs-meta); color:var(--hairline-hard); letter-spacing:.1em;
+}
+.honor h3{ font-size:1.2rem; letter-spacing:-.01em; }
+.honor p{ font-size:var(--fs-small); color:var(--muted); max-width:40em; }
+.honor .meta{
+  display:flex; flex-direction:column; align-items:flex-end; gap:.55rem;
+}
+.honor .when{
+  font-family:var(--mono); font-size:var(--fs-chip); letter-spacing:.13em;
+  text-transform:uppercase; color:var(--accent); white-space:nowrap;
+}
+.honor .pill{
+  font-family:var(--mono); font-style:normal; font-size:.6rem; font-weight:500;
+  letter-spacing:.18em; text-transform:uppercase; color:var(--muted);
+  border:1px solid var(--hairline-mid); border-radius:var(--radius);
+  padding:.24rem .55rem; white-space:nowrap;
+}
+@media (max-width: 880px){
+  .honor{ grid-template-columns:3rem 1fr auto; }
+  .honor p{ grid-column:2 / -1; }
+}
+@media (max-width: 540px){
+  .honor{ grid-template-columns:1fr auto; }
+  .honor .no{ display:none; }
+  .honor p{ grid-column:1 / -1; }
+}
+
+/* ---------- 05 projects ---------- */
+.features{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(1rem, 2.5vw, 1.5rem); }
+.feature{
+  display:flex; flex-direction:column;
+  border:1px solid var(--hairline); border-radius:var(--radius);
+  background:var(--bg-elev);
+  padding:clamp(1.6rem, 3.5vw, 2.5rem);
+  transition:border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease), transform var(--t-fast) var(--ease);
+}
+a.feature:hover{ border-color:var(--accent); background:var(--bg-elev-2); transform:translateY(-4px); }
+.feature .kicker{ color:var(--muted); }
+.feature h3{
+  font-size:clamp(1.6rem, 3vw, 2.1rem);
+  letter-spacing:-.02em; margin:.9rem 0 .85rem;
+}
+.feature p{ font-size:var(--fs-small); color:var(--text); max-width:34em; }
+.feature-link{
+  display:inline-flex; align-items:center; gap:.55rem;
+  margin-top:auto; padding-top:1.75rem;
+  font-family:var(--mono); font-size:var(--fs-meta); font-weight:500;
+  text-transform:uppercase; letter-spacing:.14em; color:var(--ink);
+}
+.feature-link svg{ transition:transform var(--t-fast) var(--ease); }
+a.feature:hover .feature-link{ color:var(--accent); }
+a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
+.feature-link.quiet{ color:var(--muted); }
+@media (max-width: 800px){ .features{ grid-template-columns:1fr; } }
+
+/* ---------- 06 credentials ---------- */
+.creds{
+  display:grid; grid-template-columns:repeat(2, 1fr);
+  gap:1px; background:var(--hairline);
+  border:1px solid var(--hairline); border-radius:var(--radius);
+  overflow:hidden;
+}
+.cred{
+  background:var(--bg-elev);
+  padding:1.6rem 1.75rem;
+  transition:background var(--t-fast) var(--ease);
+}
+.cred:hover{ background:var(--bg-elev-2); }
+.cred h3{ font-size:1.35rem; letter-spacing:-.01em; }
+.cred .full{ display:block; margin-top:.4rem; font-size:var(--fs-small); color:var(--text); }
+.cred .issuer{
+  display:block; margin-top:.65rem;
+  font-family:var(--mono); font-size:var(--fs-chip);
+  text-transform:uppercase; letter-spacing:.13em; color:var(--muted);
+}
+.edu{
+  display:flex; flex-wrap:wrap; align-items:baseline; gap:.4rem 2rem;
+  border-bottom:1px solid var(--hairline);
+  margin-top:clamp(1.75rem, 4vw, 2.5rem); padding-bottom:1.4rem;
+}
+.edu .kicker{ color:var(--muted); }
+.edu h3{ font-size:1.15rem; }
+.edu p{ font-size:var(--fs-small); color:var(--muted); }
+@media (max-width: 640px){ .creds{ grid-template-columns:1fr; } }
+
+/* ---------- 07 contact ---------- */
+.contact-wrap{ padding-bottom:clamp(4rem, 9vw, 7rem); }
+.contact-line{
+  font-family:var(--serif); font-weight:560; color:var(--ink);
+  font-size:clamp(2.2rem, 5.5vw, 4.25rem);
+  line-height:1.08; letter-spacing:-.025em;
+  max-width:16em; text-wrap:balance;
+}
+.contact-line em{ font-style:italic; color:var(--accent); font-weight:480; }
+.contact-mail{
+  display:inline-flex; align-items:center; gap:1rem;
+  margin-top:clamp(1.75rem, 4vw, 2.75rem);
+  font-family:var(--serif); font-weight:480;
+  font-size:clamp(1.4rem, 3.4vw, 2.4rem); letter-spacing:-.01em;
+  color:var(--ink); overflow-wrap:anywhere;
+  border-bottom:1px solid var(--hairline-mid);
+  padding-bottom:.3rem;
+  transition:color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
+}
+.contact-mail svg{ flex:none; transition:transform var(--t-fast) var(--ease); }
+.contact-mail:hover{ color:var(--accent); border-color:var(--accent); }
+.contact-mail:hover svg{ transform:translate(4px, -4px); }
+.contact-wrap .cta-row{ margin-top:2.5rem; }
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.site-foot{
+  border-top:1px solid var(--hairline);
+  position:relative;
+}
+.site-foot::after{
+  content:""; position:absolute; top:4px; left:0; right:0; height:2px;
+  background:var(--hairline-mid); opacity:.5;
+}
+.foot-grid{
+  display:grid; grid-template-columns:1.5fr 1fr 1fr;
+  gap:clamp(2rem, 5vw, 4rem);
+  padding:clamp(2.75rem, 6vw, 4.5rem) 0 clamp(2.25rem, 5vw, 3.5rem);
+}
+.foot-brand .wordmark{ margin-right:0; }
+.foot-brand p{
+  margin-top:.9rem; font-size:var(--fs-small); color:var(--muted); max-width:24em;
+}
+.foot-col h2{
+  font-family:var(--mono); font-size:var(--fs-chip); font-weight:500;
+  text-transform:uppercase; letter-spacing:.18em; color:var(--muted);
+  margin-bottom:1.1rem;
+}
+.foot-col ul li + li{ margin-top:.55rem; }
+.foot-col a{
+  display:inline-flex; align-items:center; gap:.5rem;
+  font-size:var(--fs-small); color:var(--text);
+  transition:color var(--t-fast) var(--ease);
+}
+.foot-col a:hover{ color:var(--accent); }
+.foot-col a svg{ opacity:.55; }
+.foot-base{
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.75rem 2rem;
+  border-top:1px solid var(--hairline);
+  padding:1.4rem 0 1.6rem;
+  font-family:var(--mono); font-size:var(--fs-chip);
+  text-transform:uppercase; letter-spacing:.13em; color:var(--muted);
+}
+.foot-base a{ color:var(--muted); transition:color var(--t-fast) var(--ease); }
+.foot-base a:hover{ color:var(--accent); }
+@media (max-width: 760px){ .foot-grid{ grid-template-columns:1fr; gap:2.25rem; } }
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-head" id="top">
+  <div class="container head-inner">
+    <a class="wordmark" href="#top" aria-label="Usama Arshad — back to top">Usama Arshad<span class="dot">.</span></a>
+    <nav aria-label="Primary">
+      <ul class="nav-list">
+        <li><a href="#about" data-navlink>About</a></li>
+        <li><a href="#experience" data-navlink>Experience</a></li>
+        <li><a href="#expertise" data-navlink>Expertise</a></li>
+        <li><a href="#achievements" data-navlink>Recognition</a></li>
+        <li><a href="#projects" data-navlink>Projects</a></li>
+        <li><a href="#contact" data-navlink>Contact</a></li>
+      </ul>
+    </nav>
+    <a class="btn btn-ghost head-cta" href="assets/Usama-Arshad-Resume.pdf" download>Résumé</a>
+    <button class="menu-btn" id="menuToggle" aria-expanded="false" aria-controls="mobileMenu">
+      <span class="menu-text">Menu</span>
+      <span class="menu-ico" aria-hidden="true"><i></i><i></i></span>
+    </button>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobileMenu">
+  <nav aria-label="Mobile">
+    <ul class="mobile-nav">
+      <li><a href="#about" data-navlink><span class="no">01</span>About</a></li>
+      <li><a href="#experience" data-navlink><span class="no">02</span>Experience</a></li>
+      <li><a href="#expertise" data-navlink><span class="no">03</span>Expertise</a></li>
+      <li><a href="#achievements" data-navlink><span class="no">04</span>Recognition</a></li>
+      <li><a href="#projects" data-navlink><span class="no">05</span>Projects</a></li>
+      <li><a href="#credentials" data-navlink><span class="no">06</span>Credentials</a></li>
+      <li><a href="#contact" data-navlink><span class="no">07</span>Contact</a></li>
+    </ul>
+  </nav>
+  <div class="mobile-menu-foot">
+    <a href="mailto:gusama21@gmail.com">gusama21@gmail.com</a>
+    <a href="assets/Usama-Arshad-Resume.pdf" download>Résumé ↓</a>
+  </div>
+</div>
+
+<main id="main">
+
+  <!-- ================= HERO ================= -->
+  <section class="hero" id="intro" aria-label="Introduction">
+    <div class="container">
+
+      <div class="masthead" data-reveal>
+        <p class="masthead-meta">
+          <span>Riyadh · Saudi Arabia</span>
+          <span>Offensive Security Lead</span>
+          <span class="live">Currently @ Tabby</span>
+        </p>
+      </div>
+
+      <h1 class="hero-name" data-reveal style="--d:.08s">
+        <span class="line">Usama</span>
+        <span class="line line-2">Arshad<span class="dot">.</span></span>
+      </h1>
+
+      <div class="hero-deck">
+        <div class="deck-copy" data-reveal style="--d:.16s">
+          <p class="kicker">Red Team · Fintech &amp; Cloud</p>
+          <p class="deck">OSCP-certified, <strong>nine-plus years</strong> deep in red team, AppSec, and cloud security — web, mobile, API, GCP, AWS, Kubernetes. Currently leading the offensive security function at <strong>Tabby</strong>, MENA's largest BNPL fintech, protecting 14M+ users. Published <strong>CVE-2024-3681</strong>.</p>
+          <div class="cta-row">
+            <a class="btn btn-solid" href="assets/Usama-Arshad-Resume.pdf" download>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>
+              Download résumé
+            </a>
+            <a class="btn btn-ghost" href="#contact">Get in touch</a>
+          </div>
+        </div>
+        <ul class="social-row" data-reveal style="--d:.24s" aria-label="Profiles elsewhere">
+          <li><a href="https://github.com/usama0x01" target="_blank" rel="noopener">GitHub<span class="arr" aria-hidden="true">↗</span></a></li>
+          <li><a href="https://www.linkedin.com/in/usama0x01" target="_blank" rel="noopener">LinkedIn<span class="arr" aria-hidden="true">↗</span></a></li>
+          <li><a href="https://x.com/usama0x01" target="_blank" rel="noopener">X<span class="arr" aria-hidden="true">↗</span></a></li>
+          <li class="brk" role="presentation" aria-hidden="true"></li>
+          <li><a href="https://medium.com/@usama0x01" target="_blank" rel="noopener">Medium<span class="arr" aria-hidden="true">↗</span></a></li>
+          <li><a href="mailto:gusama21@gmail.com">Email<span class="arr" aria-hidden="true">↗</span></a></li>
+        </ul>
+      </div>
+
+      <dl class="stats" data-reveal style="--d:.3s">
+        <div class="stat"><dt>Years in offensive security</dt><dd>09<span>+</span></dd></div>
+        <div class="stat"><dt>Engagements — F500 &amp; SAMA</dt><dd>80<span>+</span></dd></div>
+        <div class="stat"><dt>Users protected at Tabby</dt><dd>14M<span>+</span></dd></div>
+        <div class="stat"><dt>Published CVE · 2024-3681</dt><dd>01</dd></div>
+        <div class="stat"><dt>National CTF titles — Pakistan</dt><dd>03<span>×</span></dd></div>
+        <div class="stat"><dt>Halls of fame — disclosure</dt><dd>04</dd></div>
+      </dl>
+
+    </div>
+  </section>
+
+  <!-- ================= 01 ABOUT ================= -->
+  <section class="section" id="about" aria-labelledby="about-title">
+    <div class="container">
+      <header class="sec-head" data-reveal>
+        <span class="sec-no" aria-hidden="true">01</span>
+        <div class="sec-title">
+          <p class="kicker">Profile</p>
+          <h2 id="about-title">The brief<span class="dot">.</span></h2>
+        </div>
+      </header>
+      <div class="about-grid">
+        <aside class="about-rail" data-reveal>
+          <div class="pullquote">
+            <p><span class="mark">“</span>The best finding is the attack chain that never reaches production.<span class="mark">”</span></p>
+            <cite>— Working principle</cite>
+          </div>
+          <div class="casefile">
+            <figure class="casefile-head">
+              <img src="avatar.jpg" alt="Portrait of Usama Arshad" width="460" height="460" loading="lazy">
+              <figcaption>Fig. 01 — Subject<b>U. Arshad · Riyadh, KSA</b></figcaption>
+            </figure>
+            <dl class="factsheet">
+              <div><dt>Role</dt><span class="leader" aria-hidden="true"></span><dd>Offensive Security Lead</dd></div>
+              <div><dt>Current</dt><span class="leader" aria-hidden="true"></span><dd>Tabby · 14M+ users</dd></div>
+              <div><dt>Certified</dt><span class="leader" aria-hidden="true"></span><dd>OSCP</dd></div>
+              <div><dt>Engagements</dt><span class="leader" aria-hidden="true"></span><dd>80+ · F500 &amp; SAMA</dd></div>
+              <div><dt>Research</dt><span class="leader" aria-hidden="true"></span><dd>CVE-2024-3681</dd></div>
+              <div><dt>Listed by</dt><span class="leader" aria-hidden="true"></span><dd>UN · Walmart · Achmea · The&nbsp;Sun</dd></div>
+            </dl>
+          </div>
+        </aside>
+        <div class="about-body" data-reveal style="--d:.1s">
+          <p class="lead">Offensive security is a reporting discipline as much as a technical one — the exploit only matters if the business understands it. For nine-plus years I've built and run red team, AppSec, and cloud security programs across web, mobile, API, GCP, AWS, and Kubernetes, turning complex exploitation chains into decisions executives can act on.</p>
+          <p>Today I lead the offensive security function at Tabby, MENA's largest BNPL fintech. There I've architected autonomous VAPT pipelines, embedded AppSec gates into GitLab CI/CD, and hardened GKE workloads at the scale of 14M+ users. Before that: 80+ engagements delivered for Fortune 500 companies and SAMA-regulated financial institutions.</p>
+          <p>The research habit never switched off. I published <a href="https://nvd.nist.gov/vuln/detail/CVE-2024-3681" target="_blank" rel="noopener">CVE-2024-3681</a>, took Pakistan's national CTF podium three years running, reached the BlackHat MEA CTF finals twice — and hold hall-of-fame credits from the United Nations, Walmart, Achmea, and The Sun for responsible disclosure.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 02 EXPERIENCE ================= -->
+  <section class="section" id="experience" aria-labelledby="experience-title">
+    <div class="container">
+      <header class="sec-head" data-reveal>
+        <span class="sec-no" aria-hidden="true">02</span>
+        <div class="sec-title">
+          <p class="kicker">Career</p>
+          <h2 id="experience-title">Track record<span class="dot">.</span></h2>
+        </div>
+      </header>
+
+      <div class="xp-list">
+
+        <article class="xp" data-reveal>
+          <div class="xp-meta">
+            <span class="idx">01</span>
+            <span class="dates">Jun 2025 — Present</span>
+            <span class="place">Riyadh, Saudi Arabia</span>
+            <span class="xp-tag">Current</span>
+          </div>
+          <div class="xp-body">
+            <h3>Offensive Security Lead</h3>
+            <p class="org"><b>Tabby</b> · MENA's largest BNPL fintech</p>
+            <ul class="xp-points">
+              <li>Lead the offensive security function for 14M+ users: red team, AppSec, and cloud security across web, mobile, API, GCP, and GKE.</li>
+              <li>Architected autonomous VAPT dashboards with Jira and tracker automation — cut assessment cycle time by 60% and eliminated manual reporting.</li>
+              <li>Run continuous red team and adversary simulations, surfacing real-world attack chains before release.</li>
+              <li>Embedded SAST, DAST, secret scanning, and container scanning into GitLab CI/CD, gating insecure releases at merge time.</li>
+              <li>Hardened GKE workloads via Workload Identity, network policies, admission controllers, and runtime detection.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="xp" data-reveal>
+          <div class="xp-meta">
+            <span class="idx">02</span>
+            <span class="dates">Aug 2024 — May 2025</span>
+            <span class="place">Riyadh, Saudi Arabia</span>
+          </div>
+          <div class="xp-body">
+            <h3>ISM Consultant &amp; Team Lead</h3>
+            <p class="org"><b>SecurEyes</b></p>
+            <ul class="xp-points">
+              <li>Led large-scale SAMA fintech security assessments for major Saudi financial institutions: end-to-end VAPT, source code review, red team.</li>
+              <li>Full-scope red team operations: external/internal infrastructure, web, mobile, API, Active Directory, WiFi, physical, cloud, DLP/EDR evasion.</li>
+              <li>Mentored consultants, reviewed deliverables, and presented findings to executives and regulators.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="xp" data-reveal>
+          <div class="xp-meta">
+            <span class="idx">03</span>
+            <span class="dates">Dec 2021 — Jul 2024</span>
+            <span class="place">Lahore, Pakistan</span>
+          </div>
+          <div class="xp-body">
+            <h3>Senior Security Engineer</h3>
+            <p class="org"><b>Ebryx</b></p>
+            <ul class="xp-points">
+              <li>Delivered 80+ offensive engagements for Fortune 500 clients: pentesting, source code review, red teaming.</li>
+              <li>Led a sub-team of consultants; owned scoping, execution, peer review, and report quality.</li>
+              <li>Translated complex exploitation chains into business-impact narratives for executives.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="xp" data-reveal>
+          <div class="xp-meta">
+            <span class="idx">04</span>
+            <span class="dates">Mar 2021 — Present</span>
+            <span class="place">Remote</span>
+            <span class="xp-tag">Part-time</span>
+          </div>
+          <div class="xp-body">
+            <h3>Red Team Member</h3>
+            <p class="org"><b>Synack Red Team</b></p>
+            <ul class="xp-points">
+              <li>Continuous vulnerability discovery and exploitation on private enterprise targets.</li>
+              <li>High-impact findings: IDOR, BOLA, authentication bypass, business-logic flaws.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="xp" data-reveal>
+          <div class="xp-meta">
+            <span class="idx">05</span>
+            <span class="dates">Mar 2018 — May 2021</span>
+            <span class="place">Lahore, Pakistan</span>
+          </div>
+          <div class="xp-body">
+            <h3>Penetration Tester</h3>
+            <p class="org"><b>Security Wall</b></p>
+            <ul class="xp-points">
+              <li>Validated vulnerabilities across 50+ engagements spanning web, mobile, and network.</li>
+              <li>Built reusable internal tooling and methodologies that raised team throughput.</li>
+            </ul>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 03 EXPERTISE ================= -->
+  <section class="section" id="expertise" aria-labelledby="expertise-title">
+    <div class="container">
+      <header class="sec-head" data-reveal>
+        <span class="sec-no" aria-hidden="true">03</span>
+        <div class="sec-title">
+          <p class="kicker">Capabilities</p>
+          <h2 id="expertise-title">Capability index<span class="dot">.</span></h2>
+        </div>
+      </header>
+
+      <div class="domains" data-stagger>
+
+        <article class="domain">
+          <header class="domain-head"><span class="no">.01</span><h3>Red Team &amp; Adversary Simulation</h3></header>
+          <ul class="taglist">
+            <li>MITRE ATT&amp;CK</li><li>Purple Team</li><li>Physical Intrusion</li><li>OSINT</li>
+            <li>Cobalt Strike</li><li>Sliver</li><li>Mythic</li><li>Initial Access</li>
+            <li>Lateral Movement</li><li>Persistence</li><li>Defense Evasion</li>
+          </ul>
+        </article>
+
+        <article class="domain">
+          <header class="domain-head"><span class="no">.02</span><h3>Offensive Testing</h3></header>
+          <ul class="taglist">
+            <li>Web — OWASP Top 10</li><li>Mobile — OWASP MASVS</li><li>iOS / Android</li>
+            <li>REST</li><li>GraphQL</li><li>gRPC</li><li>Network &amp; Infrastructure</li>
+            <li>Active Directory</li><li>WiFi</li><li>Thick Client</li><li>Source Code Review</li>
+          </ul>
+        </article>
+
+        <article class="domain">
+          <header class="domain-head"><span class="no">.03</span><h3>Cloud &amp; Container Security</h3></header>
+          <ul class="taglist">
+            <li>GCP</li><li>AWS</li><li>GKE / Kubernetes</li><li>Container Escape</li>
+            <li>IAM Privilege Escalation</li><li>Metadata Abuse</li><li>Workload Identity</li>
+            <li>Terraform IaC Scanning</li><li>CIS Benchmarks</li>
+          </ul>
+        </article>
+
+        <article class="domain">
+          <header class="domain-head"><span class="no">.04</span><h3>AppSec &amp; DevSecOps</h3></header>
+          <ul class="taglist">
+            <li>GitLab CI/CD Security Gates</li><li>SAST</li><li>DAST</li><li>SCA</li>
+            <li>Secret Scanning</li><li>Threat Modeling — STRIDE</li><li>Secure SDLC</li>
+            <li>Code Review — Python / Go / Node / Java</li>
+          </ul>
+        </article>
+
+        <article class="domain">
+          <header class="domain-head"><span class="no">.05</span><h3>Tooling &amp; Automation</h3></header>
+          <ul class="taglist">
+            <li>Burp Suite Pro</li><li>Frida</li><li>Ghidra</li><li>IDA</li><li>Nmap</li>
+            <li>Nuclei</li><li>Nessus</li><li>Metasploit</li><li>BloodHound</li><li>Sliver</li>
+            <li>FFUF</li><li>Sqlmap</li><li>Wireshark</li><li>Custom Python &amp; Go tooling</li>
+          </ul>
+        </article>
+
+        <article class="domain">
+          <header class="domain-head"><span class="no">.06</span><h3>Compliance &amp; Frameworks</h3></header>
+          <ul class="taglist">
+            <li>SAMA CSF</li><li>PCI DSS</li><li>ISO 27001</li><li>OWASP ASVS</li><li>NIST CSF</li>
+          </ul>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 04 ACHIEVEMENTS ================= -->
+  <section class="section" id="achievements" aria-labelledby="achievements-title">
+    <div class="container">
+      <header class="sec-head" data-reveal>
+        <span class="sec-no" aria-hidden="true">04</span>
+        <div class="sec-title">
+          <p class="kicker">Recognition</p>
+          <h2 id="achievements-title">On the record<span class="dot">.</span></h2>
+        </div>
+      </header>
+
+      <div class="honors">
+
+        <article class="honor" data-reveal>
+          <span class="no" aria-hidden="true">01</span>
+          <h3>CVE-2024-3681</h3>
+          <p>Original 0-day research and responsible disclosure, published to the CVE registry.</p>
+          <div class="meta"><span class="when">2024</span><i class="pill">0-Day</i></div>
+        </article>
+
+        <article class="honor" data-reveal>
+          <span class="no" aria-hidden="true">02</span>
+          <h3>BlackHat MEA CTF Finalist</h3>
+          <p>Top 32 (2023) and Top 29 (2024) of 250+ teams globally, representing Pakistan.</p>
+          <div class="meta"><span class="when">2023 · 2024</span><i class="pill">CTF</i></div>
+        </article>
+
+        <article class="honor" data-reveal>
+          <span class="no" aria-hidden="true">03</span>
+          <h3>National CTF Hat-Trick</h3>
+          <p>Podium finishes at Pakistan's national cyber hackathon three consecutive years — awarded by the President, the Prime Minister, and the IT Minister.</p>
+          <div class="meta"><span class="when">2021 — 2023</span><i class="pill">CTF</i></div>
+        </article>
+
+        <article class="honor" data-reveal>
+          <span class="no" aria-hidden="true">04</span>
+          <h3>Four Halls of Fame</h3>
+          <p>Responsible-disclosure recognition from the United Nations, Walmart, Achmea, and The Sun.</p>
+          <div class="meta"><span class="when">×4</span><i class="pill">HoF</i></div>
+        </article>
+
+        <article class="honor" data-reveal>
+          <span class="no" aria-hidden="true">05</span>
+          <h3>Speaker</h3>
+          <p>Recurring talks at universities and security conferences on offensive security and AI-driven attack automation.</p>
+          <div class="meta"><span class="when">Ongoing</span><i class="pill">Talks</i></div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 05 PROJECTS ================= -->
+  <section class="section" id="projects" aria-labelledby="projects-title">
+    <div class="container">
+      <header class="sec-head" data-reveal>
+        <span class="sec-no" aria-hidden="true">05</span>
+        <div class="sec-title">
+          <p class="kicker">Projects</p>
+          <h2 id="projects-title">Selected work<span class="dot">.</span></h2>
+        </div>
+      </header>
+
+      <div class="features" data-stagger>
+
+        <a class="feature" href="https://github.com/usama0x01/SecurityWire" target="_blank" rel="noopener">
+          <p class="kicker">Feature 01 — Open Source</p>
+          <h3>SecurityWire</h3>
+          <p>A security platform combining a mobile vulnerability scanner with a web bug-bounty marketplace: companies onboard targets, researchers submit findings, and validated reports trigger payouts.</p>
+          <span class="feature-link">
+            View on GitHub
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+          </span>
+        </a>
+
+        <article class="feature">
+          <p class="kicker">Feature 02 — Internal</p>
+          <h3>AI-Driven Offensive Automation</h3>
+          <p>Internal tooling and dashboards automating end-to-end VAPT: Jira integration, triage orchestration, and autonomous assessment pipelines for offensive security teams.</p>
+          <span class="feature-link quiet">Internal tooling · not public</span>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 06 CREDENTIALS ================= -->
+  <section class="section" id="credentials" aria-labelledby="credentials-title">
+    <div class="container">
+      <header class="sec-head" data-reveal>
+        <span class="sec-no" aria-hidden="true">06</span>
+        <div class="sec-title">
+          <p class="kicker">Certifications &amp; Education</p>
+          <h2 id="credentials-title">Credentials<span class="dot">.</span></h2>
+        </div>
+      </header>
+
+      <div class="creds" data-stagger>
+        <article class="cred">
+          <h3>OSCP</h3>
+          <span class="full">Offensive Security Certified Professional</span>
+          <span class="issuer">Offensive Security</span>
+        </article>
+        <article class="cred">
+          <h3>HTB Offshore</h3>
+          <span class="full">Pro Lab — Active Directory &amp; banking infrastructure</span>
+          <span class="issuer">Hack The Box</span>
+        </article>
+        <article class="cred">
+          <h3>PEH</h3>
+          <span class="full">Practical Ethical Hacker</span>
+          <span class="issuer">TCM Security</span>
+        </article>
+        <article class="cred">
+          <h3>CNSS</h3>
+          <span class="full">Certified Network Security Specialist</span>
+          <span class="issuer">ICSI</span>
+        </article>
+      </div>
+
+      <div class="edu" data-reveal>
+        <p class="kicker">Education</p>
+        <h3>BSc Computer Science</h3>
+        <p>COMSATS University, Lahore · 2018 — 2021</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 07 CONTACT ================= -->
+  <section class="section" id="contact" aria-labelledby="contact-title">
+    <div class="container contact-wrap">
+      <header class="sec-head" data-reveal>
+        <span class="sec-no" aria-hidden="true">07</span>
+        <div class="sec-title">
+          <p class="kicker">Correspondence</p>
+          <h2 id="contact-title">Make contact<span class="dot">.</span></h2>
+        </div>
+      </header>
+
+      <div data-reveal>
+        <p class="contact-line">If it can be broken, better that <em>I find it first.</em></p>
+        <a class="contact-mail" href="mailto:gusama21@gmail.com">
+          gusama21@gmail.com
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+        </a>
+        <div class="cta-row">
+          <a class="btn btn-solid" href="mailto:gusama21@gmail.com">Start a conversation</a>
+          <a class="btn btn-ghost" href="assets/Usama-Arshad-Resume.pdf" download>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>
+            Résumé
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="site-foot">
+  <div class="container">
+    <div class="foot-grid">
+
+      <div class="foot-brand">
+        <a class="wordmark" href="#top">Usama Arshad<span class="dot">.</span></a>
+        <p>Offensive Security Lead — red team, AppSec, and cloud security for fintech at scale. Based in Riyadh, Saudi Arabia.</p>
+      </div>
+
+      <nav class="foot-col" aria-label="Footer">
+        <h2>Index</h2>
+        <ul>
+          <li><a href="#about">01 — About</a></li>
+          <li><a href="#experience">02 — Experience</a></li>
+          <li><a href="#expertise">03 — Expertise</a></li>
+          <li><a href="#achievements">04 — Recognition</a></li>
+          <li><a href="#projects">05 — Projects</a></li>
+          <li><a href="#credentials">06 — Credentials</a></li>
+          <li><a href="#contact">07 — Contact</a></li>
+        </ul>
+      </nav>
+
+      <div class="foot-col">
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://github.com/usama0x01" target="_blank" rel="noopener">GitHub
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></a></li>
+          <li><a href="https://www.linkedin.com/in/usama0x01" target="_blank" rel="noopener">LinkedIn
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></a></li>
+          <li><a href="https://x.com/usama0x01" target="_blank" rel="noopener">X / Twitter
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></a></li>
+          <li><a href="https://medium.com/@usama0x01" target="_blank" rel="noopener">Medium
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></a></li>
+          <li><a href="https://bugcrowd.com/Xam_3xPloiTeR" target="_blank" rel="noopener">Bugcrowd
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></a></li>
+          <li><a href="https://platform.synack.com/profile/usama-arshad" target="_blank" rel="noopener">Synack SRT
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></a></li>
+          <li><a href="mailto:gusama21@gmail.com">gusama21@gmail.com</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="foot-base">
+      <span>© 2026 Usama Arshad · Riyadh, Saudi Arabia</span>
+      <span class="colophon">Set in Fraunces, Inter &amp; JetBrains Mono — self-hosted · No trackers, no cookies</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- header scrolled state ---------- */
+  var head = document.querySelector(".site-head");
+  function onScroll() { head.classList.toggle("scrolled", window.scrollY > 8); }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+
+  /* ---------- mobile menu ---------- */
+  var toggle = document.getElementById("menuToggle");
+  var menu = document.getElementById("mobileMenu");
+  var menuText = toggle.querySelector(".menu-text");
+  var menuOpen = false;
+
+  function setMenu(open) {
+    menuOpen = open;
+    toggle.setAttribute("aria-expanded", String(open));
+    menuText.textContent = open ? "Close" : "Menu";
+    document.body.classList.toggle("menu-open", open);
+    menu.classList.toggle("open", open);
+  }
+  toggle.addEventListener("click", function () { setMenu(!menuOpen); });
+  menu.querySelectorAll("a").forEach(function (a) {
+    a.addEventListener("click", function () { setMenu(false); });
+  });
+  window.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && menuOpen) { setMenu(false); toggle.focus(); }
+  });
+  var wideMq = window.matchMedia("(min-width: 981px)");
+  var onWide = function (e) { if (e.matches && menuOpen) setMenu(false); };
+  if (wideMq.addEventListener) wideMq.addEventListener("change", onWide);
+
+  /* ---------- active-section highlighting ---------- */
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll("[data-navlink]"));
+  function setActive(id) {
+    navLinks.forEach(function (a) {
+      var on = a.getAttribute("href") === "#" + id;
+      a.classList.toggle("active", on);
+      if (on) { a.setAttribute("aria-current", "true"); } else { a.removeAttribute("aria-current"); }
+    });
+  }
+  if ("IntersectionObserver" in window) {
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) setActive(entry.target.id);
+      });
+    }, { rootMargin: "-30% 0px -60% 0px", threshold: 0 });
+    document.querySelectorAll("main section[id]").forEach(function (s) { spy.observe(s); });
+  }
+
+  /* ---------- reveal on scroll (staggered) ---------- */
+  var revealEls = Array.prototype.slice.call(document.querySelectorAll("[data-reveal], [data-stagger]"));
+  document.querySelectorAll("[data-stagger]").forEach(function (group) {
+    Array.prototype.forEach.call(group.children, function (child, i) {
+      child.style.setProperty("--i", i);
+    });
+  });
+  if (reduceMotion || !("IntersectionObserver" in window)) {
+    revealEls.forEach(function (el) { el.classList.add("in"); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("in");
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -6% 0px" });
+    revealEls.forEach(function (el) { io.observe(el); });
+  }
+})();
+</script>
+
+</body>
+</html>
