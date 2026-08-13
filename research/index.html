@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Security Research — Usama Arshad</title>
+<meta name="description" content="Coordinated vulnerability disclosure by Usama Arshad — 59+ WordPress plugin vulnerabilities reported to WPScan, 8 verified and accepted (Top-15 on the researcher leaderboard), 121+ queued, and CVE-2024-3681 published.">
+<link rel="canonical" href="https://www.usamaarshad.me/research">
+<link rel="icon" href="/assets/favicon.ico">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#131110">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Usama Arshad">
+<meta property="og:title" content="Security Research &amp; Disclosures — Usama Arshad">
+<meta property="og:description" content="A coordinated-disclosure practice: 59+ WordPress plugin vulnerabilities reported to WPScan, 8 verified &amp; accepted, 121+ queued, CVE-2024-3681 published.">
+<meta property="og:url" content="https://www.usamaarshad.me/research">
+<meta property="og:image" content="https://www.usamaarshad.me/avatar.jpg">
+<meta property="og:image:alt" content="Portrait of Usama Arshad">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@usama0x01">
+<meta name="twitter:title" content="Security Research &amp; Disclosures — Usama Arshad">
+<meta name="twitter:description" content="Coordinated vulnerability disclosure. 59+ reported to WPScan, 8 verified (Top-15), 121+ queued, CVE-2024-3681 published.">
+<meta name="twitter:image" content="https://www.usamaarshad.me/avatar.jpg">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfilePage",
+  "url": "https://www.usamaarshad.me/research",
+  "name": "Security Research & Disclosures",
+  "about": {
+    "@type": "Person",
+    "name": "Usama Arshad",
+    "jobTitle": "Offensive Security Lead",
+    "url": "https://www.usamaarshad.me",
+    "email": "mailto:gusama21@gmail.com",
+    "image": "https://www.usamaarshad.me/avatar.jpg",
+    "sameAs": [
+      "https://github.com/usama0x01",
+      "https://www.linkedin.com/in/usama0x01",
+      "https://x.com/usama0x01",
+      "https://medium.com/@usama0x01",
+      "https://bugcrowd.com/Xam_3xPloiTeR",
+      "https://platform.synack.com/profile/usama-arshad",
+      "https://www.wordfence.com/threat-intel/vulnerabilities/researchers/usama-arshad"
+    ],
+    "knowsAbout": ["Vulnerability Research", "Coordinated Disclosure", "Application Security", "WordPress Security"]
+  }
+}
+</script>
+
+<link rel="preload" href="/assets/fonts/fraunces-normal-340-640.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/inter-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/jetbrainsmono-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+
+<script>document.documentElement.classList.add("js");</script>
+
+<style>
+/* ============================================================
+   EDITORIAL NOIR — design system (shared with the portfolio)
+   ============================================================ */
+/* self-hosted fonts (latin subsets) — root-absolute paths for /research/ */
+@font-face{font-family:'Fraunces';font-style:normal;font-weight:340 640;font-display:swap;src:url(/assets/fonts/fraunces-normal-340-640.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face{font-family:'Fraunces';font-style:italic;font-weight:340 640;font-display:swap;src:url(/assets/fonts/fraunces-italic-340-640.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face{font-family:'Inter';font-style:normal;font-weight:400;font-display:swap;src:url(/assets/fonts/inter-normal-400.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face{font-family:'Inter';font-style:normal;font-weight:500;font-display:swap;src:url(/assets/fonts/inter-normal-500.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face{font-family:'Inter';font-style:normal;font-weight:600;font-display:swap;src:url(/assets/fonts/inter-normal-600.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:400;font-display:swap;src:url(/assets/fonts/jetbrainsmono-normal-400.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:500;font-display:swap;src:url(/assets/fonts/jetbrainsmono-normal-500.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+:root{
+  /* palette */
+  --bg:            #131110;
+  --bg-elev:       #1a1714;
+  --bg-elev-2:     #211d19;
+  --ink:           #ede6da;   /* headlines */
+  --text:          #cfc7ba;   /* body */
+  --muted:         #9a9184;   /* meta */
+  --hairline:      rgba(237,230,218,.14);
+  --hairline-mid:  rgba(237,230,218,.28);
+  --hairline-hard: rgba(237,230,218,.55);
+  --accent:        #e5484d;
+  --accent-bright: #ee5c61;
+  --accent-ink:    #1a1112;   /* text on accent */
+  --accent-wash:   rgba(229,72,77,.09);
+
+  /* type */
+  --serif: "Fraunces", Georgia, "Times New Roman", serif;
+  --sans:  "Inter", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --mono:  "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --fs-hero:  clamp(2.8rem, 9vw, 7rem);
+  --fs-h2:    clamp(2.1rem, 4.2vw, 3.2rem);
+  --fs-h3:    clamp(1.25rem, 2vw, 1.55rem);
+  --fs-body:  1.0625rem;
+  --fs-small: .9rem;
+  --fs-meta:  .72rem;
+  --fs-chip:  .68rem;
+
+  /* spacing (8px base) */
+  --s-1: .25rem; --s-2: .5rem; --s-3: .75rem; --s-4: 1rem;
+  --s-5: 1.5rem; --s-6: 2rem;  --s-7: 3rem;   --s-8: 4rem;
+  --sec-pad: clamp(5rem, 10vw, 8.5rem);
+
+  /* misc */
+  --radius: 2px;
+  --ease: cubic-bezier(.33,.72,.3,1);
+  --t-fast: 220ms;
+  --container: 76rem;
+  --head-h: 4.25rem;
+}
+
+/* ---------- reset ---------- */
+*,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+html{ overflow-x:clip; scroll-padding-top:calc(var(--head-h) + 1.5rem); }
+@media (prefers-reduced-motion: no-preference){ html{ scroll-behavior:smooth; } }
+body{
+  overflow-x:clip;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  font-size:var(--fs-body);
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+img{ max-width:100%; height:auto; display:block; }
+ul,ol{ list-style:none; }
+a{ color:inherit; text-decoration:none; }
+button{ font:inherit; color:inherit; background:none; border:0; cursor:pointer; }
+h1,h2,h3{ font-family:var(--serif); font-weight:560; color:var(--ink); line-height:1.15; text-wrap:balance; font-optical-sizing:auto; }
+::selection{ background:var(--accent); color:var(--accent-ink); }
+:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; border-radius:var(--radius); }
+
+/* film grain */
+body::after{
+  content:"";
+  position:fixed; inset:0;
+  z-index:999;
+  pointer-events:none;
+  opacity:.06;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- primitives ---------- */
+.container{ max-width:var(--container); margin-inline:auto; padding-inline:clamp(1.25rem, 5vw, 4rem); }
+.kicker{
+  font-family:var(--mono); font-size:var(--fs-meta); font-weight:500;
+  text-transform:uppercase; letter-spacing:.18em; color:var(--accent);
+}
+.dot{ color:var(--accent); }
+
+.skip{
+  position:absolute; left:1rem; top:-4rem; z-index:200;
+  background:var(--accent); color:var(--accent-ink);
+  font-family:var(--mono); font-size:var(--fs-meta); text-transform:uppercase; letter-spacing:.12em;
+  padding:.7rem 1.1rem; border-radius:var(--radius);
+  transition:top var(--t-fast) var(--ease);
+}
+.skip:focus-visible{ top:1rem; }
+
+.btn{
+  display:inline-flex; align-items:center; gap:.6rem;
+  font-family:var(--mono); font-size:var(--fs-meta); font-weight:500;
+  text-transform:uppercase; letter-spacing:.14em;
+  padding:.9rem 1.4rem; border-radius:var(--radius);
+  border:1px solid var(--hairline-mid);
+  transition:color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease),
+             background var(--t-fast) var(--ease), transform var(--t-fast) var(--ease);
+}
+.btn svg{ flex:none; }
+.btn-solid{ background:var(--accent); border-color:var(--accent); color:var(--accent-ink); }
+.btn-solid:hover{ background:var(--accent-bright); border-color:var(--accent-bright); transform:translateY(-2px); }
+.btn-ghost{ color:var(--ink); }
+.btn-ghost:hover{ border-color:var(--accent); color:var(--accent); transform:translateY(-2px); }
+
+/* ---------- reveal on scroll ---------- */
+@media (prefers-reduced-motion: no-preference){
+  .js [data-reveal],
+  .js [data-stagger] > *{
+    opacity:0; transform:translateY(16px);
+    transition:opacity .5s var(--ease), transform .5s var(--ease);
+    transition-delay:var(--d, 0s);
+  }
+  .js [data-reveal].in,
+  .js [data-stagger].in > *{ opacity:1; transform:none; }
+  .js [data-stagger] > *{ transition-delay:calc(var(--i, 0) * 70ms); }
+}
+
+/* ============================================================
+   HEADER / NAV
+   ============================================================ */
+.site-head{
+  position:sticky; top:0; z-index:60;
+  height:var(--head-h);
+  border-bottom:1px solid transparent;
+  transition:border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+}
+.site-head.scrolled{
+  background:rgba(19,17,16,.86);
+  -webkit-backdrop-filter:blur(12px);
+  backdrop-filter:blur(12px);
+  border-bottom-color:var(--hairline);
+}
+.head-inner{
+  height:var(--head-h);
+  display:flex; align-items:center; gap:clamp(1rem, 3vw, 2rem);
+}
+.wordmark{
+  font-family:var(--serif); font-size:1.15rem; font-weight:600; color:var(--ink);
+  letter-spacing:-.01em; margin-right:auto; white-space:nowrap;
+  transition:color var(--t-fast) var(--ease);
+}
+.wordmark:hover{ color:var(--accent); }
+
+.nav-list{ display:flex; align-items:center; gap:1.9rem; }
+.nav-list a{
+  position:relative;
+  font-family:var(--mono); font-size:var(--fs-meta); font-weight:500;
+  text-transform:uppercase; letter-spacing:.13em; color:var(--muted);
+  padding:.35rem 0;
+  transition:color var(--t-fast) var(--ease);
+}
+.nav-list a::after{
+  content:""; position:absolute; left:0; right:100%; bottom:0;
+  height:1px; background:var(--accent);
+  transition:right var(--t-fast) var(--ease);
+}
+.nav-list a:hover{ color:var(--ink); }
+.nav-list a:hover::after,
+.nav-list a.active::after{ right:0; }
+.nav-list a.active{ color:var(--accent); }
+
+.back-link{
+  display:inline-flex; align-items:center; gap:.5rem;
+  font-family:var(--mono); font-size:var(--fs-meta); font-weight:500;
+  text-transform:uppercase; letter-spacing:.13em; color:var(--ink);
+  white-space:nowrap;
+  transition:color var(--t-fast) var(--ease);
+}
+.back-link .arr{ color:var(--accent); }
+.back-link:hover{ color:var(--accent); }
+
+.head-cta{ padding:.6rem 1.05rem; }
+
+@media (max-width: 980px){
+  .nav-list{ display:none; }
+}
+@media (max-width: 540px){
+  .head-cta{ display:none; }
+  .wordmark{ font-size:1.05rem; }
+}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{ padding-top:clamp(1.5rem, 4vw, 3rem); }
+
+.masthead{
+  border-top:2px solid var(--hairline-hard);
+  border-bottom:1px solid var(--hairline);
+  position:relative;
+  padding:.85rem 0 .8rem;
+}
+.masthead::before{
+  content:""; position:absolute; top:4px; left:0; right:0; height:1px;
+  background:var(--hairline-mid);
+}
+.masthead-meta{
+  display:flex; flex-wrap:wrap; justify-content:space-between; gap:.3rem 2rem;
+  font-family:var(--mono); font-size:var(--fs-meta); font-weight:500;
+  text-transform:uppercase; letter-spacing:.16em; color:var(--muted);
+}
+.masthead-meta .live{ color:var(--ink); }
+.masthead-meta .live::before{
+  content:""; display:inline-block; width:6px; height:6px; border-radius:50%;
+  background:var(--accent); margin-right:.55rem; vertical-align:2px;
+}
+
+.r-title{
+  font-size:var(--fs-hero);
+  font-weight:600;
+  line-height:.94;
+  letter-spacing:-.035em;
+  margin:clamp(1.75rem, 4vw, 2.75rem) 0 clamp(1.75rem, 4vw, 2.5rem);
+}
+.r-title .line{ display:block; }
+.r-title .line-2{ margin-left:clamp(1rem, 6vw, 5rem); }
+
+.hero-deck{
+  display:flex; flex-wrap:wrap;
+  align-items:flex-end; justify-content:space-between;
+  gap:1.75rem clamp(2rem, 5vw, 4rem);
+  padding-bottom:clamp(2.25rem, 5vw, 3.5rem);
+}
+.deck-copy .kicker{ margin-bottom:1rem; }
+.deck{
+  font-size:clamp(1.1rem, 1.7vw, 1.3rem);
+  line-height:1.65;
+  color:var(--text);
+  max-width:44em;
+}
+.deck strong{ color:var(--ink); font-weight:600; }
+.cta-row{ display:flex; flex-wrap:wrap; gap:.9rem; margin-top:1.9rem; }
+
+/* ---------- funnel stats band ---------- */
+.band{
+  display:grid; grid-template-columns:repeat(4, 1fr);
+  gap:1px; background:var(--hairline);
+  border-block:1px solid var(--hairline);
+}
+.stat{
+  background:var(--bg);
+  display:flex; flex-direction:column-reverse; justify-content:flex-end; gap:.55rem;
+  padding:1.6rem 1.3rem 1.5rem;
+}
+.stat dd{
+  font-family:var(--serif); font-size:clamp(2.1rem, 3.2vw, 2.9rem);
+  font-weight:560; line-height:1; color:var(--ink); letter-spacing:-.02em;
+}
+.stat dd span{ color:var(--accent); }
+.stat dt{
+  font-family:var(--mono); font-size:var(--fs-chip); font-weight:400;
+  text-transform:uppercase; letter-spacing:.1em; color:var(--muted); line-height:1.5;
+  min-height:3em;
+}
+@media (max-width: 720px){ .band{ grid-template-columns:repeat(2, 1fr); } }
+@media (max-width: 620px){ .stat{ padding:1.25rem 1rem; } }
+
+.leaderboard{
+  display:flex; align-items:center; gap:1.1rem;
+  padding:1.15rem 0 0;
+}
+.leaderboard a{
+  position:relative;
+  display:inline-flex; align-items:baseline; gap:.5rem;
+  font-family:var(--mono); font-size:var(--fs-meta); font-weight:500;
+  text-transform:uppercase; letter-spacing:.13em; color:var(--muted);
+  padding:.3rem 0;
+  transition:color var(--t-fast) var(--ease);
+}
+.leaderboard a b{ color:var(--ink); font-weight:500; }
+.leaderboard a::after{
+  content:""; position:absolute; left:0; right:100%; bottom:0;
+  height:1px; background:var(--accent);
+  transition:right var(--t-fast) var(--ease);
+}
+.leaderboard a:hover{ color:var(--ink); }
+.leaderboard a:hover::after{ right:0; }
+.leaderboard .arr{ color:var(--accent); }
+
+/* ============================================================
+   SECTIONS
+   ============================================================ */
+.section{ padding-top:var(--sec-pad); }
+section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
+
+.sec-head{
+  display:flex; align-items:baseline; gap:clamp(1rem, 3vw, 2rem);
+  margin-bottom:clamp(2.5rem, 6vw, 4rem);
+}
+.sec-no{
+  font-family:var(--serif); font-weight:340;
+  font-size:clamp(3.6rem, 7.5vw, 6.75rem);
+  line-height:.8; letter-spacing:-.02em;
+  color:transparent;
+  -webkit-text-stroke:1px var(--hairline-mid);
+  user-select:none; flex:none;
+}
+.sec-title .kicker{ margin-bottom:.45rem; }
+.sec-title h2{ font-size:var(--fs-h2); letter-spacing:-.02em; }
+.sec-head::after{
+  content:""; flex:1; height:1px; min-width:2rem;
+  background:var(--hairline);
+  align-self:center; margin-top:1.5rem;
+}
+@media (max-width: 640px){ .sec-head::after{ display:none; } }
+
+/* ---------- 01 published CVE ---------- */
+.cve-card{
+  border:1px solid var(--hairline); border-radius:var(--radius);
+  background:var(--bg-elev);
+  padding:clamp(1.75rem, 4vw, 2.75rem);
+}
+.cve-top{
+  display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between;
+  gap:.9rem 1.5rem;
+  padding-bottom:clamp(1.4rem, 3vw, 1.85rem);
+  border-bottom:1px solid var(--hairline);
+}
+.cve-id{
+  font-family:var(--serif); font-weight:560; color:var(--ink);
+  font-size:clamp(1.9rem, 4.5vw, 2.9rem); letter-spacing:-.02em; line-height:1;
+}
+.cve-id a{
+  display:inline-flex; align-items:baseline; gap:.45rem;
+  background-image:linear-gradient(var(--accent),var(--accent));
+  background-size:0% 1px; background-position:0 100%; background-repeat:no-repeat;
+  transition:background-size var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+.cve-id a .arr{ font-family:var(--mono); font-size:.5em; color:var(--accent); }
+.cve-id a:hover{ color:var(--accent); background-size:100% 1px; }
+.cve-status{
+  display:flex; flex-wrap:wrap; gap:.4rem;
+}
+.pill{
+  font-family:var(--mono); font-style:normal; font-size:.6rem; font-weight:500;
+  letter-spacing:.18em; text-transform:uppercase; color:var(--muted);
+  border:1px solid var(--hairline-mid); border-radius:var(--radius);
+  padding:.28rem .6rem; white-space:nowrap;
+}
+.pill.on{ color:var(--accent); border-color:rgba(229,72,77,.45); }
+.cve-desc{
+  max-width:52em; margin:clamp(1.4rem, 3vw, 1.85rem) 0 clamp(1.6rem, 3.5vw, 2rem);
+  font-size:var(--fs-small); color:var(--text); line-height:1.75;
+}
+.cve-desc b{ color:var(--ink); font-weight:500; }
+.cve-facts{
+  display:grid; grid-template-columns:repeat(2, minmax(0,1fr));
+  gap:0 clamp(2rem, 5vw, 4rem);
+  border-top:1px solid var(--hairline);
+}
+.cve-facts div{
+  display:flex; align-items:baseline; gap:.75rem;
+  padding:.72rem 0;
+  border-bottom:1px solid var(--hairline);
+}
+.cve-facts dt{
+  flex:none; min-width:6.5rem;
+  font-family:var(--mono); font-size:var(--fs-chip); font-weight:500;
+  text-transform:uppercase; letter-spacing:.14em; color:var(--muted);
+}
+.cve-facts .leader{
+  flex:1; min-width:1rem;
+  border-bottom:1px dotted var(--hairline-mid);
+  transform:translateY(-.28em);
+}
+.cve-facts dd{
+  flex:none; max-width:62%;
+  font-size:.86rem; color:var(--ink); text-align:right; line-height:1.55;
+  overflow-wrap:anywhere;
+}
+.cve-facts dd.mono{ font-family:var(--mono); font-size:.74rem; letter-spacing:.01em; color:var(--text); }
+.cve-links{
+  display:flex; flex-wrap:wrap; gap:.9rem;
+  margin-top:clamp(1.6rem, 3.5vw, 2rem);
+}
+.ref{
+  display:inline-flex; align-items:center; gap:.5rem;
+  font-family:var(--mono); font-size:var(--fs-meta); font-weight:500;
+  text-transform:uppercase; letter-spacing:.13em; color:var(--ink);
+  border:1px solid var(--hairline-mid); border-radius:var(--radius);
+  padding:.62rem 1rem;
+  transition:color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease), transform var(--t-fast) var(--ease);
+}
+.ref svg{ opacity:.7; transition:transform var(--t-fast) var(--ease); }
+.ref:hover{ color:var(--accent); border-color:var(--accent); transform:translateY(-2px); }
+.ref:hover svg{ transform:translate(2px,-2px); }
+@media (max-width: 560px){
+  .cve-facts{ grid-template-columns:1fr; }
+}
+
+/* ---------- 02 top findings (ruled ledger) ---------- */
+.findings{ border-bottom:1px solid var(--hairline); }
+.finding{
+  display:grid;
+  grid-template-columns:3.25rem 1fr auto;
+  gap:.6rem clamp(1.5rem, 3.5vw, 2.75rem);
+  align-items:baseline;
+  border-top:1px solid var(--hairline);
+  padding:clamp(1.5rem, 3.5vw, 2.1rem) 0;
+  transition:background var(--t-fast) var(--ease);
+}
+.finding .no{
+  font-family:var(--mono); font-size:var(--fs-meta); color:var(--hairline-hard);
+  letter-spacing:.1em; line-height:1.6;
+}
+.finding .body h3{
+  font-size:clamp(1.1rem, 1.9vw, 1.32rem); letter-spacing:-.01em; line-height:1.3;
+}
+.finding .cat{
+  display:block; margin-top:.5rem;
+  font-family:var(--mono); font-size:var(--fs-chip); letter-spacing:.1em;
+  text-transform:uppercase; color:var(--muted);
+}
+.finding .meta{
+  display:flex; flex-direction:column; align-items:flex-end; gap:.55rem;
+  text-align:right; white-space:nowrap;
+}
+.finding .tags{ display:flex; flex-wrap:wrap; justify-content:flex-end; gap:.4rem; }
+.finding .cvss{ color:var(--accent); border-color:rgba(229,72,77,.45); }
+.finding .status{
+  font-family:var(--mono); font-size:var(--fs-chip); letter-spacing:.12em;
+  text-transform:uppercase; color:var(--muted);
+}
+.finding .status b{ color:var(--text); font-weight:500; }
+@media (max-width: 720px){
+  .finding{ grid-template-columns:2.5rem 1fr; }
+  .finding .meta{
+    grid-column:2 / -1; flex-direction:row; flex-wrap:wrap; align-items:center;
+    justify-content:flex-start; text-align:left; gap:.55rem 1rem; margin-top:.35rem;
+  }
+  .finding .tags{ justify-content:flex-start; }
+}
+@media (max-width: 460px){
+  .finding{ grid-template-columns:1fr; }
+  .finding .no{ display:none; }
+  .finding .meta{ grid-column:1 / -1; }
+}
+
+/* ---------- 03 breakdown (chips) ---------- */
+.breakdown-grid{
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:1px; background:var(--hairline);
+  border:1px solid var(--hairline); border-radius:var(--radius);
+  overflow:hidden;
+}
+.bd-panel{
+  background:var(--bg-elev);
+  padding:clamp(1.6rem, 3.5vw, 2.25rem);
+}
+.bd-panel h3{
+  font-family:var(--mono); font-size:var(--fs-chip); font-weight:500;
+  text-transform:uppercase; letter-spacing:.16em; color:var(--muted);
+  margin-bottom:1.25rem;
+}
+.chips{ display:flex; flex-wrap:wrap; gap:.55rem; }
+.chip{
+  font-family:var(--mono); font-size:.7rem; font-weight:500;
+  letter-spacing:.06em; color:var(--text);
+  border:1px solid var(--hairline-mid); border-radius:var(--radius);
+  padding:.42rem .75rem; line-height:1.3;
+}
+.chip .q{ color:var(--accent); margin-left:.4rem; }
+.chip.lead{ color:var(--accent-ink); background:var(--accent); border-color:var(--accent); }
+.bd-note{
+  margin-top:1.4rem;
+  font-size:var(--fs-small); color:var(--muted); line-height:1.7; max-width:40em;
+}
+.bd-note b{ color:var(--text); font-weight:500; }
+@media (max-width: 720px){
+  .breakdown-grid{ grid-template-columns:1fr; }
+}
+
+/* ---------- 04 disclosure statement ---------- */
+.statement{
+  border:1px solid var(--hairline); border-radius:var(--radius);
+  background:var(--bg-elev);
+  padding:clamp(1.75rem, 4vw, 2.75rem);
+}
+.statement .kicker .live{ color:var(--ink); }
+.statement .kicker .live::before{
+  content:""; display:inline-block; width:6px; height:6px; border-radius:50%;
+  background:var(--accent); margin-right:.5rem; vertical-align:1px;
+}
+.statement-body{
+  margin-top:clamp(1.4rem, 3vw, 1.85rem);
+  max-width:60em;
+}
+.statement-body p{ font-size:var(--fs-small); color:var(--text); line-height:1.8; }
+.statement-body p + p{ margin-top:1.15rem; }
+.statement-body b{ color:var(--ink); font-weight:500; }
+.statement-body a{
+  color:var(--text); border-bottom:1px solid var(--hairline-mid);
+  transition:color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
+}
+.statement-body a:hover{ color:var(--accent); border-color:var(--accent); }
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.site-foot{
+  border-top:1px solid var(--hairline);
+  position:relative;
+  margin-top:var(--sec-pad);
+}
+.site-foot::after{
+  content:""; position:absolute; top:4px; left:0; right:0; height:2px;
+  background:var(--hairline-mid); opacity:.5;
+}
+.foot-grid{
+  display:grid; grid-template-columns:1.5fr 1fr 1fr;
+  gap:clamp(2rem, 5vw, 4rem);
+  padding:clamp(2.75rem, 6vw, 4.5rem) 0 clamp(2.25rem, 5vw, 3.5rem);
+}
+.foot-brand .wordmark{ margin-right:0; }
+.foot-brand p{
+  margin-top:.9rem; font-size:var(--fs-small); color:var(--muted); max-width:24em;
+}
+.foot-col h2{
+  font-family:var(--mono); font-size:var(--fs-chip); font-weight:500;
+  text-transform:uppercase; letter-spacing:.18em; color:var(--muted);
+  margin-bottom:1.1rem;
+}
+.foot-col ul li + li{ margin-top:.55rem; }
+.foot-col a{
+  display:inline-flex; align-items:center; gap:.5rem;
+  font-size:var(--fs-small); color:var(--text);
+  transition:color var(--t-fast) var(--ease);
+}
+.foot-col a:hover{ color:var(--accent); }
+.foot-col a svg{ opacity:.55; }
+.foot-base{
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.75rem 2rem;
+  border-top:1px solid var(--hairline);
+  padding:1.4rem 0 1.6rem;
+  font-family:var(--mono); font-size:var(--fs-chip);
+  text-transform:uppercase; letter-spacing:.13em; color:var(--muted);
+}
+.foot-base a{ color:var(--muted); transition:color var(--t-fast) var(--ease); }
+.foot-base a:hover{ color:var(--accent); }
+@media (max-width: 760px){ .foot-grid{ grid-template-columns:1fr; gap:2.25rem; } }
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-head" id="top">
+  <div class="container head-inner">
+    <a class="wordmark" href="/" aria-label="Usama Arshad — portfolio home">Usama Arshad<span class="dot">.</span></a>
+    <nav aria-label="On this page">
+      <ul class="nav-list">
+        <li><a href="#cve" data-navlink>CVE</a></li>
+        <li><a href="#findings" data-navlink>Findings</a></li>
+        <li><a href="#breakdown" data-navlink>Breakdown</a></li>
+        <li><a href="#practice" data-navlink>Practice</a></li>
+      </ul>
+    </nav>
+    <a class="back-link" href="/"><span class="arr" aria-hidden="true">←</span> Portfolio</a>
+    <a class="btn btn-ghost head-cta" href="/assets/Usama-Arshad-Resume.pdf" download>Résumé</a>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ================= HERO ================= -->
+  <section class="hero" aria-label="Introduction">
+    <div class="container">
+
+      <div class="masthead" data-reveal>
+        <p class="masthead-meta">
+          <span>Riyadh · Saudi Arabia</span>
+          <span>Vulnerability Research</span>
+          <span class="live">Coordinated disclosure</span>
+        </p>
+      </div>
+
+      <h1 class="r-title" data-reveal style="--d:.08s">
+        <span class="line">Security research</span>
+        <span class="line line-2">&amp; disclosures<span class="dot">.</span></span>
+      </h1>
+
+      <div class="hero-deck">
+        <div class="deck-copy" data-reveal style="--d:.16s">
+          <p class="kicker">Vulnerability Research</p>
+          <p class="deck">A running log of <strong>coordinated vulnerability disclosure</strong> in the WordPress plugin ecosystem. Findings are reproduced in a local lab, deduplicated against public catalogues, and reported through <strong>WPScan</strong> and <strong>Wordfence</strong> under responsible disclosure — one CVE published, more in triage, specifics held back until fixes land.</p>
+          <div class="cta-row">
+            <a class="btn btn-solid" href="https://www.wordfence.com/threat-intel/vulnerabilities/researchers/usama-arshad" target="_blank" rel="noopener">
+              Wordfence profile
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+            </a>
+            <a class="btn btn-ghost" href="/">← Back to portfolio</a>
+          </div>
+        </div>
+      </div>
+
+      <dl class="band" data-reveal style="--d:.24s">
+        <div class="stat"><dt>Reported to WPScan</dt><dd>59<span>+</span></dd></div>
+        <div class="stat"><dt>Verified &amp; accepted</dt><dd>08</dd></div>
+        <div class="stat"><dt>Queued for review</dt><dd>121<span>+</span></dd></div>
+        <div class="stat"><dt>CVE published</dt><dd>01</dd></div>
+      </dl>
+
+      <p class="leaderboard" data-reveal style="--d:.3s">
+        <a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">Peaked at 13th on the WPScan researcher leaderboard <b>(Top-15)</b> <span class="arr" aria-hidden="true">→</span></a>
+      </p>
+
+    </div>
+  </section>
+
+  <!-- ================= 01 PUBLISHED CVE ================= -->
+  <section class="section" id="cve" aria-labelledby="cve-title">
+    <div class="container">
+      <header class="sec-head" data-reveal>
+        <span class="sec-no" aria-hidden="true">01</span>
+        <div class="sec-title">
+          <p class="kicker">Published</p>
+          <h2 id="cve-title">Assigned CVE<span class="dot">.</span></h2>
+        </div>
+      </header>
+
+      <article class="cve-card" data-reveal>
+        <div class="cve-top">
+          <h3 class="cve-id">
+            <a href="https://nvd.nist.gov/vuln/detail/CVE-2024-3681" target="_blank" rel="noopener">CVE-2024-3681<span class="arr" aria-hidden="true">↗</span></a>
+          </h3>
+          <div class="cve-status">
+            <span class="pill on">Published</span>
+            <span class="pill">CNA · Wordfence</span>
+            <span class="pill">CVSS 6.1 · Medium</span>
+          </div>
+        </div>
+
+        <p class="cve-desc">Reflected Cross-Site Scripting (<b>CWE-79</b>) in the WordPress <b>Interactive World Maps</b> plugin (&le; 2.4.14) — original discovery and responsible disclosure. Catalogued across NVD, MITRE, and Wordfence.</p>
+
+        <dl class="cve-facts">
+          <div><dt>Class</dt><span class="leader" aria-hidden="true"></span><dd>Reflected XSS · CWE-79</dd></div>
+          <div><dt>Product</dt><span class="leader" aria-hidden="true"></span><dd>Interactive World Maps (&le; 2.4.14)</dd></div>
+          <div><dt>Severity</dt><span class="leader" aria-hidden="true"></span><dd>CVSS 6.1 — Medium</dd></div>
+          <div><dt>Year</dt><span class="leader" aria-hidden="true"></span><dd>2024</dd></div>
+          <div><dt>Vector</dt><span class="leader" aria-hidden="true"></span><dd class="mono">CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N</dd></div>
+          <div><dt>Origin</dt><span class="leader" aria-hidden="true"></span><dd>Original discovery · coordinated disclosure</dd></div>
+        </dl>
+
+        <div class="cve-links">
+          <a class="ref" href="https://nvd.nist.gov/vuln/detail/CVE-2024-3681" target="_blank" rel="noopener">NVD
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></a>
+          <a class="ref" href="https://www.cve.org/CVERecord?id=CVE-2024-3681" target="_blank" rel="noopener">MITRE
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></a>
+          <a class="ref" href="https://www.wordfence.com/threat-intel/vulnerabilities/researchers/usama-arshad" target="_blank" rel="noopener">Wordfence
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= 02 TOP FINDINGS ================= -->
+  <section class="section" id="findings" aria-labelledby="findings-title">
+    <div class="container">
+      <header class="sec-head" data-reveal>
+        <span class="sec-no" aria-hidden="true">02</span>
+        <div class="sec-title">
+          <p class="kicker">In triage</p>
+          <h2 id="findings-title">Top findings<span class="dot">.</span></h2>
+        </div>
+      </header>
+
+      <div class="findings" data-stagger>
+
+        <article class="finding">
+          <span class="no" aria-hidden="true">01</span>
+          <div class="body">
+            <h3>Unauthenticated IDOR → customer booking &amp; PII disclosure</h3>
+            <span class="cat">Category — WP travel-booking plugin</span>
+          </div>
+          <div class="meta">
+            <div class="tags"><span class="pill">Unauthenticated</span><span class="pill cvss">CVSS 8.1</span></div>
+            <span class="status">Reported · <b>CVE pending</b></span>
+          </div>
+        </article>
+
+        <article class="finding">
+          <span class="no" aria-hidden="true">02</span>
+          <div class="body">
+            <h3>Unauthenticated sensitive-data disclosure — member records (incl. minors), address &amp; GPS</h3>
+            <span class="cat">Category — WP membership / management plugin</span>
+          </div>
+          <div class="meta">
+            <div class="tags"><span class="pill">Unauthenticated</span><span class="pill cvss">CVSS 7.5</span></div>
+            <span class="status">Reported · <b>CVE pending</b></span>
+          </div>
+        </article>
+
+        <article class="finding">
+          <span class="no" aria-hidden="true">03</span>
+          <div class="body">
+            <h3>Unauthenticated IDOR → any user's private support-ticket contents</h3>
+            <span class="cat">Category — WP helpdesk plugin</span>
+          </div>
+          <div class="meta">
+            <div class="tags"><span class="pill">Unauthenticated</span><span class="pill cvss">CVSS 7.5</span></div>
+            <span class="status">Reported · <b>CVE pending</b></span>
+          </div>
+        </article>
+
+        <article class="finding">
+          <span class="no" aria-hidden="true">04</span>
+          <div class="body">
+            <h3>Unauthenticated price / order-total manipulation</h3>
+            <span class="cat">Category — WP e-commerce ordering plugin</span>
+          </div>
+          <div class="meta">
+            <div class="tags"><span class="pill">Unauthenticated</span><span class="pill cvss">CVSS 7.5</span></div>
+            <span class="status">Reported · <b>CVE pending</b></span>
+          </div>
+        </article>
+
+        <article class="finding">
+          <span class="no" aria-hidden="true">05</span>
+          <div class="body">
+            <h3>Cross-tenant vendor IDOR → another vendor's paid downloadable files</h3>
+            <span class="cat">Category — WP multi-vendor marketplace plugin</span>
+          </div>
+          <div class="meta">
+            <div class="tags"><span class="pill">Vendor · low-priv</span><span class="pill cvss">CVSS 7.1</span></div>
+            <span class="status">Reported · <b>CVE pending</b></span>
+          </div>
+        </article>
+
+        <article class="finding">
+          <span class="no" aria-hidden="true">06</span>
+          <div class="body">
+            <h3>Subscriber-level IDOR → overwrite / hijack any customer profile</h3>
+            <span class="cat">Category — WP hotel-booking plugin</span>
+          </div>
+          <div class="meta">
+            <div class="tags"><span class="pill">Subscriber</span><span class="pill cvss">CVSS 7.1</span></div>
+            <span class="status">Reported · <b>CVE pending</b></span>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 03 BREAKDOWN ================= -->
+  <section class="section" id="breakdown" aria-labelledby="breakdown-title">
+    <div class="container">
+      <header class="sec-head" data-reveal>
+        <span class="sec-no" aria-hidden="true">03</span>
+        <div class="sec-title">
+          <p class="kicker">Aggregate</p>
+          <h2 id="breakdown-title">Class &amp; access mix<span class="dot">.</span></h2>
+        </div>
+      </header>
+
+      <div class="breakdown-grid" data-reveal>
+        <div class="bd-panel">
+          <h3>Vulnerability classes observed</h3>
+          <ul class="chips">
+            <li class="chip">Sensitive Data Disclosure</li>
+            <li class="chip">Broken Access Control / Missing Authorization</li>
+            <li class="chip">IDOR</li>
+            <li class="chip">CSRF</li>
+            <li class="chip">SQL Injection</li>
+            <li class="chip">Cross-Site Scripting</li>
+            <li class="chip">Authentication Bypass</li>
+            <li class="chip">RCE<span class="q">×1</span></li>
+          </ul>
+          <p class="bd-note">A safe, aggregate view of the research corpus — no per-plugin attribution. Broken access control and IDOR dominate the mix.</p>
+        </div>
+        <div class="bd-panel">
+          <h3>Access levels required</h3>
+          <ul class="chips">
+            <li class="chip lead">Unauthenticated — predominant</li>
+            <li class="chip">Subscriber</li>
+            <li class="chip">Contributor</li>
+          </ul>
+          <p class="bd-note">Most findings need <b>no authentication</b> at all; the remainder trigger from a low-privilege account (Subscriber or Contributor).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 04 RESPONSIBLE DISCLOSURE ================= -->
+  <section class="section" id="practice" aria-labelledby="practice-title">
+    <div class="container">
+      <header class="sec-head" data-reveal>
+        <span class="sec-no" aria-hidden="true">04</span>
+        <div class="sec-title">
+          <p class="kicker">Ethics</p>
+          <h2 id="practice-title">Responsible disclosure<span class="dot">.</span></h2>
+        </div>
+      </header>
+
+      <section class="statement" data-reveal aria-label="Responsible disclosure statement">
+        <p class="kicker"><span class="live">Coordinated disclosure policy</span></p>
+        <div class="statement-body">
+          <p>Every finding follows <b>coordinated disclosure</b>. Each candidate is reproduced in an isolated local WordPress lab, deduplicated against the public NVD / Patchstack catalogues to avoid re-reporting known issues, and submitted through <b>WPScan</b> for triage.</p>
+          <p>Affected plugin names, versions, endpoints, and any proof-of-concept detail are <b>deliberately withheld</b> until vendors ship a fix and identifiers are assigned — publishing them earlier would hand out a live exploitation roadmap. Beyond the single published CVE, no identifiers have been issued from this campaign yet, so those findings are listed here only by vulnerability class, severity, and access level.</p>
+          <p>Confirmed disclosures are tracked on the <a href="https://www.wordfence.com/threat-intel/vulnerabilities/researchers/usama-arshad" target="_blank" rel="noopener">Wordfence researcher profile</a>, and verified submissions are visible on the <a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">WPScan leaderboard</a> as they publish.</p>
+        </div>
+      </section>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="site-foot">
+  <div class="container">
+    <div class="foot-grid">
+
+      <div class="foot-brand">
+        <a class="wordmark" href="/">Usama Arshad<span class="dot">.</span></a>
+        <p>Offensive Security Lead — red team, AppSec, and cloud security for fintech at scale. Vulnerability research under coordinated disclosure. Based in Riyadh, Saudi Arabia.</p>
+      </div>
+
+      <nav class="foot-col" aria-label="Portfolio index">
+        <h2>Index</h2>
+        <ul>
+          <li><a href="/#about">01 — About</a></li>
+          <li><a href="/#experience">02 — Experience</a></li>
+          <li><a href="/#expertise">03 — Expertise</a></li>
+          <li><a href="/#achievements">04 — Recognition</a></li>
+          <li><a href="/#projects">05 — Projects</a></li>
+          <li><a href="/#credentials">06 — Credentials</a></li>
+          <li><a href="/#contact">07 — Contact</a></li>
+        </ul>
+      </nav>
+
+      <div class="foot-col">
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://www.wordfence.com/threat-intel/vulnerabilities/researchers/usama-arshad" target="_blank" rel="noopener">Wordfence profile
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></a></li>
+          <li><a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">WPScan leaderboard
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></a></li>
+          <li><a href="https://bugcrowd.com/Xam_3xPloiTeR" target="_blank" rel="noopener">Bugcrowd
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></a></li>
+          <li><a href="https://platform.synack.com/profile/usama-arshad" target="_blank" rel="noopener">Synack SRT
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></a></li>
+          <li><a href="https://github.com/usama0x01" target="_blank" rel="noopener">GitHub
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></a></li>
+          <li><a href="mailto:gusama21@gmail.com">gusama21@gmail.com</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="foot-base">
+      <span>© 2026 Usama Arshad · Riyadh, Saudi Arabia</span>
+      <span class="colophon">Set in Fraunces, Inter &amp; JetBrains Mono — self-hosted · No trackers, no cookies</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- header scrolled state ---------- */
+  var head = document.querySelector(".site-head");
+  function onScroll() { head.classList.toggle("scrolled", window.scrollY > 8); }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+
+  /* ---------- active-section highlighting ---------- */
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll("[data-navlink]"));
+  function setActive(id) {
+    navLinks.forEach(function (a) {
+      var on = a.getAttribute("href") === "#" + id;
+      a.classList.toggle("active", on);
+      if (on) { a.setAttribute("aria-current", "true"); } else { a.removeAttribute("aria-current"); }
+    });
+  }
+  if ("IntersectionObserver" in window) {
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) setActive(entry.target.id);
+      });
+    }, { rootMargin: "-30% 0px -60% 0px", threshold: 0 });
+    document.querySelectorAll("main section[id]").forEach(function (s) { spy.observe(s); });
+  }
+
+  /* ---------- reveal on scroll (staggered) ---------- */
+  var revealEls = Array.prototype.slice.call(document.querySelectorAll("[data-reveal], [data-stagger]"));
+  document.querySelectorAll("[data-stagger]").forEach(function (group) {
+    Array.prototype.forEach.call(group.children, function (child, i) {
+      child.style.setProperty("--i", i);
+    });
+  });
+  if (reduceMotion || !("IntersectionObserver" in window)) {
+    revealEls.forEach(function (el) { el.classList.add("in"); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("in");
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -6% 0px" });
+    revealEls.forEach(function (el) { io.observe(el); });
+  }
+})();
+</script>
+
+</body>
+</html>

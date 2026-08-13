@@ -635,6 +635,70 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
   .honor p{ grid-column:1 / -1; }
 }
 
+/* disclosure pipeline panel */
+.pipeline{
+  border:1px solid var(--hairline); border-radius:var(--radius);
+  background:var(--bg-elev);
+  padding:clamp(1.5rem, 3.5vw, 2.35rem);
+  margin-bottom:clamp(2.25rem, 5vw, 3.25rem);
+}
+.pipeline-head{
+  display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between;
+  gap:.6rem 1.5rem; margin-bottom:clamp(1.4rem, 3vw, 1.9rem);
+}
+.pipeline-head .kicker .live{ color:var(--ink); }
+.pipeline-head .kicker .live::before{
+  content:""; display:inline-block; width:6px; height:6px; border-radius:50%;
+  background:var(--accent); margin-right:.5rem; vertical-align:1px;
+}
+.pipeline-link{
+  position:relative;
+  font-family:var(--mono); font-size:var(--fs-meta); font-weight:500;
+  text-transform:uppercase; letter-spacing:.13em; color:var(--muted);
+}
+.pipeline-link .arr{ color:var(--accent); }
+.pipeline-link:hover{ color:var(--ink); }
+.pl-grid{ display:flex; flex-wrap:wrap; gap:1.4rem 0; }
+.pl-stat{
+  flex:1 1 8rem; min-width:8rem;
+  display:flex; flex-direction:column-reverse; gap:.45rem;
+  padding-left:clamp(1.25rem, 3vw, 2rem);
+  border-left:1px solid var(--hairline);
+}
+.pl-stat:first-child{ padding-left:0; border-left:0; }
+.pl-stat dd{
+  font-family:var(--serif); font-weight:560; line-height:1;
+  font-size:clamp(2.4rem, 4.5vw, 3.4rem); color:var(--ink); letter-spacing:-.02em;
+}
+.pl-stat dd span{ color:var(--accent); }
+.pl-stat dt{
+  font-family:var(--mono); font-size:var(--fs-chip); font-weight:400;
+  text-transform:uppercase; letter-spacing:.1em; color:var(--muted); line-height:1.5;
+}
+.pipeline-note{
+  margin-top:clamp(1.5rem, 3.5vw, 2rem); padding-top:clamp(1.4rem, 3vw, 1.75rem);
+  border-top:1px solid var(--hairline);
+  font-size:var(--fs-small); line-height:1.7; color:var(--muted); max-width:60em;
+}
+.pipeline-note b{ color:var(--text); font-weight:500; }
+.pipeline-note a{
+  color:var(--text); border-bottom:1px solid var(--hairline-mid);
+  transition:color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
+}
+.pipeline-note a:hover{ color:var(--accent); border-color:var(--accent); }
+.pipeline-cta{
+  display:inline-flex; align-items:center; gap:.5rem; margin-top:1.4rem;
+  font-family:var(--mono); font-size:var(--fs-meta); font-weight:500;
+  text-transform:uppercase; letter-spacing:.14em; color:var(--ink);
+  transition:color var(--t-fast) var(--ease);
+}
+.pipeline-cta .arr{ color:var(--accent); transition:transform var(--t-fast) var(--ease); }
+.pipeline-cta:hover{ color:var(--accent); }
+.pipeline-cta:hover .arr{ transform:translateX(4px); }
+@media (max-width: 620px){
+  .pl-stat{ flex-basis:6.5rem; min-width:6.5rem; padding-left:1.1rem; }
+}
+
 /* ---------- 05 projects ---------- */
 .features{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(1rem, 2.5vw, 1.5rem); }
 .feature{
@@ -893,7 +957,7 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
               <div><dt>Current</dt><span class="leader" aria-hidden="true"></span><dd>Tabby · 14M+ users</dd></div>
               <div><dt>Certified</dt><span class="leader" aria-hidden="true"></span><dd>OSCP</dd></div>
               <div><dt>Engagements</dt><span class="leader" aria-hidden="true"></span><dd>80+ · F500 &amp; SAMA</dd></div>
-              <div><dt>Research</dt><span class="leader" aria-hidden="true"></span><dd>CVE-2024-3681</dd></div>
+              <div><dt>Research</dt><span class="leader" aria-hidden="true"></span><dd>CVE-2024-3681 · 59+ reported</dd></div>
               <div><dt>Listed by</dt><span class="leader" aria-hidden="true"></span><dd>UN · Walmart · Achmea · The&nbsp;Sun</dd></div>
             </dl>
           </div>
@@ -1090,6 +1154,21 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
           <h2 id="achievements-title">On the record<span class="dot">.</span></h2>
         </div>
       </header>
+
+      <section class="pipeline" data-reveal aria-label="Active disclosure pipeline">
+        <div class="pipeline-head">
+          <p class="kicker"><span class="live">Active disclosure pipeline</span></p>
+          <a class="pipeline-link" href="https://www.wordfence.com/threat-intel/vulnerabilities/researchers/usama-arshad" target="_blank" rel="noopener">Wordfence profile <span class="arr" aria-hidden="true">↗</span></a>
+        </div>
+        <dl class="pl-grid">
+          <div class="pl-stat"><dt>Reported to WPScan</dt><dd>59<span>+</span></dd></div>
+          <div class="pl-stat"><dt>Verified &amp; accepted</dt><dd>08</dd></div>
+          <div class="pl-stat"><dt>Queued for review</dt><dd>121<span>+</span></dd></div>
+          <div class="pl-stat"><dt>CVE published</dt><dd>01</dd></div>
+        </dl>
+        <p class="pipeline-note">Ongoing WordPress plugin security research — findings are reproduced in a local lab, deduplicated against the <b>NVD</b> catalogue, and responsibly reported through <b>WPScan / Wordfence</b>, then held under coordinated disclosure while vendors ship fixes. Eight are verified &amp; accepted so far — <b>peaked at 13th on the <a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">WPScan researcher leaderboard</a></b> (Top-15). Affected plugin names and proof-of-concept are withheld until patches land and CVE IDs are assigned.</p>
+        <a class="pipeline-cta" href="/research/">View the full disclosure log <span class="arr" aria-hidden="true">→</span></a>
+      </section>
 
       <div class="honors">
 
