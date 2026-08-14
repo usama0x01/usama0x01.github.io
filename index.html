@@ -776,10 +776,24 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
   padding-bottom:.3rem;
   transition:color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
 }
-.contact-mail svg{ flex:none; transition:transform var(--t-fast) var(--ease); }
+.contact-mail svg{ flex:none; transition:transform var(--t-fast) var(--ease), opacity var(--t-fast) var(--ease); }
 .contact-mail:hover{ color:var(--accent); border-color:var(--accent); }
-.contact-mail:hover svg{ transform:translate(4px, -4px); }
+.contact-mail:hover svg{ transform:translate(2px,-2px) scale(1.05); }
+.contact-mail.copied{ color:var(--accent); border-color:var(--accent); }
 .contact-wrap .cta-row{ margin-top:2.5rem; }
+
+/* click-to-copy toast */
+.copy-toast{
+  position:fixed; left:50%; bottom:1.75rem; transform:translate(-50%, .75rem);
+  z-index:120; pointer-events:none; opacity:0;
+  background:var(--bg-elev-2); color:var(--ink);
+  border:1px solid var(--hairline-mid); border-radius:var(--radius);
+  font-family:var(--mono); font-size:var(--fs-meta); letter-spacing:.06em;
+  padding:.72rem 1.15rem; box-shadow:0 10px 30px rgba(0,0,0,.4);
+  transition:opacity .25s var(--ease), transform .25s var(--ease);
+}
+.copy-toast.show{ opacity:1; transform:translate(-50%, 0); }
+.copy-toast .ok{ color:var(--accent); }
 
 /* ============================================================
    FOOTER
@@ -1300,12 +1314,16 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
 
       <div data-reveal>
         <p class="contact-line">If it can be broken, better that <em>I find it first.</em></p>
-        <a class="contact-mail" href="mailto:gusama21@gmail.com">
+        <a class="contact-mail" href="mailto:gusama21@gmail.com" data-copy="gusama21@gmail.com" title="Click to copy" aria-label="Email gusama21@gmail.com — click to copy">
           gusama21@gmail.com
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
         </a>
         <div class="cta-row">
-          <a class="btn btn-solid" href="mailto:gusama21@gmail.com">Start a conversation</a>
+          <a class="btn btn-solid" href="mailto:gusama21@gmail.com">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="m22 6-10 7L2 6"/></svg>
+            Email me
+          </a>
+          <a class="btn btn-ghost" href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=gusama21@gmail.com&amp;su=Hello%20Usama" target="_blank" rel="noopener">Open in Gmail</a>
           <a class="btn btn-ghost" href="assets/Usama-Arshad-Resume.pdf" download>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>
             Résumé
@@ -1316,6 +1334,8 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
   </section>
 
 </main>
+
+<div class="copy-toast" id="copyToast" role="status" aria-live="polite"></div>
 
 <!-- ================= FOOTER ================= -->
 <footer class="site-foot">
@@ -1355,7 +1375,7 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></a></li>
           <li><a href="https://platform.synack.com/profile/usama-arshad" target="_blank" rel="noopener">Synack SRT
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></a></li>
-          <li><a href="mailto:gusama21@gmail.com">gusama21@gmail.com</a></li>
+          <li><a href="mailto:gusama21@gmail.com" data-copy="gusama21@gmail.com" title="Click to copy">gusama21@gmail.com</a></li>
         </ul>
       </div>
 
@@ -1442,7 +1462,44 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
       });
     }, { threshold: 0.12, rootMargin: "0px 0px -6% 0px" });
     revealEls.forEach(function (el) { io.observe(el); });
+
+    /* fail-safe: geometry reveal so no section can stay hidden if IO misfires */
+    var revealByGeometry = function () {
+      for (var i = 0; i < revealEls.length; i++) {
+        var el = revealEls[i];
+        if (el.classList.contains("in")) continue;
+        if (el.getBoundingClientRect().top < window.innerHeight * 0.94) el.classList.add("in");
+      }
+    };
+    window.addEventListener("scroll", revealByGeometry, { passive: true });
+    window.addEventListener("resize", revealByGeometry);
+    revealByGeometry();
   }
+
+  /* ---------- click-to-copy email (mailto often has no handler) ---------- */
+  var toast = document.getElementById("copyToast");
+  var toastTimer;
+  function showToast(html) {
+    if (!toast) return;
+    toast.innerHTML = html;
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toast.classList.remove("show"); }, 2200);
+  }
+  Array.prototype.forEach.call(document.querySelectorAll("[data-copy]"), function (el) {
+    el.addEventListener("click", function (e) {
+      var val = el.getAttribute("data-copy");
+      if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
+        e.preventDefault();
+        navigator.clipboard.writeText(val).then(function () {
+          el.classList.add("copied");
+          showToast('<span class="ok">✓</span>&nbsp; Copied ' + val + ' to clipboard');
+          setTimeout(function () { el.classList.remove("copied"); }, 1800);
+        }).catch(function () { window.location.href = "mailto:" + val; });
+      }
+      /* no clipboard API → let the mailto: default fire */
+    });
+  });
 })();
 </script>
 
