@@ -1,0 +1,7 @@
+# Security policy for usamaarshad.me — https://www.usamaarshad.me
+# I'm an offensive security researcher; responsible reports are welcome.
+Contact: mailto:gusama21@gmail.com
+Contact: https://www.usamaarshad.me/#contact
+Expires: 2027-12-31T23:59:59.000Z
+Preferred-Languages: en
+Canonical: https://www.usamaarshad.me/.well-known/security.txt
