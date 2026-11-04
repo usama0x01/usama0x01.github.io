@@ -5,9 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<title>Security Research &amp; Disclosures — Usama Arshad</title>
-<meta name="description" content="Coordinated-disclosure log by Usama Arshad — 59+ WordPress plugin vulnerabilities reported to WPScan, 8 CVEs published (incl. CVE-2026-18786, CheckView, CVSS 8.8), 121+ queued. Peaked at 13th on the WPScan researcher leaderboard.">
+<title>Security Research &amp; Disclosures · Usama Arshad</title>
+<meta name="description" content="Coordinated-disclosure log by Usama Arshad: 59 CVE IDs assigned across WordPress plugins, 55 advisories live, 9th on the WPScan researcher leaderboard.">
 <link rel="canonical" href="https://www.usamaarshad.me/research">
+<link rel="alternate" type="application/rss+xml" title="Usama Arshad, Writing" href="/feed.xml">
 <link rel="icon" href="/assets/favicon.ico">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <meta name="theme-color" content="#131110">
@@ -15,28 +16,28 @@
 <!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Usama Arshad">
-<meta property="og:title" content="Security Research &amp; Disclosures — Usama Arshad">
-<meta property="og:description" content="Coordinated-disclosure log — 59+ vulnerabilities reported to WPScan, 8 CVEs published (flagship: CheckView CVE-2026-18786, CVSS 8.8), 121+ queued for review.">
+<meta property="og:title" content="Security Research &amp; Disclosures · Usama Arshad">
+<meta property="og:description" content="Coordinated-disclosure log. 59 CVE IDs assigned across WordPress plugins, 55 advisories live on WPScan, 9th on the researcher leaderboard.">
 <meta property="og:url" content="https://www.usamaarshad.me/research">
 <meta property="og:image" content="https://www.usamaarshad.me/assets/og.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Usama Arshad — Security research & disclosures. 8 published CVEs.">
+<meta property="og:image:alt" content="Usama Arshad · Security research and disclosures. 59 assigned CVE IDs.">
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:creator" content="@usama0x01">
-<meta name="twitter:title" content="Security Research &amp; Disclosures — Usama Arshad">
-<meta name="twitter:description" content="59+ reported to WPScan · 8 CVEs published · 121+ queued. Flagship: CheckView CVE-2026-18786 (CVSS 8.8, unauth admin-account creation via REST auth bypass).">
+<meta name="twitter:title" content="Security Research &amp; Disclosures · Usama Arshad">
+<meta name="twitter:description" content="59 CVE IDs assigned · 55 advisories live · 9th on the WPScan leaderboard. Flagship: CheckView CVE-2026-18786 (CVSS 8.8, unauth admin-account creation).">
 <meta name="twitter:image" content="https://www.usamaarshad.me/assets/og.jpg">
 
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
-  "name": "Security Research & Disclosures — Usama Arshad",
+  "name": "Security Research & Disclosures · Usama Arshad",
   "url": "https://www.usamaarshad.me/research",
-  "description": "Coordinated-disclosure log of WordPress plugin vulnerability research by Usama Arshad: 59+ reported to WPScan, 8 CVEs published, 121+ queued for review.",
+  "description": "Coordinated-disclosure log of WordPress plugin vulnerability research by Usama Arshad: 59 CVE IDs assigned, 55 advisories live on WPScan.",
   "inLanguage": "en",
   "isPartOf": { "@type": "WebSite", "name": "Usama Arshad", "url": "https://www.usamaarshad.me" },
   "author": {
@@ -59,14 +60,14 @@
     "name": "Published CVEs",
     "numberOfItems": 8,
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "CheckView — CVE-2026-18786 — Unauthenticated Administrator Account Creation via REST API Authentication Bypass (CVSS 8.8)", "url": "https://wpscan.com/vulnerability/f53e1706-e926-4a2c-a2a7-465b4ca5d102/" },
-      { "@type": "ListItem", "position": 2, "name": "Ezoic — CVE-2026-18789 — Unauthenticated Database Export via Content Export REST Routes (CVSS 7.5)", "url": "https://wpscan.com/vulnerability/1e2ce237-dc91-4144-875a-339b5ea05f3a/" },
-      { "@type": "ListItem", "position": 3, "name": "WP Travel Engine — CVE-2026-16737 — Unauthenticated Booking Details Disclosure & Modification (CVSS 6.5)", "url": "https://wpscan.com/vulnerability/1bc550f3-8b8f-42ac-aec9-7dcb7b0f7978/" },
-      { "@type": "ListItem", "position": 4, "name": "Interactive World Maps — CVE-2024-3681 — Reflected Cross-Site Scripting (CWE-79) (CVSS 6.1)", "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-3681" },
-      { "@type": "ListItem", "position": 5, "name": "GeoDirectory — CVE-2026-16988 — Unauthenticated Pending/Draft Listing Disclosure via markers REST Endpoint (CVSS 5.3)", "url": "https://wpscan.com/vulnerability/162fa8ab-4d80-46f8-9a15-63c8dfd0be33/" },
-      { "@type": "ListItem", "position": 6, "name": "MStore API — CVE-2026-16041 — Unauthenticated Product Review Creation (CVSS 5.3)", "url": "https://wpscan.com/vulnerability/0e7d8a17-0901-45b5-959c-2c1ef1316047/" },
-      { "@type": "ListItem", "position": 7, "name": "Salon Booking System — CVE-2026-17022 — Unauthenticated Booking Information Disclosure via Booking Wizard (CVSS 5.3)", "url": "https://wpscan.com/vulnerability/ddc84492-408b-477c-ac6c-b9ec96ccf223/" },
-      { "@type": "ListItem", "position": 8, "name": "Events Manager — CVE-2026-18050 — Unauthenticated Pending Upload Disclosure via events-manager/v1/uploads (CVSS 3.7)", "url": "https://wpscan.com/vulnerability/84964951-d25a-4753-bf71-fe00e2492a89/" }
+      { "@type": "ListItem", "position": 1, "name": "CheckView, CVE-2026-18786: Unauthenticated Administrator Account Creation via REST API Authentication Bypass (CVSS 8.8)", "url": "https://wpscan.com/vulnerability/f53e1706-e926-4a2c-a2a7-465b4ca5d102/" },
+      { "@type": "ListItem", "position": 2, "name": "Ezoic, CVE-2026-18789: Unauthenticated Database Export via Content Export REST Routes (CVSS 7.5)", "url": "https://wpscan.com/vulnerability/1e2ce237-dc91-4144-875a-339b5ea05f3a/" },
+      { "@type": "ListItem", "position": 3, "name": "WP Travel Engine, CVE-2026-16737: Unauthenticated Booking Details Disclosure & Modification (CVSS 6.5)", "url": "https://wpscan.com/vulnerability/1bc550f3-8b8f-42ac-aec9-7dcb7b0f7978/" },
+      { "@type": "ListItem", "position": 4, "name": "Interactive World Maps, CVE-2024-3681: Reflected Cross-Site Scripting (CWE-79) (CVSS 6.1)", "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-3681" },
+      { "@type": "ListItem", "position": 5, "name": "GeoDirectory, CVE-2026-16988: Unauthenticated Pending/Draft Listing Disclosure via markers REST Endpoint (CVSS 5.3)", "url": "https://wpscan.com/vulnerability/162fa8ab-4d80-46f8-9a15-63c8dfd0be33/" },
+      { "@type": "ListItem", "position": 6, "name": "MStore API, CVE-2026-16041: Unauthenticated Product Review Creation (CVSS 5.3)", "url": "https://wpscan.com/vulnerability/0e7d8a17-0901-45b5-959c-2c1ef1316047/" },
+      { "@type": "ListItem", "position": 7, "name": "Salon Booking System, CVE-2026-17022: Unauthenticated Booking Information Disclosure via Booking Wizard (CVSS 5.3)", "url": "https://wpscan.com/vulnerability/ddc84492-408b-477c-ac6c-b9ec96ccf223/" },
+      { "@type": "ListItem", "position": 8, "name": "Events Manager, CVE-2026-18050: Unauthenticated Pending Upload Disclosure via events-manager/v1/uploads (CVSS 3.7)", "url": "https://wpscan.com/vulnerability/84964951-d25a-4753-bf71-fe00e2492a89/" }
     ]
   }
 }
@@ -76,7 +77,7 @@
 
 <style>
 /* ============================================================
-   EDITORIAL NOIR — design system (shared with the portfolio)
+   EDITORIAL NOIR · design system (shared with the portfolio)
    ============================================================ */
 /* self-hosted fonts (latin subsets) */
 @font-face{font-family:'Fraunces';font-style:normal;font-weight:340 640;font-display:swap;src:url(/assets/fonts/fraunces-normal-340-640.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
@@ -438,9 +439,60 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
 }
 
 /* ============================================================
-   PUBLISHED DISCLOSURES — ruled ledger
+   PUBLISHED DISCLOSURES · ruled ledger
    ============================================================ */
 .ledger{ border-bottom:1px solid var(--hairline); }
+
+/* ---- ledger tools: search + class filters ---- */
+.vh{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+.ledger-tools{
+  display:flex; flex-wrap:wrap; align-items:center; gap:.9rem 1.5rem;
+  padding:0 0 1.4rem;
+}
+.lsearch{
+  display:inline-flex; align-items:center; gap:.6rem;
+  flex:1 1 17rem; min-width:0;
+  border:1px solid var(--hairline-mid); border-radius:var(--radius);
+  padding:.7rem .95rem; color:var(--muted);
+  transition:border-color var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+.lsearch:focus-within{ border-color:var(--accent); color:var(--accent); }
+.lsearch svg{ flex:none; }
+.lsearch input{
+  flex:1 1 auto; min-width:0;
+  background:none; border:0; outline:none; color:var(--ink);
+  font-family:var(--mono); font-size:var(--fs-meta); letter-spacing:.04em;
+}
+.lsearch input::placeholder{ color:var(--muted); }
+.lsearch input::-webkit-search-cancel-button{ -webkit-appearance:none; }
+.lchips{ display:flex; flex-wrap:wrap; gap:.45rem; }
+.lchip{
+  font-family:var(--mono); font-size:var(--fs-chip); font-weight:500;
+  text-transform:uppercase; letter-spacing:.1em; color:var(--muted);
+  border:1px solid var(--hairline); border-radius:var(--radius);
+  padding:.45rem .7rem; white-space:nowrap;
+  transition:color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+}
+.lchip i{ font-style:normal; color:var(--hairline-hard); margin-left:.3rem; }
+.lchip:hover{ color:var(--ink); border-color:var(--hairline-mid); }
+.lchip.is-on{ color:var(--accent-ink); background:var(--accent); border-color:var(--accent); }
+.lchip.is-on i{ color:var(--accent-ink); opacity:.65; }
+.lcount{
+  font-family:var(--mono); font-size:var(--fs-chip); letter-spacing:.1em;
+  text-transform:uppercase; color:var(--muted); padding-bottom:.6rem;
+}
+.cve[hidden]{ display:none; }
+
+.cve-sub .cls{ color:var(--muted); }
+.ledger-empty{
+  padding:3rem 0; text-align:center; color:var(--muted);
+  font-family:var(--mono); font-size:var(--fs-small);
+}
+@media (max-width: 560px){
+  .ledger-tools{ gap:.8rem; }
+  .lsearch{ flex:1 1 100%; }
+}
+
 .ledger-head{
   display:grid;
   grid-template-columns:2.5rem minmax(9.5rem, 13rem) 1fr minmax(7.5rem, auto);
@@ -502,6 +554,10 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
 .sev-high{ color:var(--accent); border-color:rgba(229,72,77,.5); }
 .sev-med{ color:var(--text); border-color:var(--hairline-mid); }
 .sev-low{ color:var(--muted); border-color:var(--hairline); }
+.cve-score .cve-cvss-na{
+  font-family:var(--mono); font-size:var(--fs-chip); font-weight:400;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--muted);
+}
 .cve-date{
   font-family:var(--mono); font-size:var(--fs-chip); letter-spacing:.1em;
   text-transform:uppercase; color:var(--muted); white-space:nowrap;
@@ -523,7 +579,7 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
 }
 
 /* ============================================================
-   IN COORDINATED DISCLOSURE — embargoed aggregate
+   IN COORDINATED DISCLOSURE · embargoed aggregate
    ============================================================ */
 .embargo{
   border:1px solid var(--hairline); border-radius:var(--radius);
@@ -656,7 +712,7 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
 
 <header class="site-head" id="top">
   <div class="container head-inner">
-    <a class="wordmark" href="/" aria-label="Usama Arshad — home">Usama Arshad<span class="dot">.</span></a>
+    <a class="wordmark" href="/" aria-label="Usama Arshad, home">Usama Arshad<span class="dot">.</span></a>
     <nav aria-label="Breadcrumb">
       <a class="back-link" href="/"><span class="arr" aria-hidden="true">←</span><span class="txt">Portfolio</span></a>
     </nav>
@@ -682,7 +738,7 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
         <div class="deck-copy" data-reveal style="--d:.08s">
           <p class="kicker">Vulnerability Research</p>
           <h1 class="hero-title" id="page-title">Security research &amp; disclosures<span class="dot">.</span></h1>
-          <p class="deck">A running log of my WordPress plugin security research. Findings are reproduced in a local lab, deduplicated against the <strong>NVD</strong> and Patchstack catalogues, and reported through <strong>WPScan</strong> under coordinated disclosure — held private until each vendor ships a fix and a CVE is assigned. <strong>Eight are now published.</strong></p>
+          <p class="deck">A running log of my WordPress plugin security research. Findings are reproduced in a local lab, deduplicated against the <strong>NVD</strong> and Patchstack catalogues, and reported through <strong>WPScan</strong> under coordinated disclosure, held private until each vendor ships a fix and a CVE is assigned. <strong>Fifty-one are catalogued below.</strong></p>
         </div>
       </div>
 
@@ -692,13 +748,13 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
   <!-- ================= FUNNEL ================= -->
   <section class="container" aria-label="Research funnel">
     <dl class="funnel" data-reveal>
-      <div class="fstat"><dt>Reported to WPScan</dt><dd>59<span>+</span></dd></div>
-      <div class="fstat"><dt>CVEs published</dt><dd>08</dd></div>
-      <div class="fstat"><dt>Queued for review</dt><dd>121<span>+</span></dd></div>
+      <div class="fstat"><dt>CVE IDs assigned</dt><dd>59</dd></div>
+      <div class="fstat"><dt>Advisories live on WPScan</dt><dd>55</dd></div>
+      <div class="fstat"><dt>WPScan researcher leaderboard</dt><dd><span>#</span>9</dd></div>
     </dl>
     <p class="leader-line" data-reveal style="--d:.1s">
-      <a class="leader-link" href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">Peaked at 13th on the WPScan researcher leaderboard (Top-15)<span class="arr" aria-hidden="true">→</span></a>
-      <span class="leader-sub">8 verified submissions · rolling board, currently 15th</span>
+      <a class="leader-link" href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">9th on the WPScan researcher leaderboard<span class="arr" aria-hidden="true">→</span></a>
+      <span class="leader-sub">52 verified submissions · rolling board, checked 4 Nov 2026</span>
     </p>
   </section>
 
@@ -715,7 +771,7 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
         <div class="flag-body">
           <p class="kicker">CheckView · CVE-2026-18786</p>
           <h3 id="flagship-title">Unauthenticated Administrator Account Creation via REST API Authentication Bypass</h3>
-          <p>An unauthenticated request could bypass REST API authentication and create a full administrator account — a complete site takeover with no credentials required. Discovered in a local lab, reported through WPScan under coordinated disclosure, and resolved by the vendor before public release.</p>
+          <p>An unauthenticated request could bypass REST API authentication and create a full administrator account: a complete site takeover with no credentials required. Discovered in a local lab, reported through WPScan under coordinated disclosure, and resolved by the vendor before public release.</p>
           <p class="flag-facts">
             <span>Access <b>Unauthenticated</b></span>
             <span>Fixed in <b>2.3.2</b></span>
@@ -746,142 +802,739 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
           <span>#</span>
           <span>Plugin / CVE</span>
           <span>Vulnerability &amp; access</span>
-          <span class="th-score">CVSS · Published</span>
+          <span class="th-score">CVSS</span>
         </div>
 
-        <!-- 1 -->
-        <article class="cve">
+        <div class="ledger-tools">
+          <label class="lsearch">
+            <span class="vh">Search disclosures</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input type="search" id="cveSearch" placeholder="Search plugin, CVE, vulnerability class" autocomplete="off">
+          </label>
+          <div class="lchips" role="group" aria-label="Filter by vulnerability class">
+            <button class="lchip is-on" data-filter="all" aria-pressed="true">All <i>51</i></button>
+            <button class="lchip" data-filter="unauth" aria-pressed="false">Unauthenticated <i>27</i></button>
+            <button class="lchip" data-filter="disclosure" aria-pressed="false">Data disclosure <i>25</i></button>
+            <button class="lchip" data-filter="authz" aria-pressed="false">Access control <i>13</i></button>
+            <button class="lchip" data-filter="authbypass" aria-pressed="false">Auth bypass <i>4</i></button>
+            <button class="lchip" data-filter="xss" aria-pressed="false">XSS <i>3</i></button>
+            <button class="lchip" data-filter="csrf" aria-pressed="false">CSRF <i>2</i></button>
+            <button class="lchip" data-filter="privesc" aria-pressed="false">Privesc <i>2</i></button>
+          </div>
+        </div>
+        <p class="lcount" id="cveCount" role="status">Showing all 51 disclosures</p>
+        <article class="cve" data-class="privesc" data-acc="auth" data-search="cve-2026-118639 surfer contributor+ privilege escalation via editor api key disclosure privilege escalation contributor+">
           <span class="cve-no" aria-hidden="true">.01</span>
           <div class="cve-plugin">
-            <h3>CheckView</h3>
-            <a class="cve-id" href="https://wpscan.com/vulnerability/f53e1706-e926-4a2c-a2a7-465b4ca5d102/" target="_blank" rel="noopener">CVE-2026-18786<span class="arr" aria-hidden="true">↗</span></a>
+            <h3>Surfer</h3>
+            <a class="cve-id" href="https://wpscan.com/vulnerability/0cc6b6cd-ff1a-4f04-a2f5-62684abeb314/" target="_blank" rel="noopener">CVE-2026-118639<span class="arr" aria-hidden="true">↗</span></a>
           </div>
           <div class="cve-desc">
-            <p class="cve-title">Unauthenticated Administrator Account Creation via REST API Authentication Bypass</p>
-            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>Fixed in 2.3.2</span></p>
+            <p class="cve-title">Contributor+ Privilege Escalation via Editor API Key Disclosure</p>
+            <p class="cve-sub"><span class="acc">Contributor+</span><span>&lt; 1.8.1.759</span><span class="cls">Privilege escalation</span></p>
           </div>
           <div class="cve-score">
-            <span class="cve-cvss">8.8 <span class="sev sev-high">High</span></span>
-            <span class="cve-date">2026-08-07</span>
+            <span class="cve-cvss">6.5 <span class="sev sev-med">Medium</span></span>
           </div>
         </article>
-
-        <!-- 2 -->
-        <article class="cve">
+        <article class="cve" data-class="authz" data-acc="unauth" data-search="cve-2026-118638 mapster wp maps unauthenticated arbitrary post modification via save-mapmaker rest route broken access control unauthenticated">
           <span class="cve-no" aria-hidden="true">.02</span>
+          <div class="cve-plugin">
+            <h3>Mapster WP Maps</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-118638" target="_blank" rel="noopener">CVE-2026-118638<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Unauthenticated Arbitrary Post Modification via save-mapmaker REST Route</p>
+            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>&lt; 2.0.6</span><span class="cls">Broken access control</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="authz" data-acc="auth" data-search="cve-2026-118072 fraud prevention for woocommerce and edd subscriber+ arbitrary customer blacklisting broken access control subscriber+">
+          <span class="cve-no" aria-hidden="true">.03</span>
+          <div class="cve-plugin">
+            <h3>Fraud Prevention for WooCommerce and EDD</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-118072" target="_blank" rel="noopener">CVE-2026-118072<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Subscriber+ Arbitrary Customer Blacklisting</p>
+            <p class="cve-sub"><span class="acc">Subscriber+</span><span>&lt; 2.3.6</span><span class="cls">Broken access control</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="disclosure" data-acc="auth" data-search="cve-2026-114414 shortpixel image optimizer contributor+ cross-attachment ai preview access via getnewaiimagepreview data disclosure contributor+">
+          <span class="cve-no" aria-hidden="true">.04</span>
+          <div class="cve-plugin">
+            <h3>ShortPixel Image Optimizer</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-114414" target="_blank" rel="noopener">CVE-2026-114414<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Contributor+ Cross-Attachment AI Preview Access via getNewAiImagePreview</p>
+            <p class="cve-sub"><span class="acc">Contributor+</span><span>&lt;= 6.6.1</span><span class="cls">Data disclosure</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="disclosure" data-acc="auth" data-search="cve-2026-111961 royal mcp contributor+ private and draft content disclosure and publish_posts bypass data disclosure contributor+">
+          <span class="cve-no" aria-hidden="true">.05</span>
+          <div class="cve-plugin">
+            <h3>Royal MCP</h3>
+            <a class="cve-id" href="https://wpscan.com/vulnerability/ffdf84e4-dce3-4768-91c9-138256c3064c/" target="_blank" rel="noopener">CVE-2026-111961<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Contributor+ Private and Draft Content Disclosure and publish_posts Bypass</p>
+            <p class="cve-sub"><span class="acc">Contributor+</span><span>&lt;= 1.5.9</span><span class="cls">Data disclosure</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="authz" data-acc="auth" data-search="cve-2026-111032 welcart e-commerce author+ arbitrary product sku update and disclosure via item_sku_ajax broken access control author+">
+          <span class="cve-no" aria-hidden="true">.06</span>
+          <div class="cve-plugin">
+            <h3>Welcart e-Commerce</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-111032" target="_blank" rel="noopener">CVE-2026-111032<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Author+ Arbitrary Product SKU Update and Disclosure via item_sku_ajax</p>
+            <p class="cve-sub"><span class="acc">Author+</span><span>&lt;= 2.12.5</span><span class="cls">Broken access control</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="disclosure" data-acc="auth" data-search="cve-2026-110069 modern events calendar lite subscriber+ sensitive data disclosure via mec_event_bookings ajax data disclosure subscriber+">
+          <span class="cve-no" aria-hidden="true">.07</span>
+          <div class="cve-plugin">
+            <h3>Modern Events Calendar Lite</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-110069" target="_blank" rel="noopener">CVE-2026-110069<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Subscriber+ Sensitive Data Disclosure via mec_event_bookings AJAX</p>
+            <p class="cve-sub"><span class="acc">Subscriber+</span><span>&lt;= 6.5.6</span><span class="cls">Data disclosure</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="authz" data-acc="auth" data-search="cve-2026-110026 tasty recipes lite contributor+ taxonomy term creation, renaming and deletion broken access control contributor+">
+          <span class="cve-no" aria-hidden="true">.08</span>
+          <div class="cve-plugin">
+            <h3>Tasty Recipes Lite</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-110026" target="_blank" rel="noopener">CVE-2026-110026<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Contributor+ Taxonomy Term Creation, Renaming and Deletion</p>
+            <p class="cve-sub"><span class="acc">Contributor+</span><span>1.2 - 1.2.10</span><span class="cls">Broken access control</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="disclosure" data-acc="auth" data-search="cve-2026-107342 kali forms subscriber+ user email address disclosure data disclosure subscriber+">
+          <span class="cve-no" aria-hidden="true">.09</span>
+          <div class="cve-plugin">
+            <h3>Kali Forms</h3>
+            <a class="cve-id" href="https://wpscan.com/vulnerability/b315203f-0755-4c33-9335-88f788cb1fd7/" target="_blank" rel="noopener">CVE-2026-107342<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Subscriber+ User Email Address Disclosure</p>
+            <p class="cve-sub"><span class="acc">Subscriber+</span><span>&lt;= 2.4.25</span><span class="cls">Data disclosure</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="disclosure" data-acc="unauth" data-search="cve-2026-107320 gamipress unauthenticated private activity log disclosure data disclosure unauthenticated">
+          <span class="cve-no" aria-hidden="true">.10</span>
+          <div class="cve-plugin">
+            <h3>GamiPress</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-107320" target="_blank" rel="noopener">CVE-2026-107320<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Unauthenticated Private Activity Log Disclosure</p>
+            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>7.9.5 - 8.0.5</span><span class="cls">Data disclosure</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="authz" data-acc="unauth" data-search="cve-2026-105993 dt directory lite addon unauthenticated plugin settings update broken access control unauthenticated">
+          <span class="cve-no" aria-hidden="true">.11</span>
+          <div class="cve-plugin">
+            <h3>DT Directory Lite Addon</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-105993" target="_blank" rel="noopener">CVE-2026-105993<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Unauthenticated Plugin Settings Update</p>
+            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>&lt;= 1.1</span><span class="cls">Broken access control</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="disclosure" data-acc="unauth" data-search="cve-2026-105971 car dealer unauthenticated private/draft/pending post disclosure via cardealer_single_car_ajax data disclosure unauthenticated">
+          <span class="cve-no" aria-hidden="true">.12</span>
+          <div class="cve-plugin">
+            <h3>Car Dealer</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-105971" target="_blank" rel="noopener">CVE-2026-105971<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Unauthenticated Private/Draft/Pending Post Disclosure via cardealer_single_car_ajax</p>
+            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>&lt;= 4.73</span><span class="cls">Data disclosure</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="disclosure" data-acc="unauth" data-search="cve-2026-103375 antom payments unauthenticated woocommerce order data disclosure data disclosure unauthenticated">
+          <span class="cve-no" aria-hidden="true">.13</span>
+          <div class="cve-plugin">
+            <h3>Antom Payments</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-103375" target="_blank" rel="noopener">CVE-2026-103375<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Unauthenticated WooCommerce Order Data Disclosure</p>
+            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>&lt;= 2.0.11</span><span class="cls">Data disclosure</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="authz" data-acc="auth" data-search="cve-2026-97353 news kit addons for elementor subscriber+ arbitrary post meta update via nekit_update_mega_menu_form broken access control subscriber+">
+          <span class="cve-no" aria-hidden="true">.14</span>
+          <div class="cve-plugin">
+            <h3>News Kit Addons For Elementor</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-97353" target="_blank" rel="noopener">CVE-2026-97353<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Subscriber+ Arbitrary Post Meta Update via nekit_update_mega_menu_form</p>
+            <p class="cve-sub"><span class="acc">Subscriber+</span><span>&lt;= 1.4.7</span><span class="cls">Broken access control</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="privesc" data-acc="auth" data-search="cve-2026-97352 news kit addons for elementor subscriber+ plugin installation and activation via nekit_install_importer privilege escalation subscriber+">
+          <span class="cve-no" aria-hidden="true">.15</span>
+          <div class="cve-plugin">
+            <h3>News Kit Addons For Elementor</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-97352" target="_blank" rel="noopener">CVE-2026-97352<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Subscriber+ Plugin Installation and Activation via nekit_install_importer</p>
+            <p class="cve-sub"><span class="acc">Subscriber+</span><span>&lt;= 1.4.7</span><span class="cls">Privilege escalation</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="disclosure" data-acc="auth" data-search="cve-2026-97331 user private files subscriber+ user email address disclosure via dpk_upvf_rmv_access data disclosure subscriber+">
+          <span class="cve-no" aria-hidden="true">.16</span>
+          <div class="cve-plugin">
+            <h3>User Private Files</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-97331" target="_blank" rel="noopener">CVE-2026-97331<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Subscriber+ User Email Address Disclosure via dpk_upvf_rmv_access</p>
+            <p class="cve-sub"><span class="acc">Subscriber+</span><span>&lt;= 2.1.8</span><span class="cls">Data disclosure</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="disclosure" data-acc="unauth" data-search="cve-2026-97314 thirstyaffiliates unauthenticated affiliate link disclosure and click statistic injection data disclosure unauthenticated">
+          <span class="cve-no" aria-hidden="true">.17</span>
+          <div class="cve-plugin">
+            <h3>ThirstyAffiliates</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-97314" target="_blank" rel="noopener">CVE-2026-97314<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Unauthenticated Affiliate Link Disclosure and Click Statistic Injection</p>
+            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>&lt;= 3.12.0</span><span class="cls">Data disclosure</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="disclosure" data-acc="auth" data-search="cve-2026-97183 wp-invoice subscriber+ user pii disclosure via unprotected ajax handlers data disclosure subscriber+">
+          <span class="cve-no" aria-hidden="true">.18</span>
+          <div class="cve-plugin">
+            <h3>WP-Invoice</h3>
+            <a class="cve-id" href="https://wpscan.com/vulnerability/a1aead4e-ea00-4f05-9c96-52196d7c9f33/" target="_blank" rel="noopener">CVE-2026-97183<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Subscriber+ User PII Disclosure via Unprotected AJAX Handlers</p>
+            <p class="cve-sub"><span class="acc">Subscriber+</span><span>&lt;= 4.3.1</span><span class="cls">Data disclosure</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="disclosure" data-acc="unauth" data-search="cve-2026-96962 pie register unauthenticated user email disclosure via invitation code data disclosure unauthenticated">
+          <span class="cve-no" aria-hidden="true">.19</span>
+          <div class="cve-plugin">
+            <h3>Pie Register</h3>
+            <a class="cve-id" href="https://wpscan.com/vulnerability/bf634ddf-277e-46a4-9e5b-7253b3e02979/" target="_blank" rel="noopener">CVE-2026-96962<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Unauthenticated User Email Disclosure via Invitation Code</p>
+            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>&lt;= 3.8.4.13</span><span class="cls">Data disclosure</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="authz" data-acc="unauth" data-search="cve-2026-96961 pie register unauthenticated plugin settings reset and redirect data destruction broken access control unauthenticated">
+          <span class="cve-no" aria-hidden="true">.20</span>
+          <div class="cve-plugin">
+            <h3>Pie Register</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-96961" target="_blank" rel="noopener">CVE-2026-96961<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Unauthenticated Plugin Settings Reset and Redirect Data Destruction</p>
+            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>&lt;= 3.8.4.13</span><span class="cls">Broken access control</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="disclosure" data-acc="unauth" data-search="cve-2026-96905 participants database unauthenticated sensitive data disclosure via arbitrary search field data disclosure unauthenticated">
+          <span class="cve-no" aria-hidden="true">.21</span>
+          <div class="cve-plugin">
+            <h3>Participants Database</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-96905" target="_blank" rel="noopener">CVE-2026-96905<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Unauthenticated Sensitive Data Disclosure via Arbitrary Search Field</p>
+            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>&lt;= 2.7.8.5</span><span class="cls">Data disclosure</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="disclosure" data-acc="unauth" data-search="cve-2026-96904 awp classifieds unauthenticated listing contact email disclosure via place ad page data disclosure unauthenticated">
+          <span class="cve-no" aria-hidden="true">.22</span>
+          <div class="cve-plugin">
+            <h3>AWP Classifieds</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-96904" target="_blank" rel="noopener">CVE-2026-96904<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Unauthenticated Listing Contact Email Disclosure via Place Ad Page</p>
+            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>&lt;= 4.4.8</span><span class="cls">Data disclosure</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="disclosure" data-acc="auth" data-search="cve-2026-96903 easy property listings subscriber+ sensitive data disclosure via contact crm ajax handlers data disclosure subscriber+">
+          <span class="cve-no" aria-hidden="true">.23</span>
+          <div class="cve-plugin">
+            <h3>Easy Property Listings</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-96903" target="_blank" rel="noopener">CVE-2026-96903<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Subscriber+ Sensitive Data Disclosure via Contact CRM AJAX Handlers</p>
+            <p class="cve-sub"><span class="acc">Subscriber+</span><span>&lt;= 3.5.25</span><span class="cls">Data disclosure</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="disclosure" data-acc="unauth" data-search="cve-2026-96902 easy property listings unauthenticated hidden listing details disclosure via rest api data disclosure unauthenticated">
+          <span class="cve-no" aria-hidden="true">.24</span>
+          <div class="cve-plugin">
+            <h3>Easy Property Listings</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-96902" target="_blank" rel="noopener">CVE-2026-96902<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Unauthenticated Hidden Listing Details Disclosure via REST API</p>
+            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>&lt;= 3.5.25</span><span class="cls">Data disclosure</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="authbypass" data-acc="unauth" data-search="cve-2026-96901 cart abandonment recovery for woocommerce unauthenticated authentication bypass via unsigned recovery token auth bypass unauthenticated">
+          <span class="cve-no" aria-hidden="true">.25</span>
+          <div class="cve-plugin">
+            <h3>Cart Abandonment Recovery for WooCommerce</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-96901" target="_blank" rel="noopener">CVE-2026-96901<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Unauthenticated Authentication Bypass via Unsigned Recovery Token</p>
+            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>&lt;= 2.1.3</span><span class="cls">Auth bypass</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="xss" data-acc="auth" data-search="cve-2026-96899 optima express author+ stored xss via faq_script cross-site scripting author+">
+          <span class="cve-no" aria-hidden="true">.26</span>
+          <div class="cve-plugin">
+            <h3>Optima Express</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-96899" target="_blank" rel="noopener">CVE-2026-96899<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Author+ Stored XSS via faq_script</p>
+            <p class="cve-sub"><span class="acc">Author+</span><span>8.6.0 - 8.7.5</span><span class="cls">Cross-site scripting</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="authz" data-acc="unauth" data-search="cve-2026-85009 restropress unauthenticated order enumeration and order note modification broken access control unauthenticated">
+          <span class="cve-no" aria-hidden="true">.27</span>
+          <div class="cve-plugin">
+            <h3>RestroPress</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-85009" target="_blank" rel="noopener">CVE-2026-85009<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Unauthenticated Order Enumeration and Order Note Modification</p>
+            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>&lt;= 3.4.4</span><span class="cls">Broken access control</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="disclosure" data-acc="unauth" data-search="cve-2026-84026 directorist unauthenticated sensitive data disclosure via rest users endpoint data disclosure unauthenticated">
+          <span class="cve-no" aria-hidden="true">.28</span>
+          <div class="cve-plugin">
+            <h3>Directorist</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-84026" target="_blank" rel="noopener">CVE-2026-84026<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Unauthenticated Sensitive Data Disclosure via REST Users Endpoint</p>
+            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>8.1 - 8.9.3</span><span class="cls">Data disclosure</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="authbypass" data-acc="unauth" data-search="cve-2026-83555 email subscribers by icegram express unauthenticated subscription status change via missing token verification auth bypass unauthenticated">
+          <span class="cve-no" aria-hidden="true">.29</span>
+          <div class="cve-plugin">
+            <h3>Email Subscribers by Icegram Express</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-83555" target="_blank" rel="noopener">CVE-2026-83555<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Unauthenticated Subscription Status Change via Missing Token Verification</p>
+            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>&lt;= 5.9.34</span><span class="cls">Auth bypass</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="disclosure" data-acc="auth" data-search="cve-2026-82850 masteriyo lms subscriber+ quiz answer key disclosure data disclosure subscriber+">
+          <span class="cve-no" aria-hidden="true">.30</span>
+          <div class="cve-plugin">
+            <h3>Masteriyo LMS</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-82850" target="_blank" rel="noopener">CVE-2026-82850<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Subscriber+ Quiz Answer Key Disclosure</p>
+            <p class="cve-sub"><span class="acc">Subscriber+</span><span>&lt;= 2.3.3</span><span class="cls">Data disclosure</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="authz" data-acc="auth" data-search="cve-2026-81428 wc vendors vendor+ cross-vendor product and arbitrary post modification via idor broken access control vendor+">
+          <span class="cve-no" aria-hidden="true">.31</span>
+          <div class="cve-plugin">
+            <h3>WC Vendors</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-81428" target="_blank" rel="noopener">CVE-2026-81428<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Vendor+ Cross-Vendor Product and Arbitrary Post Modification via IDOR</p>
+            <p class="cve-sub"><span class="acc">Vendor+</span><span>&lt;= 2.7.2</span><span class="cls">Broken access control</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="csrf" data-acc="auth" data-search="cve-2026-81426 wc vendors order shipment status change via csrf csrf victim-triggered">
+          <span class="cve-no" aria-hidden="true">.32</span>
+          <div class="cve-plugin">
+            <h3>WC Vendors</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-81426" target="_blank" rel="noopener">CVE-2026-81426<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Order Shipment Status Change via CSRF</p>
+            <p class="cve-sub"><span class="acc">Victim-triggered</span><span>&lt;= 2.7.2</span><span class="cls">CSRF</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="redirect" data-acc="auth" data-search="cve-2026-81423 accept stripe payments open redirect via ipn handler open redirect varies">
+          <span class="cve-no" aria-hidden="true">.33</span>
+          <div class="cve-plugin">
+            <h3>Accept Stripe Payments</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-81423" target="_blank" rel="noopener">CVE-2026-81423<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Open Redirect via IPN Handler</p>
+            <p class="cve-sub"><span class="acc">Varies</span><span>&lt;= 2.1.3</span><span class="cls">Open redirect</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="dos" data-acc="unauth" data-search="cve-2026-80514 wpforo forum unauthenticated ai credit exhaustion via ip rate limit bypass resource exhaustion unauthenticated">
+          <span class="cve-no" aria-hidden="true">.34</span>
+          <div class="cve-plugin">
+            <h3>wpForo Forum</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-80514" target="_blank" rel="noopener">CVE-2026-80514<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Unauthenticated AI Credit Exhaustion via IP Rate Limit Bypass</p>
+            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>3.0.0 - 3.1.5</span><span class="cls">Resource exhaustion</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="authz" data-acc="auth" data-search="cve-2026-77788 rank math seo author+ arbitrary post and user metadata overwrite via updateschemas broken access control author+">
+          <span class="cve-no" aria-hidden="true">.35</span>
+          <div class="cve-plugin">
+            <h3>Rank Math SEO</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-77788" target="_blank" rel="noopener">CVE-2026-77788<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Author+ Arbitrary Post and User Metadata Overwrite via updateSchemas</p>
+            <p class="cve-sub"><span class="acc">Author+</span><span>1.0.48 - 1.0.276</span><span class="cls">Broken access control</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="csrf" data-acc="auth" data-search="cve-2026-75795 edwiser bridge administrator account creation via csrf csrf victim-triggered">
+          <span class="cve-no" aria-hidden="true">.36</span>
+          <div class="cve-plugin">
+            <h3>Edwiser Bridge</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-75795" target="_blank" rel="noopener">CVE-2026-75795<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Administrator Account Creation via CSRF</p>
+            <p class="cve-sub"><span class="acc">Victim-triggered</span><span>4.3.0 - 4.3.4</span><span class="cls">CSRF</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="disclosure" data-acc="auth" data-search="cve-2026-74930 wp project manager subscriber+ user activity feed disclosure via idor data disclosure subscriber+">
+          <span class="cve-no" aria-hidden="true">.37</span>
+          <div class="cve-plugin">
+            <h3>WP Project Manager</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-74930" target="_blank" rel="noopener">CVE-2026-74930<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Subscriber+ User Activity Feed Disclosure via IDOR</p>
+            <p class="cve-sub"><span class="acc">Subscriber+</span><span>2.2.0 - 4.0.6</span><span class="cls">Data disclosure</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="authbypass" data-acc="unauth" data-search="cve-2026-74928 wp project manager unauthenticated subscriber account creation via trello import routes auth bypass unauthenticated">
+          <span class="cve-no" aria-hidden="true">.38</span>
+          <div class="cve-plugin">
+            <h3>WP Project Manager</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-74928" target="_blank" rel="noopener">CVE-2026-74928<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Unauthenticated Subscriber Account Creation via Trello Import Routes</p>
+            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>2.1.0 - 4.0.6</span><span class="cls">Auth bypass</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="authz" data-acc="unauth" data-search="cve-2026-74924 multivendorx unauthenticated store data disclosure and modification via rest permission filter broken access control unauthenticated">
+          <span class="cve-no" aria-hidden="true">.39</span>
+          <div class="cve-plugin">
+            <h3>MultiVendorX</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-74924" target="_blank" rel="noopener">CVE-2026-74924<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Unauthenticated Store Data Disclosure and Modification via REST Permission Filter</p>
+            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>5.0.3 - 5.0.14</span><span class="cls">Broken access control</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="disclosure" data-acc="unauth" data-search="cve-2026-19439 ultimate gift cards for woocommerce unauthenticated gift card code and customer pii disclosure data disclosure unauthenticated">
+          <span class="cve-no" aria-hidden="true">.40</span>
+          <div class="cve-plugin">
+            <h3>Ultimate Gift Cards for WooCommerce</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-19439" target="_blank" rel="noopener">CVE-2026-19439<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Unauthenticated Gift Card Code and Customer PII Disclosure</p>
+            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>3.0.3 - 3.2.9</span><span class="cls">Data disclosure</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="disclosure" data-acc="unauth" data-search="cve-2026-18789 ezoic unauthenticated database export via content export rest routes data disclosure unauthenticated">
+          <span class="cve-no" aria-hidden="true">.41</span>
           <div class="cve-plugin">
             <h3>Ezoic</h3>
             <a class="cve-id" href="https://wpscan.com/vulnerability/1e2ce237-dc91-4144-875a-339b5ea05f3a/" target="_blank" rel="noopener">CVE-2026-18789<span class="arr" aria-hidden="true">↗</span></a>
           </div>
           <div class="cve-desc">
             <p class="cve-title">Unauthenticated Database Export via Content Export REST Routes</p>
-            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>Fixed in 2.23.1</span></p>
+            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>&lt;= 2.22.11</span><span class="cls">Data disclosure</span></p>
           </div>
           <div class="cve-score">
             <span class="cve-cvss">7.5 <span class="sev sev-high">High</span></span>
-            <span class="cve-date">2026-08-10</span>
           </div>
         </article>
-
-        <!-- 3 -->
-        <article class="cve">
-          <span class="cve-no" aria-hidden="true">.03</span>
+        <article class="cve" data-class="authbypass" data-acc="unauth" data-search="cve-2026-18786 checkview unauthenticated administrator account creation via rest api authentication bypass auth bypass unauthenticated">
+          <span class="cve-no" aria-hidden="true">.42</span>
           <div class="cve-plugin">
-            <h3>WP Travel Engine</h3>
-            <a class="cve-id" href="https://wpscan.com/vulnerability/1bc550f3-8b8f-42ac-aec9-7dcb7b0f7978/" target="_blank" rel="noopener">CVE-2026-16737<span class="arr" aria-hidden="true">↗</span></a>
+            <h3>CheckView</h3>
+            <a class="cve-id" href="https://wpscan.com/vulnerability/f53e1706-e926-4a2c-a2a7-465b4ca5d102/" target="_blank" rel="noopener">CVE-2026-18786<span class="arr" aria-hidden="true">↗</span></a>
           </div>
           <div class="cve-desc">
-            <p class="cve-title">Unauthenticated Booking Details Disclosure &amp; Modification</p>
-            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>Fixed in 6.8.5</span></p>
+            <p class="cve-title">Unauthenticated Administrator Account Creation via REST API Authentication Bypass</p>
+            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>&lt;= 2.3.1</span><span class="cls">Auth bypass</span></p>
           </div>
           <div class="cve-score">
-            <span class="cve-cvss">6.5 <span class="sev sev-med">Medium</span></span>
-            <span class="cve-date">2026-08-10</span>
+            <span class="cve-cvss">8.8 <span class="sev sev-high">High</span></span>
           </div>
         </article>
-
-        <!-- 4 -->
-        <article class="cve">
-          <span class="cve-no" aria-hidden="true">.04</span>
-          <div class="cve-plugin">
-            <h3>Interactive World Maps</h3>
-            <a class="cve-id" href="https://nvd.nist.gov/vuln/detail/CVE-2024-3681" target="_blank" rel="noopener">CVE-2024-3681<span class="arr" aria-hidden="true">↗</span></a>
-          </div>
-          <div class="cve-desc">
-            <p class="cve-title">Reflected Cross-Site Scripting (CWE-79)</p>
-            <p class="cve-sub"><span class="acc">Unauthenticated · UI:R</span><span>Affected ≤ 2.4.14</span><span>NVD / Wordfence</span></p>
-          </div>
-          <div class="cve-score">
-            <span class="cve-cvss">6.1 <span class="sev sev-med">Medium</span></span>
-            <span class="cve-date">2024</span>
-          </div>
-        </article>
-
-        <!-- 5 -->
-        <article class="cve">
-          <span class="cve-no" aria-hidden="true">.05</span>
-          <div class="cve-plugin">
-            <h3>GeoDirectory</h3>
-            <a class="cve-id" href="https://wpscan.com/vulnerability/162fa8ab-4d80-46f8-9a15-63c8dfd0be33/" target="_blank" rel="noopener">CVE-2026-16988<span class="arr" aria-hidden="true">↗</span></a>
-          </div>
-          <div class="cve-desc">
-            <p class="cve-title">Unauthenticated Pending/Draft Listing Disclosure via markers REST Endpoint</p>
-            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>Fixed in 2.8.169</span></p>
-          </div>
-          <div class="cve-score">
-            <span class="cve-cvss">5.3 <span class="sev sev-med">Medium</span></span>
-            <span class="cve-date">2026-08-03</span>
-          </div>
-        </article>
-
-        <!-- 6 -->
-        <article class="cve">
-          <span class="cve-no" aria-hidden="true">.06</span>
-          <div class="cve-plugin">
-            <h3>MStore API</h3>
-            <a class="cve-id" href="https://wpscan.com/vulnerability/0e7d8a17-0901-45b5-959c-2c1ef1316047/" target="_blank" rel="noopener">CVE-2026-16041<span class="arr" aria-hidden="true">↗</span></a>
-          </div>
-          <div class="cve-desc">
-            <p class="cve-title">Unauthenticated Product Review Creation</p>
-            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>Fixed in 4.21.0</span></p>
-          </div>
-          <div class="cve-score">
-            <span class="cve-cvss">5.3 <span class="sev sev-med">Medium</span></span>
-            <span class="cve-date">2026-08-03</span>
-          </div>
-        </article>
-
-        <!-- 7 -->
-        <article class="cve">
-          <span class="cve-no" aria-hidden="true">.07</span>
-          <div class="cve-plugin">
-            <h3>Salon Booking System</h3>
-            <a class="cve-id" href="https://wpscan.com/vulnerability/ddc84492-408b-477c-ac6c-b9ec96ccf223/" target="_blank" rel="noopener">CVE-2026-17022<span class="arr" aria-hidden="true">↗</span></a>
-          </div>
-          <div class="cve-desc">
-            <p class="cve-title">Unauthenticated Booking Information Disclosure via Booking Wizard</p>
-            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>Fixed in 10.30.34</span></p>
-          </div>
-          <div class="cve-score">
-            <span class="cve-cvss">5.3 <span class="sev sev-med">Medium</span></span>
-            <span class="cve-date">2026-08-06</span>
-          </div>
-        </article>
-
-        <!-- 8 -->
-        <article class="cve">
-          <span class="cve-no" aria-hidden="true">.08</span>
+        <article class="cve" data-class="disclosure" data-acc="unauth" data-search="cve-2026-18050 events manager unauthenticated pending upload disclosure via events-manager/v1/uploads data disclosure unauthenticated">
+          <span class="cve-no" aria-hidden="true">.43</span>
           <div class="cve-plugin">
             <h3>Events Manager</h3>
             <a class="cve-id" href="https://wpscan.com/vulnerability/84964951-d25a-4753-bf71-fe00e2492a89/" target="_blank" rel="noopener">CVE-2026-18050<span class="arr" aria-hidden="true">↗</span></a>
           </div>
           <div class="cve-desc">
             <p class="cve-title">Unauthenticated Pending Upload Disclosure via events-manager/v1/uploads</p>
-            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>Fixed in 7.4</span></p>
+            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>&lt; 7.4</span><span class="cls">Data disclosure</span></p>
           </div>
           <div class="cve-score">
             <span class="cve-cvss">3.7 <span class="sev sev-low">Low</span></span>
-            <span class="cve-date">2026-07-30</span>
+          </div>
+        </article>
+        <article class="cve" data-class="disclosure" data-acc="unauth" data-search="cve-2026-17022 salon booking system unauthenticated booking information disclosure via booking wizard data disclosure unauthenticated">
+          <span class="cve-no" aria-hidden="true">.44</span>
+          <div class="cve-plugin">
+            <h3>Salon Booking System</h3>
+            <a class="cve-id" href="https://wpscan.com/vulnerability/ddc84492-408b-477c-ac6c-b9ec96ccf223/" target="_blank" rel="noopener">CVE-2026-17022<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Unauthenticated Booking Information Disclosure via Booking Wizard</p>
+            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>&lt;= 10.30.33</span><span class="cls">Data disclosure</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss">5.3 <span class="sev sev-med">Medium</span></span>
+          </div>
+        </article>
+        <article class="cve" data-class="disclosure" data-acc="unauth" data-search="cve-2026-16988 geodirectory unauthenticated pending/draft listing disclosure via markers rest endpoint data disclosure unauthenticated">
+          <span class="cve-no" aria-hidden="true">.45</span>
+          <div class="cve-plugin">
+            <h3>GeoDirectory</h3>
+            <a class="cve-id" href="https://wpscan.com/vulnerability/162fa8ab-4d80-46f8-9a15-63c8dfd0be33/" target="_blank" rel="noopener">CVE-2026-16988<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Unauthenticated Pending/Draft Listing Disclosure via markers REST Endpoint</p>
+            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>&lt;= 2.8.168</span><span class="cls">Data disclosure</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss">5.3 <span class="sev sev-med">Medium</span></span>
+          </div>
+        </article>
+        <article class="cve" data-class="disclosure" data-acc="unauth" data-search="cve-2026-16737 wp travel engine unauthenticated booking details disclosure via wte_add_trip_to_cart data disclosure unauthenticated">
+          <span class="cve-no" aria-hidden="true">.46</span>
+          <div class="cve-plugin">
+            <h3>WP Travel Engine</h3>
+            <a class="cve-id" href="https://wpscan.com/vulnerability/1bc550f3-8b8f-42ac-aec9-7dcb7b0f7978/" target="_blank" rel="noopener">CVE-2026-16737<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Unauthenticated Booking Details Disclosure via wte_add_trip_to_cart</p>
+            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>&lt;= 6.8.3</span><span class="cls">Data disclosure</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss">6.5 <span class="sev sev-med">Medium</span></span>
+          </div>
+        </article>
+        <article class="cve" data-class="disclosure" data-acc="unauth" data-search="cve-2026-16575 dokan unauthenticated commission settings disclosure via store categories rest data disclosure unauthenticated">
+          <span class="cve-no" aria-hidden="true">.47</span>
+          <div class="cve-plugin">
+            <h3>Dokan</h3>
+            <a class="cve-id" href="https://wpscan.com/vulnerability/44ab8be6-c0d8-459b-9597-79cb28bac09b/" target="_blank" rel="noopener">CVE-2026-16575<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Unauthenticated Commission Settings Disclosure via Store Categories REST</p>
+            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>&lt;= 5.0.9</span><span class="cls">Data disclosure</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="xss" data-acc="auth" data-search="cve-2026-16558 ymc filter contributor+ stored xss via layout builder schema cross-site scripting contributor+">
+          <span class="cve-no" aria-hidden="true">.48</span>
+          <div class="cve-plugin">
+            <h3>YMC Filter</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-16558" target="_blank" rel="noopener">CVE-2026-16558<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Contributor+ Stored XSS via Layout Builder Schema</p>
+            <p class="cve-sub"><span class="acc">Contributor+</span><span>&lt;= 3.12.7</span><span class="cls">Cross-site scripting</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="authz" data-acc="auth" data-search="cve-2026-16281 classified listing subscriber+ arbitrary attachment deletion and listing image tampering via idor broken access control subscriber+">
+          <span class="cve-no" aria-hidden="true">.49</span>
+          <div class="cve-plugin">
+            <h3>Classified Listing</h3>
+            <a class="cve-id" href="https://www.cve.org/CVERecord?id=CVE-2026-16281" target="_blank" rel="noopener">CVE-2026-16281<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Subscriber+ Arbitrary Attachment Deletion and Listing Image Tampering via IDOR</p>
+            <p class="cve-sub"><span class="acc">Subscriber+</span><span>&lt;= 5.5.0</span><span class="cls">Broken access control</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss cve-cvss-na">CVSS pending</span>
+          </div>
+        </article>
+        <article class="cve" data-class="authz" data-acc="unauth" data-search="cve-2026-16041 mstore api unauthenticated product review creation broken access control unauthenticated">
+          <span class="cve-no" aria-hidden="true">.50</span>
+          <div class="cve-plugin">
+            <h3>MStore API</h3>
+            <a class="cve-id" href="https://wpscan.com/vulnerability/0e7d8a17-0901-45b5-959c-2c1ef1316047/" target="_blank" rel="noopener">CVE-2026-16041<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Unauthenticated Product Review Creation</p>
+            <p class="cve-sub"><span class="acc">Unauthenticated</span><span>&lt;= 4.20.0</span><span class="cls">Broken access control</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss">5.3 <span class="sev sev-med">Medium</span></span>
+          </div>
+        </article>
+        <article class="cve" data-class="xss" data-acc="auth" data-search="cve-2024-3681 interactive world maps reflected cross-site scripting cross-site scripting varies">
+          <span class="cve-no" aria-hidden="true">.51</span>
+          <div class="cve-plugin">
+            <h3>Interactive World Maps</h3>
+            <a class="cve-id" href="https://nvd.nist.gov/vuln/detail/CVE-2024-3681" target="_blank" rel="noopener">CVE-2024-3681<span class="arr" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="cve-desc">
+            <p class="cve-title">Reflected Cross-Site Scripting</p>
+            <p class="cve-sub"><span class="acc">Varies</span><span>&lt;= 1.5.0</span><span class="cls">Cross-site scripting</span></p>
+          </div>
+          <div class="cve-score">
+            <span class="cve-cvss">6.1 <span class="sev sev-med">Medium</span></span>
           </div>
         </article>
 
@@ -903,12 +1556,12 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
       <div class="embargo" data-reveal>
         <div class="embargo-grid">
           <dl class="embargo-stats">
-            <div class="estat"><dt>Further reported to WPScan — awaiting triage / CVE</dt><dd>~52</dd></div>
-            <div class="estat"><dt>Validated in lab — queued for submission</dt><dd>121<span>+</span></dd></div>
+            <div class="estat"><dt>CVE IDs assigned to date</dt><dd>59</dd></div>
+            <div class="estat"><dt>Advisories live on WPScan</dt><dd>55</dd></div>
           </dl>
           <div class="embargo-body">
-            <p>Beyond the eight published CVEs, roughly <b>52 further vulnerabilities</b> have been reported to WPScan and are awaiting triage or a CVE assignment, with another <b>121+ validated in the lab</b> and queued for submission.</p>
-            <p>These remain embargoed. No plugin names, slugs, versions, endpoints, parameters, or proof-of-concept are published for any finding that is still unpatched — specifics are withheld until each vendor ships a fix and, where applicable, a CVE is assigned.</p>
+            <p>Fifty-one are catalogued above with their advisory links. The rest are assigned and go live as each vendor finishes its fix cycle.</p>
+            <p>Nothing unpatched is described here. No plugin name, version, endpoint, parameter, or proof of concept is published while a finding is still live, because that would hand attackers a working map.</p>
 
             <p class="embargo-label">Vulnerability-class mix across the corpus</p>
             <ul class="classlist">
@@ -922,7 +1575,7 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
               <li>RCE (1×)</li>
             </ul>
 
-            <p class="access-note"><b>Access levels —</b> predominantly unauthenticated, plus a minority requiring only low-privilege access (Subscriber / Contributor).</p>
+            <p class="access-note"><b>Access levels:</b> predominantly unauthenticated, plus a minority requiring only low-privilege access (Subscriber or Contributor).</p>
           </div>
         </div>
       </div>
@@ -941,7 +1594,7 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
       </header>
 
       <div class="statement" data-reveal>
-        <p>Every vulnerability here was reported <em>privately first.</em> Nothing is published — no plugin name, version, endpoint, parameter, or proof-of-concept — while a finding is still unpatched, because that would hand attackers a live roadmap. Details go public only after the vendor ships a fix and, where applicable, a CVE is assigned.</p>
+        <p>Every vulnerability here was reported <em>privately first.</em> Nothing is published while a finding is still unpatched: not the plugin name, version, endpoint, parameter, or proof of concept. Publishing early would hand attackers a working map. Details go public only after the vendor ships a fix and, where applicable, a CVE is assigned.</p>
         <span class="sig">Reported through <a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">WPScan</a> &amp; <a href="https://www.wordfence.com/threat-intel/vulnerabilities/researchers/usama-arshad" target="_blank" rel="noopener">Wordfence</a> · Usama Arshad</span>
       </div>
     </div>
@@ -956,18 +1609,18 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
 
       <div class="foot-brand">
         <a class="wordmark" href="/">Usama Arshad<span class="dot">.</span></a>
-        <p>Offensive Security Lead — red team, AppSec, and cloud security for fintech at scale. Coordinated-disclosure research on the side, based in Riyadh, Saudi Arabia.</p>
+        <p>Offensive Security Lead. Red team, AppSec, and cloud security for fintech at scale. Coordinated-disclosure research on the side, based in Riyadh, Saudi Arabia.</p>
       </div>
 
       <nav class="foot-col" aria-label="Portfolio index">
         <h2>Index</h2>
         <ul>
-          <li><a href="/#about">01 — About</a></li>
-          <li><a href="/#experience">02 — Experience</a></li>
-          <li><a href="/#expertise">03 — Expertise</a></li>
-          <li><a href="/#achievements">04 — Recognition</a></li>
-          <li><a href="/#projects">05 — Projects</a></li>
-          <li><a href="/#contact">07 — Contact</a></li>
+          <li><a href="/#about">01 · About</a></li>
+          <li><a href="/#experience">02 · Experience</a></li>
+          <li><a href="/#expertise">03 · Expertise</a></li>
+          <li><a href="/#achievements">04 · Recognition</a></li>
+          <li><a href="/#projects">05 · Projects</a></li>
+          <li><a href="/#contact">07 · Contact</a></li>
         </ul>
       </nav>
 
@@ -989,7 +1642,7 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
 
     <div class="foot-base">
       <span>© 2026 Usama Arshad · Riyadh, Saudi Arabia</span>
-      <span class="colophon">Set in Fraunces, Inter &amp; JetBrains Mono — self-hosted · No trackers, no cookies</span>
+      <span class="colophon">Set in Fraunces, Inter &amp; JetBrains Mono, self-hosted · No trackers, no cookies</span>
       <a href="#top">Back to top ↑</a>
     </div>
   </div>
@@ -1039,6 +1692,53 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
     window.addEventListener("scroll", revealByGeometry, { passive: true });
     window.addEventListener("resize", revealByGeometry);
     revealByGeometry();
+  }
+
+  /* ---------- disclosure ledger: search + class filter ---------- */
+  var ledger = document.querySelector(".ledger");
+  if (ledger) {
+    var cves    = Array.prototype.slice.call(ledger.querySelectorAll(".cve"));
+    var chips   = Array.prototype.slice.call(ledger.querySelectorAll(".lchip"));
+    var search  = document.getElementById("cveSearch");
+    var counter = document.getElementById("cveCount");
+    var empty   = document.createElement("p");
+    empty.className = "ledger-empty";
+    empty.hidden = true;
+    empty.textContent = "No disclosure matches that filter.";
+    ledger.appendChild(empty);
+    var activeFilter = "all";
+
+    function applyFilter() {
+      var q = (search.value || "").trim().toLowerCase();
+      var shown = 0;
+      for (var i = 0; i < cves.length; i++) {
+        var el = cves[i];
+        var okClass = activeFilter === "all" ||
+                      el.getAttribute("data-class") === activeFilter ||
+                      (activeFilter === "unauth" && el.getAttribute("data-acc") === "unauth");
+        var okText = !q || el.getAttribute("data-search").indexOf(q) !== -1;
+        var show = okClass && okText;
+        el.hidden = !show;
+        if (show) shown++;
+      }
+      empty.hidden = shown !== 0;
+      counter.textContent = shown === cves.length
+        ? "Showing all " + cves.length + " disclosures"
+        : "Showing " + shown + " of " + cves.length + " disclosures";
+    }
+
+    chips.forEach(function (chip) {
+      chip.addEventListener("click", function () {
+        activeFilter = chip.getAttribute("data-filter");
+        chips.forEach(function (c) {
+          var on = c === chip;
+          c.classList.toggle("is-on", on);
+          c.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+        applyFilter();
+      });
+    });
+    search.addEventListener("input", applyFilter);
   }
 })();
 </script>

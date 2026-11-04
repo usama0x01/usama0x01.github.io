@@ -5,9 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<title>Usama Arshad — Offensive Security Lead</title>
-<meta name="description" content="Usama Arshad — OSCP-certified Offensive Security Lead in Riyadh. 9+ years across red team, AppSec, and cloud security. Currently leading offensive security at Tabby, MENA's largest BNPL fintech.">
+<title>Usama Arshad · Offensive Security Lead</title>
+<meta name="description" content="OSCP-certified Offensive Security Lead in Riyadh. 9+ years in red team, AppSec and cloud security. 59 assigned CVE IDs, 9th on the WPScan leaderboard.">
 <link rel="canonical" href="https://www.usamaarshad.me/">
+<link rel="alternate" type="application/rss+xml" title="Usama Arshad, Writing" href="/feed.xml">
 <link rel="icon" href="assets/favicon.ico">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <meta name="theme-color" content="#131110">
@@ -15,19 +16,19 @@
 <!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Usama Arshad">
-<meta property="og:title" content="Usama Arshad — Offensive Security Lead">
+<meta property="og:title" content="Usama Arshad · Offensive Security Lead">
 <meta property="og:description" content="Red Team · Fintech &amp; Cloud. 9+ years of offensive security; currently leading the offensive security function at Tabby, MENA's largest BNPL fintech.">
 <meta property="og:url" content="https://www.usamaarshad.me">
 <meta property="og:image" content="https://www.usamaarshad.me/assets/og.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Usama Arshad — Offensive Security Lead. OSCP · 9+ years · 8 published CVEs.">
+<meta property="og:image:alt" content="Usama Arshad · Offensive Security Lead. OSCP · 9+ years · 59 assigned CVE IDs.">
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:creator" content="@usama0x01">
-<meta name="twitter:title" content="Usama Arshad — Offensive Security Lead">
-<meta name="twitter:description" content="Red Team · Fintech &amp; Cloud. OSCP-certified, 9+ years, 8 published CVEs, 3× national CTF champion.">
+<meta name="twitter:title" content="Usama Arshad · Offensive Security Lead">
+<meta name="twitter:description" content="Red Team · Fintech &amp; Cloud. OSCP-certified, 9+ years, 59 assigned CVE IDs, 3× national CTF podium finishes.">
 <meta name="twitter:image" content="https://www.usamaarshad.me/assets/og.jpg">
 
 <script type="application/ld+json">
@@ -58,15 +59,16 @@
     "occupationalCategory": "15-1212.00 Information Security Analysts"
   },
   "hasCredential": [
-    { "@type": "EducationalOccupationalCredential", "credentialCategory": "certification", "name": "OSCP — Offensive Security Certified Professional" },
+    { "@type": "EducationalOccupationalCredential", "credentialCategory": "certification", "name": "OSCP, Offensive Security Certified Professional" },
     { "@type": "EducationalOccupationalCredential", "credentialCategory": "certification", "name": "Hack The Box Offshore Pro Lab" }
   ],
   "award": [
-    "CVE-2024-3681 — original 0-day research and responsible disclosure",
-    "8 published CVEs (WordPress plugin security, 2024–2026)",
+    "CVE-2024-3681, original 0-day research and responsible disclosure",
+    "59 assigned CVE IDs (WordPress plugin security, 2024-2026)",
+    "9th on the WPScan researcher leaderboard",
     "BlackHat MEA CTF Finalist (2023, 2024)",
-    "3× Pakistan National Cyber Security Hackathon champion (2021–2023)",
-    "Hall of Fame — United Nations, Walmart, Achmea, The Sun"
+    "3x podium finishes, Digital Pakistan National Cyber Security Hackathon (2021-2023), Team SafeCottage",
+    "Hall of Fame: United Nations, Walmart, Achmea, The Sun"
   ]
 }
 </script>
@@ -79,7 +81,7 @@
 
 <style>
 /* ============================================================
-   EDITORIAL NOIR — design system
+   EDITORIAL NOIR · design system
    ============================================================ */
 /* self-hosted fonts (latin subsets) */
 @font-face{font-family:'Fraunces';font-style:normal;font-weight:340 640;font-display:swap;src:url(assets/fonts/fraunces-normal-340-640.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
@@ -236,7 +238,8 @@ body.menu-open .site-head{ background:var(--bg); }
 }
 .wordmark:hover{ color:var(--accent); }
 
-.nav-list{ display:flex; align-items:center; gap:1.9rem; }
+.nav-list{ display:flex; align-items:center; gap:clamp(.95rem, 1.7vw, 1.6rem); }
+.nav-sep{ width:1px; height:14px; background:var(--hairline-mid); flex:none; }
 .nav-list a{
   position:relative;
   font-family:var(--mono); font-size:var(--fs-meta); font-weight:500;
@@ -315,7 +318,7 @@ body.menu-open{ overflow:hidden; }
 }
 
 /* ============================================================
-   HERO — the front page
+   HERO · the front page
    ============================================================ */
 .hero{ padding-top:clamp(1.5rem, 4vw, 3rem); }
 
@@ -465,7 +468,7 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
   font-family:var(--mono); font-style:normal; font-size:var(--fs-chip);
   text-transform:uppercase; letter-spacing:.15em; color:var(--muted);
 }
-/* case file — figure + fact sheet under the pull quote */
+/* case file: figure + fact sheet under the pull quote */
 .casefile{
   margin-top:clamp(1.75rem, 4vw, 2.5rem);
 }
@@ -564,7 +567,7 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
 }
 .xp-points li + li{ margin-top:.55rem; }
 .xp-points li::before{
-  content:"—"; position:absolute; left:0; top:0;
+  content:"–"; position:absolute; left:0; top:0;
   color:var(--accent); font-family:var(--mono);
 }
 @media (max-width: 720px){
@@ -574,7 +577,7 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
   .xp-tag{ margin-top:0; }
 }
 
-/* ---------- 03 expertise — ruled ledger ---------- */
+/* ---------- 03 expertise: ruled ledger ---------- */
 .domains{ border-bottom:1px solid var(--hairline); }
 .domain{
   display:grid; grid-template-columns:minmax(200px, 21rem) 1fr;
@@ -762,6 +765,15 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
 }
 .cred:hover{ background:var(--bg-elev-2); }
 .cred h3{ font-size:1.35rem; letter-spacing:-.01em; }
+.cred h3 a{
+  display:inline-flex; align-items:baseline; gap:.3rem;
+  background-image:linear-gradient(var(--accent),var(--accent));
+  background-size:0% 1px; background-position:0 100%; background-repeat:no-repeat;
+  transition:background-size var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+.cred h3 a .arr{ font-size:.62rem; color:var(--accent); transition:transform var(--t-fast) var(--ease); }
+.cred h3 a:hover{ color:var(--accent); background-size:100% 1px; }
+.cred h3 a:hover .arr{ transform:translate(2px,-2px); }
 .cred .full{ display:block; margin-top:.4rem; font-size:var(--fs-small); color:var(--text); }
 .cred .issuer{
   display:block; margin-top:.65rem;
@@ -876,14 +888,16 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
 
 <header class="site-head" id="top">
   <div class="container head-inner">
-    <a class="wordmark" href="#top" aria-label="Usama Arshad — back to top">Usama Arshad<span class="dot">.</span></a>
+    <a class="wordmark" href="#top" aria-label="Usama Arshad, back to top">Usama Arshad<span class="dot">.</span></a>
     <nav aria-label="Primary">
       <ul class="nav-list">
         <li><a href="#about" data-navlink>About</a></li>
         <li><a href="#experience" data-navlink>Experience</a></li>
-        <li><a href="#expertise" data-navlink>Expertise</a></li>
         <li><a href="#achievements" data-navlink>Recognition</a></li>
-        <li><a href="#projects" data-navlink>Projects</a></li>
+        <li class="nav-sep" aria-hidden="true"></li>
+        <li><a href="/research/">Research</a></li>
+        <li><a href="/blog/">Writing</a></li>
+        <li><a href="/dorks/">Dorks</a></li>
         <li><a href="#contact" data-navlink>Contact</a></li>
       </ul>
     </nav>
@@ -905,6 +919,9 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
       <li><a href="#projects" data-navlink><span class="no">05</span>Projects</a></li>
       <li><a href="#credentials" data-navlink><span class="no">06</span>Credentials</a></li>
       <li><a href="#contact" data-navlink><span class="no">07</span>Contact</a></li>
+      <li><a href="/research/"><span class="no">→</span>Research</a></li>
+      <li><a href="/blog/"><span class="no">→</span>Writing</a></li>
+      <li><a href="/dorks/"><span class="no">→</span>Dork library</a></li>
     </ul>
   </nav>
   <div class="mobile-menu-foot">
@@ -935,7 +952,7 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
       <div class="hero-deck">
         <div class="deck-copy" data-reveal style="--d:.16s">
           <p class="kicker">Red Team · Fintech &amp; Cloud</p>
-          <p class="deck">OSCP-certified, <strong>nine-plus years</strong> deep in red team, AppSec, and cloud security — web, mobile, API, GCP, AWS, Kubernetes. Currently leading the offensive security function at <strong>Tabby</strong>, MENA's largest BNPL fintech, protecting 14M+ users. <strong>8 published CVEs</strong> and counting.</p>
+          <p class="deck">OSCP-certified, <strong>nine-plus years</strong> deep in red team, AppSec, and cloud security across web, mobile, API, GCP, AWS and Kubernetes. Currently leading the offensive security function at <strong>Tabby</strong>, MENA's largest BNPL fintech, protecting 14M+ users. <strong>59 assigned CVE IDs</strong> and counting.</p>
           <div class="cta-row">
             <a class="btn btn-solid" href="assets/Usama-Arshad-Resume.pdf" download>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>
@@ -956,11 +973,11 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
 
       <dl class="stats" data-reveal style="--d:.3s">
         <div class="stat"><dt>Years in offensive security</dt><dd>09<span>+</span></dd></div>
-        <div class="stat"><dt>Engagements — F500 &amp; SAMA</dt><dd>80<span>+</span></dd></div>
+        <div class="stat"><dt>Engagements · F500 &amp; SAMA</dt><dd>150<span>+</span></dd></div>
         <div class="stat"><dt>Users protected at Tabby</dt><dd>14M<span>+</span></dd></div>
-        <div class="stat"><dt>Published CVEs</dt><dd>08</dd></div>
-        <div class="stat"><dt>National CTF titles — Pakistan</dt><dd>03<span>×</span></dd></div>
-        <div class="stat"><dt>Halls of fame — disclosure</dt><dd>04</dd></div>
+        <div class="stat"><dt>CVE IDs assigned</dt><dd>59</dd></div>
+        <div class="stat"><dt>National CTF podiums · Pakistan</dt><dd>03<span>×</span></dd></div>
+        <div class="stat"><dt>Halls of fame · disclosure</dt><dd>04</dd></div>
       </dl>
 
     </div>
@@ -980,27 +997,27 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
         <aside class="about-rail" data-reveal>
           <div class="pullquote">
             <p><span class="mark">“</span>The best finding is the attack chain that never reaches production.<span class="mark">”</span></p>
-            <cite>— Working principle</cite>
+            <cite>Working principle</cite>
           </div>
           <div class="casefile">
             <figure class="casefile-head">
               <img src="avatar.jpg" alt="Portrait of Usama Arshad" width="460" height="460" loading="lazy">
-              <figcaption>Fig. 01 — Subject<b>U. Arshad · Riyadh, KSA</b></figcaption>
+              <figcaption>Fig. 01 · Subject<b>U. Arshad · Riyadh, KSA</b></figcaption>
             </figure>
             <dl class="factsheet">
               <div><dt>Role</dt><span class="leader" aria-hidden="true"></span><dd>Offensive Security Lead</dd></div>
               <div><dt>Current</dt><span class="leader" aria-hidden="true"></span><dd>Tabby · 14M+ users</dd></div>
               <div><dt>Certified</dt><span class="leader" aria-hidden="true"></span><dd>OSCP</dd></div>
-              <div><dt>Engagements</dt><span class="leader" aria-hidden="true"></span><dd>80+ · F500 &amp; SAMA</dd></div>
-              <div><dt>Research</dt><span class="leader" aria-hidden="true"></span><dd>8 CVEs · 59+ WPScan reports</dd></div>
+              <div><dt>Engagements</dt><span class="leader" aria-hidden="true"></span><dd>150+ · F500 &amp; SAMA</dd></div>
+              <div><dt>Research</dt><span class="leader" aria-hidden="true"></span><dd>59 CVEs · 9th on WPScan</dd></div>
               <div><dt>Listed by</dt><span class="leader" aria-hidden="true"></span><dd>UN · Walmart · Achmea · The&nbsp;Sun</dd></div>
             </dl>
           </div>
         </aside>
         <div class="about-body" data-reveal style="--d:.1s">
-          <p class="lead">Offensive security is a reporting discipline as much as a technical one — the exploit only matters if the business understands it. For nine-plus years I've built and run red team, AppSec, and cloud security programs across web, mobile, API, GCP, AWS, and Kubernetes, turning complex exploitation chains into decisions executives can act on.</p>
-          <p>Today I lead the offensive security function at Tabby, MENA's largest BNPL fintech. There I've architected autonomous VAPT pipelines, embedded AppSec gates into GitLab CI/CD, and hardened GKE workloads at the scale of 14M+ users. Before that: 80+ engagements delivered for Fortune 500 companies and SAMA-regulated financial institutions.</p>
-          <p>The research habit never switched off. I've published <a href="/research/">8 CVEs</a> — from a 2024 XSS to a 2026 run of unauthenticated WordPress-plugin flaws (an admin-account takeover among them), reported through WPScan — took Pakistan's national CTF podium three years running, reached the BlackHat MEA CTF finals twice, and hold hall-of-fame credits from the United Nations, Walmart, Achmea, and The Sun for responsible disclosure.</p>
+          <p class="lead">Offensive security is a reporting discipline as much as a technical one. The exploit only matters if the business understands it. For nine-plus years I've built and run red team, AppSec, and cloud security programs across web, mobile, API, GCP, AWS, and Kubernetes, turning complex exploitation chains into decisions executives can act on.</p>
+          <p>Today I lead the offensive security function at Tabby, MENA's largest BNPL fintech. There I've architected autonomous VAPT pipelines, embedded AppSec gates into GitLab CI/CD, and hardened GKE workloads at the scale of 14M+ users. Before that: 150+ engagements delivered for Fortune 500 companies and SAMA-regulated financial institutions.</p>
+          <p>The research habit never switched off. I hold <a href="/research/">59 assigned CVE IDs</a>, running from a 2024 reflected XSS to a 2026 sweep of unauthenticated WordPress plugin flaws, an admin-account takeover among them. All of it went through WPScan under coordinated disclosure, which put me <a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">9th on their researcher leaderboard</a>. Alongside that: three straight podiums at Pakistan's national cyber hackathon with Team SafeCottage, the BlackHat MEA CTF finals twice, and hall-of-fame credits from the United Nations, Walmart, Achmea, and The Sun.</p>
         </div>
       </div>
     </div>
@@ -1022,7 +1039,7 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
         <article class="xp" data-reveal>
           <div class="xp-meta">
             <span class="idx">01</span>
-            <span class="dates">Jun 2025 — Present</span>
+            <span class="dates">Jun 2025–Present</span>
             <span class="place">Riyadh, Saudi Arabia</span>
             <span class="xp-tag">Current</span>
           </div>
@@ -1031,7 +1048,7 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
             <p class="org"><b>Tabby</b> · MENA's largest BNPL fintech</p>
             <ul class="xp-points">
               <li>Lead the offensive security function for 14M+ users: red team, AppSec, and cloud security across web, mobile, API, GCP, and GKE.</li>
-              <li>Architected autonomous VAPT dashboards with Jira and tracker automation — cut assessment cycle time by 60% and eliminated manual reporting.</li>
+              <li>Architected autonomous VAPT dashboards with Jira and tracker automation, cutting assessment cycle time by 60% and eliminated manual reporting.</li>
               <li>Run continuous red team and adversary simulations, surfacing real-world attack chains before release.</li>
               <li>Embedded SAST, DAST, secret scanning, and container scanning into GitLab CI/CD, gating insecure releases at merge time.</li>
               <li>Hardened GKE workloads via Workload Identity, network policies, admission controllers, and runtime detection.</li>
@@ -1042,7 +1059,7 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
         <article class="xp" data-reveal>
           <div class="xp-meta">
             <span class="idx">02</span>
-            <span class="dates">Aug 2024 — May 2025</span>
+            <span class="dates">Aug 2024–May 2025</span>
             <span class="place">Riyadh, Saudi Arabia</span>
           </div>
           <div class="xp-body">
@@ -1059,7 +1076,7 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
         <article class="xp" data-reveal>
           <div class="xp-meta">
             <span class="idx">03</span>
-            <span class="dates">Dec 2021 — Jul 2024</span>
+            <span class="dates">Dec 2021–Jul 2024</span>
             <span class="place">Lahore, Pakistan</span>
           </div>
           <div class="xp-body">
@@ -1076,7 +1093,7 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
         <article class="xp" data-reveal>
           <div class="xp-meta">
             <span class="idx">04</span>
-            <span class="dates">Mar 2021 — Present</span>
+            <span class="dates">Mar 2021–Present</span>
             <span class="place">Remote</span>
             <span class="xp-tag">Part-time</span>
           </div>
@@ -1093,7 +1110,7 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
         <article class="xp" data-reveal>
           <div class="xp-meta">
             <span class="idx">05</span>
-            <span class="dates">Mar 2018 — May 2021</span>
+            <span class="dates">Mar 2018–May 2021</span>
             <span class="place">Lahore, Pakistan</span>
           </div>
           <div class="xp-body">
@@ -1135,7 +1152,7 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
         <article class="domain">
           <header class="domain-head"><span class="no">.02</span><h3>Offensive Testing</h3></header>
           <ul class="taglist">
-            <li>Web — OWASP Top 10</li><li>Mobile — OWASP MASVS</li><li>iOS / Android</li>
+            <li>Web / OWASP Top 10</li><li>Mobile / OWASP MASVS</li><li>iOS / Android</li>
             <li>REST</li><li>GraphQL</li><li>gRPC</li><li>Network &amp; Infrastructure</li>
             <li>Active Directory</li><li>WiFi</li><li>Thick Client</li><li>Source Code Review</li>
           </ul>
@@ -1154,8 +1171,8 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
           <header class="domain-head"><span class="no">.04</span><h3>AppSec &amp; DevSecOps</h3></header>
           <ul class="taglist">
             <li>GitLab CI/CD Security Gates</li><li>SAST</li><li>DAST</li><li>SCA</li>
-            <li>Secret Scanning</li><li>Threat Modeling — STRIDE</li><li>Secure SDLC</li>
-            <li>Code Review — Python / Go / Node / Java</li>
+            <li>Secret Scanning</li><li>Threat Modeling / STRIDE</li><li>Secure SDLC</li>
+            <li>Code Review: Python, Go, Node, Java</li>
           </ul>
         </article>
 
@@ -1196,12 +1213,12 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
           <a class="pipeline-link" href="https://www.wordfence.com/threat-intel/vulnerabilities/researchers/usama-arshad" target="_blank" rel="noopener">Wordfence profile <span class="arr" aria-hidden="true">↗</span></a>
         </div>
         <dl class="pl-grid">
-          <div class="pl-stat"><dt>Reported to WPScan</dt><dd>59<span>+</span></dd></div>
-          <div class="pl-stat"><dt>CVEs published</dt><dd>08</dd></div>
-          <div class="pl-stat"><dt>Queued for review</dt><dd>121<span>+</span></dd></div>
-          <div class="pl-stat"><dt>Peak · WPScan board</dt><dd><span>#</span>13</dd></div>
+          <div class="pl-stat"><dt>CVE IDs assigned</dt><dd>59</dd></div>
+          <div class="pl-stat"><dt>Advisories live on WPScan</dt><dd>55</dd></div>
+          <div class="pl-stat"><dt>Verified submissions</dt><dd>52</dd></div>
+          <div class="pl-stat"><dt>WPScan board</dt><dd><span>#</span>9</dd></div>
         </dl>
-        <p class="pipeline-note">Ongoing WordPress plugin security research — findings are reproduced in a local lab, deduplicated against the <b>NVD</b> catalogue, and responsibly reported through <b>WPScan</b> under coordinated disclosure. Eight now carry assigned <b>CVE IDs</b> — including an unauthenticated admin-account takeover (<b>CVSS 8.8</b>) and an unauthenticated database export. Peaked at <b>13th</b> on the <a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">WPScan researcher leaderboard</a> (Top-15); remaining findings stay embargoed until vendors patch.</p>
+        <p class="pipeline-note">Ongoing WordPress plugin security research. Findings are reproduced in a local lab, deduplicated against the <b>NVD</b> catalogue, and reported through <b>WPScan</b> under coordinated disclosure. <b>59</b> now carry assigned <b>CVE IDs</b>, including an unauthenticated admin-account takeover (<b>CVSS 8.8</b>) and an unauthenticated database export. Currently <b>9th</b> on the <a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">WPScan researcher leaderboard</a>; anything still unpatched stays embargoed.</p>
         <a class="pipeline-cta" href="/research/">View the full disclosure log <span class="arr" aria-hidden="true">→</span></a>
       </section>
 
@@ -1209,9 +1226,9 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
 
         <article class="honor" data-reveal>
           <span class="no" aria-hidden="true">01</span>
-          <h3><a href="/research/">8 published CVEs<span class="arr" aria-hidden="true">↗</span></a></h3>
-          <p>Assigned CVE IDs across WordPress plugins — headlined by an unauthenticated admin-account takeover (<b>CheckView</b>, CVSS 8.8) and an unauthenticated database export (<b>Ezoic</b>, 7.5), alongside <a href="https://nvd.nist.gov/vuln/detail/CVE-2024-3681" target="_blank" rel="noopener">CVE-2024-3681</a>. Reported through WPScan under coordinated disclosure — <a href="/research/">full log</a>.</p>
-          <div class="meta"><span class="when">2024 — 2026</span><span class="pills"><i class="pill">0-Day</i><i class="pill">Up to 8.8</i></span></div>
+          <h3><a href="/research/">59 assigned CVEs<span class="arr" aria-hidden="true">↗</span></a></h3>
+          <p>Assigned CVE IDs across WordPress plugins, headlined by an unauthenticated admin-account takeover (<b>CheckView</b>, CVSS 8.8) and an unauthenticated database export (<b>Ezoic</b>, 7.5), alongside <a href="https://nvd.nist.gov/vuln/detail/CVE-2024-3681" target="_blank" rel="noopener">CVE-2024-3681</a>. 55 advisories are live on WPScan. <a href="/research/">Full log</a>.</p>
+          <div class="meta"><span class="when">2024–2026</span><span class="pills"><i class="pill">0-Day</i><i class="pill">Up to 8.8</i></span></div>
         </article>
 
         <article class="honor" data-reveal>
@@ -1224,8 +1241,8 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
         <article class="honor" data-reveal>
           <span class="no" aria-hidden="true">03</span>
           <h3><a href="https://ignite.org.pk/cyberhackathon/" target="_blank" rel="noopener">National CTF Hat-Trick<span class="arr" aria-hidden="true">↗</span></a></h3>
-          <p>Podium finishes at Pakistan's national <a href="https://ignite.org.pk/cyberhackathon/" target="_blank" rel="noopener">Ignite Cyber Security Hackathon</a> three consecutive years — awarded by the President, the Prime Minister, and the IT Minister.</p>
-          <div class="meta"><span class="when">2021 — 2023</span><i class="pill">CTF</i></div>
+          <p>Three straight podium finishes with <b>Team SafeCottage</b> at Pakistan's national <a href="https://ignite.org.pk/cyberhackathon/" target="_blank" rel="noopener">Digital Pakistan Cyber Security Hackathon</a>, awarded by the President, the Prime Minister, and the IT Minister. Placements recorded in the national CERT reports: <a href="https://pkcert.gov.pk/uploads/2023/07/Hackathon-Report2022.pdf" target="_blank" rel="noopener">2nd runner-up 2022</a> and <a href="https://pkcert.gov.pk/uploads/2024/08/Hackathon-Report2023.pdf" target="_blank" rel="noopener">1st runner-up 2023</a>.</p>
+          <div class="meta"><span class="when">2021–2023</span><i class="pill">SafeCottage</i></div>
         </article>
 
         <article class="honor" data-reveal>
@@ -1260,7 +1277,7 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
       <div class="features" data-stagger>
 
         <a class="feature" href="https://github.com/usama0x01/SecurityWire" target="_blank" rel="noopener">
-          <p class="kicker">Feature 01 — Open Source</p>
+          <p class="kicker">Feature 01 · Open Source</p>
           <h3>SecurityWire</h3>
           <p>A security platform combining a mobile vulnerability scanner with a web bug-bounty marketplace: companies onboard targets, researchers submit findings, and validated reports trigger payouts.</p>
           <span class="feature-link">
@@ -1270,7 +1287,7 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
         </a>
 
         <article class="feature">
-          <p class="kicker">Feature 02 — Internal</p>
+          <p class="kicker">Feature 02 · Internal</p>
           <h3>AI-Driven Offensive Automation</h3>
           <p>Internal tooling and dashboards automating end-to-end VAPT: Jira integration, triage orchestration, and autonomous assessment pipelines for offensive security teams.</p>
           <span class="feature-link quiet">Internal tooling · not public</span>
@@ -1293,17 +1310,17 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
 
       <div class="creds" data-stagger>
         <article class="cred">
-          <h3>OSCP</h3>
+          <h3><a href="https://www.offsec.com/certifications/" target="_blank" rel="noopener">OSCP<span class="arr" aria-hidden="true">↗</span></a></h3>
           <span class="full">Offensive Security Certified Professional</span>
           <span class="issuer">Offensive Security</span>
         </article>
         <article class="cred">
-          <h3>HTB Offshore</h3>
-          <span class="full">Pro Lab — Active Directory &amp; banking infrastructure</span>
+          <h3><a href="https://www.hackthebox.com/hacker/pro-labs" target="_blank" rel="noopener">HTB Offshore<span class="arr" aria-hidden="true">↗</span></a></h3>
+          <span class="full">Pro Lab · Active Directory &amp; banking infrastructure</span>
           <span class="issuer">Hack The Box</span>
         </article>
         <article class="cred">
-          <h3>PEH</h3>
+          <h3><a href="https://certifications.tcm-sec.com/" target="_blank" rel="noopener">PEH<span class="arr" aria-hidden="true">↗</span></a></h3>
           <span class="full">Practical Ethical Hacker</span>
           <span class="issuer">TCM Security</span>
         </article>
@@ -1317,7 +1334,7 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
       <div class="edu" data-reveal>
         <p class="kicker">Education</p>
         <h3>BSc Computer Science</h3>
-        <p>COMSATS University, Lahore · 2018 — 2021</p>
+        <p>COMSATS University, Lahore · 2018–2021</p>
       </div>
     </div>
   </section>
@@ -1335,7 +1352,7 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
 
       <div data-reveal>
         <p class="contact-line">If it can be broken, better that <em>I find it first.</em></p>
-        <a class="contact-mail" href="mailto:gusama21@gmail.com" data-copy="gusama21@gmail.com" title="Click to copy" aria-label="Email gusama21@gmail.com — click to copy">
+        <a class="contact-mail" href="mailto:gusama21@gmail.com" data-copy="gusama21@gmail.com" title="Click to copy" aria-label="Email gusama21@gmail.com, click to copy">
           gusama21@gmail.com
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
         </a>
@@ -1365,19 +1382,22 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
 
       <div class="foot-brand">
         <a class="wordmark" href="#top">Usama Arshad<span class="dot">.</span></a>
-        <p>Offensive Security Lead — red team, AppSec, and cloud security for fintech at scale. Based in Riyadh, Saudi Arabia.</p>
+        <p>Offensive Security Lead. Red team, AppSec, and cloud security for fintech at scale. Based in Riyadh, Saudi Arabia.</p>
       </div>
 
       <nav class="foot-col" aria-label="Footer">
         <h2>Index</h2>
         <ul>
-          <li><a href="#about">01 — About</a></li>
-          <li><a href="#experience">02 — Experience</a></li>
-          <li><a href="#expertise">03 — Expertise</a></li>
-          <li><a href="#achievements">04 — Recognition</a></li>
-          <li><a href="#projects">05 — Projects</a></li>
-          <li><a href="#credentials">06 — Credentials</a></li>
-          <li><a href="#contact">07 — Contact</a></li>
+          <li><a href="#about">01 · About</a></li>
+          <li><a href="#experience">02 · Experience</a></li>
+          <li><a href="#expertise">03 · Expertise</a></li>
+          <li><a href="#achievements">04 · Recognition</a></li>
+          <li><a href="#projects">05 · Projects</a></li>
+          <li><a href="#credentials">06 · Credentials</a></li>
+          <li><a href="#contact">07 · Contact</a></li>
+          <li><a href="/research/">Research log</a></li>
+          <li><a href="/blog/">Writing</a></li>
+          <li><a href="/dorks/">Dork library</a></li>
         </ul>
       </nav>
 
@@ -1404,7 +1424,7 @@ a.feature:hover .feature-link svg{ transform:translate(3px, -3px); }
 
     <div class="foot-base">
       <span>© 2026 Usama Arshad · Riyadh, Saudi Arabia</span>
-      <span class="colophon">Set in Fraunces, Inter &amp; JetBrains Mono — self-hosted · No trackers, no cookies</span>
+      <span class="colophon">Set in Fraunces, Inter &amp; JetBrains Mono, self-hosted · No trackers, no cookies</span>
       <a href="#top">Back to top ↑</a>
     </div>
   </div>

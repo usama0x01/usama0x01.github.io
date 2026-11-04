@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Usama Arshad — Writing</title>
+    <link>https://www.usamaarshad.me/blog/</link>
+    <description>Offensive security writing: CTF writeups, vulnerability research, and exploitation technique.</description>
+    <language>en</language>
+    <lastBuildDate>Tue, 04 Nov 2026 00:00:00 +0300</lastBuildDate>
+    <atom:link href="https://www.usamaarshad.me/feed.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>Fifteen challenges, fourteen flags: BlackHat MEA 2026 CTF qualifiers</title>
+      <link>https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/</link>
+      <guid isPermaLink="true">https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/</guid>
+      <pubDate>Tue, 04 Nov 2026 00:00:00 +0300</pubDate>
+      <description>A full technical writeup of all 15 BlackHat MEA 2026 CTF qualifier challenges: an 8-query Prony attack on a secret modulus, an RSA oracle leaking only popcount, a real io_uring double-free driven to root, licence-check shellcode decrypted inside the kernel by eBPF, a CSS selector oracle under a JS-free CSP, and an ffmpeg external-data-reference file read.</description>
+      <category>CTF</category>
+      <category>Security research</category>
+    </item>
+  </channel>
+</rss>
