@@ -74,7 +74,7 @@
         <p class="masthead-meta">
           <span>Challenge 14 of 15</span>
           <span>Web</span>
-          <span class="live">Solved · 100 pts</span>
+          <span class="live">Full writeup</span>
         </p>
       </div>
       <div class="hero-deck">
@@ -84,7 +84,6 @@
           <p class="deck">DeckForge turns attacker-supplied HTML pages into preview images for a slide builder. The renderer runs a real browser with local resources enabled and keeps a nearby helper service for its preview pipeline. Recover the flag from the worker without uploading it.</p>
           <p class="wu-meta">
             <span class="cat cat-web">Web</span><span class="sep">·</span>
-            <span>100 points</span><span class="sep">·</span>
             <span>4 November 2026</span>
           </p>
         </div>
@@ -97,7 +96,7 @@
       <div class="wu-layout">
         <article class="wu" data-reveal>
           <div class="tldr"><p class="lab">TL;DR</p><p>The preview renderer runs Chromium with &lt;code&gt;--allow-file-access-from-files&lt;/code&gt; and &lt;code&gt;--disable-web-security&lt;/code&gt;, so injected HTML gets an arbitrary local file read &lt;i&gt;and&lt;/i&gt; can drive a loopback chromedriver that runs as a different, privileged user.</p></div>
-          <div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{9461dcd097931631fa22e5aed1f9e680}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{a7e948eb88a30aefee0e5c6a3ba0b97d}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><p class="flag-note">Instances are provisioned per run, so these are the values our instances returned.</p>
+          <div class="flagbox"><span class="lab">Captured</span></div>
           <section id="recon"><h2><span class="hn">01</span>Recon</h2><p>The front page posts to a single endpoint:</p>
 <figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">html</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>POST /html-to-image      {"pages": ["&lt;html&gt;", ...]}   -&gt;    ZIP of page_N.jpg</code></pre></figure>
 <p>Your markup is rendered by a real Chromium and handed back as JPEGs. Because local resources are allowed, an iframe pointing at file:// renders the file straight into the screenshot:</p>

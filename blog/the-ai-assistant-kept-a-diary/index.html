@@ -6,7 +6,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>The AI assistant kept a diary · Usama Arshad</title>
-<meta name="description" content="Local LLM prompt histories are a new DFIR artifact class: plaintext, timestamped records of intent. What Ollama, Copilot and friends leave.">
+<meta name="description" content="Local LLM prompt histories are a new DFIR artifact class: plaintext, timestamped records of intent, and often the passphrase. Where they live.">
 <link rel="canonical" href="https://www.usamaarshad.me/blog/the-ai-assistant-kept-a-diary/">
 <link rel="alternate" type="application/rss+xml" title="Usama Arshad, Writing" href="/feed.xml">
 <link rel="icon" href="/assets/favicon.ico">
@@ -15,21 +15,21 @@
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Usama Arshad">
 <meta property="og:title" content="The AI assistant kept a diary">
-<meta property="og:description" content="Local LLM prompt histories are a new DFIR artifact class: plaintext, timestamped records of intent. What Ollama, Copilot and friends leave.">
+<meta property="og:description" content="Local LLM prompt histories are a new DFIR artifact class: plaintext, timestamped records of intent, and often the passphrase. Where they live.">
 <meta property="og:url" content="https://www.usamaarshad.me/blog/the-ai-assistant-kept-a-diary/">
 <meta property="og:image" content="https://www.usamaarshad.me/assets/og.jpg">
 <meta property="article:published_time" content="2026-11-04">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:creator" content="@usama0x01">
 <meta name="twitter:title" content="The AI assistant kept a diary">
-<meta name="twitter:description" content="Local LLM prompt histories are a new DFIR artifact class: plaintext, timestamped records of intent. What Ollama, Copilot and friends leave.">
+<meta name="twitter:description" content="Local LLM prompt histories are a new DFIR artifact class: plaintext, timestamped records of intent, and often the passphrase. Where they live.">
 <meta name="twitter:image" content="https://www.usamaarshad.me/assets/og.jpg">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": "The AI assistant kept a diary",
-  "description": "Local LLM prompt histories are a new DFIR artifact class: plaintext, timestamped records of intent. What Ollama, Copilot and friends leave.",
+  "description": "Local LLM prompt histories are a new DFIR artifact class: plaintext, timestamped records of intent, and often the passphrase. Where they live.",
   "datePublished": "2026-11-04",
   "dateModified": "2026-11-04",
   "author": {
@@ -81,7 +81,7 @@
         <div class="deck-copy" data-reveal style="--d:.08s">
           <p class="kicker">Writing</p>
           <h1 class="hero-title" id="pt">The AI assistant kept a diary<span class="dot">.</span></h1>
-          <p class="deck">Local LLM tooling has quietly created a new forensic artifact: a plaintext, timestamped, uncensored record of exactly what someone was trying to build. Investigators should know it exists. So should everyone else.</p>
+          <p class="deck">Local LLM tooling quietly created a new forensic artifact: a plaintext, timestamped, uncensored record of what somebody was trying to build, in their own words, usually including the passphrase. Where it lives, how to collect it, and why it cuts both ways.</p>
           <p class="wu-meta"><span class="cat">DFIR</span><span class="cat">LLM Security</span><span class="cat">Insider Risk</span><span class="cat">Forensics</span><span class="sep">·</span><span>4 November 2026</span></p>
         </div>
       </div>
@@ -90,18 +90,34 @@
   <section class="section">
     <div class="container">
       <div class="wu-layout">
-        <article class="wu" data-reveal><section id="a-new-artifact-class"><h2><span class="hn">01</span>A new artifact class</h2>
-<p>Digital forensics is the business of reconstructing intent from residue. Browser history, shell history, prefetch, jump lists, LNK files: none of them record what someone <em>meant</em> to do. They record what they touched, and an investigator infers the rest.</p>
-<p>Local LLM tooling broke that pattern. When somebody designs a tool by conversing with a model running on their own machine, the conversation is the design document. It is written in plain language, it is timestamped, it names the goal explicitly, and in most default configurations <strong>it is never cleared.</strong></p>
-<div class="tldr"><p class="lab">The uncomfortable bit</p><p>Shell history tells you a command ran. A prompt history tells you why, who it was aimed at, what the author was worried about, and frequently the passphrase they chose.</p></div>
-</section><section id="what-this-looks-like-in-practice"><h2><span class="hn">02</span>What this looks like in practice</h2>
-<p>The cleanest illustration I have run into came from a forensics challenge in the BlackHat MEA 2026 qualifiers, <a href="/blog/blackhat-mea-2026-quals/whisper/">Whisper</a>. The scenario: a Linux workstation, an insider who used a local LLM to build an exfiltration tool. No memory corruption, no clever cryptography. The entire challenge is artifact retention.</p>
-<p>Three failures compose, and all three are default behaviour rather than mistakes:</p>
-<ol class="steps">
-<li><strong>The prompt log is plaintext and permanent.</strong> <code>~/.ollama/history</code> is never cleared. It contained a step-by-step statement of intent and the passphrase, typed straight into the chat.</li>
-<li><strong>"Delete the script after execution" was implemented as a move to Trash.</strong> The tool survived intact in <code>~/.local/share/Trash/files/</code>, alongside a <code>.trashinfo</code> file recording the deletion timestamp.</li>
-<li><strong>The staging directory was a cache folder nobody cleans.</strong> The archive was still there.</li>
-</ol>
+        <article class="wu" data-reveal><section id="forensics-used-to-require-inference"><h2><span class="hn">01</span>Forensics used to require inference</h2>
+<p>Digital forensics is the business of reconstructing intent from residue. Shell history tells you a command ran. Prefetch tells you a binary executed. A jump list tells you a file was opened. None of them tell you what somebody <em>meant</em>, and a good chunk of an examiner's job is arguing that inference convincingly.</p>
+<p>Local LLM tooling broke that. When somebody designs a tool by talking to a model on their own machine, the conversation <em>is</em> the design document. It is written in plain language, it is timestamped, it states the objective explicitly, and in most default configurations <strong>nothing ever clears it</strong>.</p>
+<div class="tldr"><p class="lab">The uncomfortable part</p><p>Shell history proves a command ran. A prompt history explains why it was written, who it was aimed at, what the author was worried about, and frequently includes the passphrase they chose, because they pasted it in to get help with the encryption call.</p></div>
+</section><section id="what-it-looks-like-when-it-goes-wrong"><h2><span class="hn">02</span>What it looks like when it goes wrong</h2>
+<p>The cleanest illustration I have come across was a forensics challenge, Whisper, in the BlackHat MEA 2026 qualifiers. The scenario is mundane on purpose: a Linux workstation, an insider who used a local LLM to build an exfiltration tool. No memory corruption, no exotic cryptography. The entire thing is artifact retention.</p>
+<p>Three failures compose, and <strong>all three are default behaviour rather than mistakes</strong>:</p>
+
+<h3>One: the prompt log is plaintext and permanent</h3>
+<p><code>~/.ollama/history</code> is never cleared. It held a step-by-step statement of intent and the passphrase, typed directly into the chat because that is how you ask a model to help you write an encryption routine.</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">shell</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>$ grep -riE 'pass|secret|key|exfil|upload' ~/.ollama/history
+...write a python script that zips /data/reports and encrypts it with
+   the password Gr33nF0x42!D1amond using pyzipper, then uploads it to...</code></pre></figure>
+<p>In an interview that line takes an hour to establish. On disk it took one grep.</p>
+
+<h3>Two: "delete after execution" meant "move to Trash"</h3>
+<p>The tool was supposed to remove itself. It was implemented as a move to the desktop Trash, which is not a delete. The script survived intact, next to a <code>.trashinfo</code> file recording the original path and the deletion timestamp:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">shell</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>$ ls ~/.local/share/Trash/files/
+cache_mgr.py
+
+$ cat ~/.local/share/Trash/info/cache_mgr.py.trashinfo
+[Trash Info]
+Path=/home/dwright/.local/bin/cache_mgr.py
+DeletionDate=2026-08-14T23:41:07</code></pre></figure>
+<p>That file gave up the key-derivation function and the staging path. Note what the <code>.trashinfo</code> adds on its own: original location and a deletion time, which is a timeline entry you did not have to reconstruct.</p>
+
+<h3>Three: the staging directory was a cache nobody cleans</h3>
+<p>The archive was still sitting there. Cache directories are excluded from backup policies and from tidy-up habits alike, which makes them an excellent place to stage data and a terrible place to hide it.</p>
 <figure class="meme"><div class="meme-card"><p class="meme-cap top">THE INSIDER DELETED THE SCRIPT</p><svg viewBox="0 0 560 200" role="img" xmlns="http://www.w3.org/2000/svg">
 <rect width="560" height="200" fill="#100e0d"/>
 <rect x="150" y="34" width="260" height="140" fill="none" stroke="#d6cfc3" stroke-width="1.5"/>
@@ -116,35 +132,57 @@
 <text x="345" y="146" fill="#e5484d" font-family="monospace" font-size="10" text-anchor="middle">Gr33nF0x42!D1amond</text>
 <text x="280" y="192" fill="#6f6659" font-family="monospace" font-size="9" text-anchor="middle" letter-spacing="2">~/.OLLAMA/HISTORY</text>
 </svg><p class="meme-cap bot">THE MODEL KEPT THE CONVERSATION</p></div></figure>
-<p>The forensic path is almost comically short: grep the prompt history for intent, recover the script from Trash to learn the key derivation, find the archive where the script says it staged it, derive the password, open it. The interesting part is not the technique. It is that <strong>the most incriminating artifact on the disk was created by a productivity tool, silently, as a feature.</strong></p>
-</section><section id="where-the-artifacts-live"><h2><span class="hn">03</span>Where the artifacts live</h2>
-<p>If you do IR, these belong on your collection list. Paths move between versions, so treat this as where to start looking rather than gospel:</p>
+<p>The forensic path is almost comically short: grep the prompt history for intent, recover the script from Trash to learn the key derivation, find the archive where the script says it staged it, derive the password, open it. The technique is not the interesting part. The interesting part is that <strong>the most incriminating artifact on that disk was created by a productivity tool, silently, as a feature</strong>. The <a href="/blog/blackhat-mea-2026-quals/whisper/">full writeup is here</a>.</p>
+</section><section id="where-these-artifacts-live"><h2><span class="hn">03</span>Where these artifacts live</h2>
+<p>If you do incident response, these belong on your collection list. Exact paths move between versions, so treat this as where to start rather than as gospel:</p>
 <figure class="datatable">
 <table>
-<thead><tr><th>Tool</th><th>Typical artifact</th></tr></thead>
+<thead><tr><th>Tool class</th><th>What to collect</th></tr></thead>
 <tbody>
-<tr><td>Ollama</td><td><code>~/.ollama/</code> prompt history, model manifests, pulled model inventory</td></tr>
-<tr><td>Editor AI assistants</td><td>Workspace-scoped chat transcripts and index caches inside the editor's profile directory</td></tr>
-<tr><td>Shell AI wrappers</td><td>Suggested-command logs, often alongside normal shell history</td></tr>
-<tr><td>Desktop LLM clients</td><td>Local SQLite conversation stores and attachment caches</td></tr>
+<tr><td>Ollama and similar local runtimes</td><td><code>~/.ollama/</code>: prompt history, model manifests, pulled-model inventory (which model, and when)</td></tr>
+<tr><td>Editor AI assistants</td><td>Workspace-scoped chat transcripts and index caches in the editor profile directory</td></tr>
+<tr><td>Shell AI wrappers</td><td>Suggested-command logs, usually beside normal shell history</td></tr>
+<tr><td>Desktop LLM clients</td><td>Local SQLite conversation stores plus attachment caches</td></tr>
 <tr><td>Agent frameworks</td><td>Run traces, tool-call logs, intermediate scratch files</td></tr>
 </tbody></table>
 </figure>
-<p>Two properties make these unusually valuable. They are <strong>narrative</strong>, so they describe intent directly instead of requiring inference. And they are <strong>pre-redaction</strong>, because people paste real secrets, real hostnames and real customer data into a model they believe is private and local.</p>
-<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">shell</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code># worth running early in a Linux triage
-ls -la ~/.ollama/ 2>/dev/null
-grep -ril 'password\|passphrase\|exfil\|api[_-]key' ~/.ollama/ 2>/dev/null
+<p>A triage pass worth running early on a Linux host:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">shell</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code># 1. local model tooling present at all?
+ls -la ~/.ollama/ ~/.cache/lm-studio/ ~/.config/*copilot* 2>/dev/null
+ls -la ~/.ollama/models/manifests/ 2>/dev/null   # which models, pulled when
 
-# the "deleted" file that is not deleted
-ls -la ~/.local/share/Trash/files/ ~/.local/share/Trash/info/ 2>/dev/null</code></pre></figure>
-</section><section id="what-it-means-for-everyone-else"><h2><span class="hn">04</span>What it means for everyone else</h2>
-<p>Flip it around, because this cuts both ways.</p>
-<p><strong>For defenders:</strong> a local model is not a private one in any sense that matters forensically. It does not phone home, which is the fear people actually have, but it writes an unusually candid record to disk, which is the risk nobody budgeted for. If your data-classification policy covers documents and chat messages but not prompt histories, it has a hole in it the size of your engineering team.</p>
-<p><strong>For insider-risk programmes:</strong> this is the highest-signal artifact you are currently not collecting. It is also exactly the kind of monitoring that needs a written policy and legal review before you touch it, because the same file that proves exfiltration also contains somebody's half-finished questions about a medical condition. Collect it deliberately or not at all.</p>
-<p><strong>For everyone using these tools:</strong> assume the transcript is permanent and discoverable. Do not paste production credentials into a local model to save thirty seconds. The model will not leak them. The log file might.</p>
-<p>Investigators spent two decades learning to reconstruct intent from fragments. The tooling now just writes it down. That is a gift and a liability, and which one it is depends entirely on which side of the disk image you are standing on.</p>
+# 2. the prompt history itself
+grep -rilE 'password|passphrase|secret|api[_-]?key|token|exfil|upload' \
+     ~/.ollama/ 2>/dev/null
+
+# 3. SQLite conversation stores used by desktop clients
+find ~ -maxdepth 6 -name '*.sqlite' -path '*hat*' 2>/dev/null
+find ~ -maxdepth 6 -name '*.db' -newermt '-30 days' -path '*ai*' 2>/dev/null
+
+# 4. the deletes that were not deletes
+ls -la ~/.local/share/Trash/files/ ~/.local/share/Trash/info/ 2>/dev/null
+
+# 5. staging directories nobody tidies
+find ~/.cache -type f -size +1M -newermt '-14 days' 2>/dev/null | head -50</code></pre></figure>
+<p>Two properties make this material unusually valuable. It is <strong>narrative</strong>, so it describes intent directly instead of requiring you to argue for it. And it is <strong>pre-redaction</strong>: people paste real credentials, real hostnames and real customer data into a model they believe is private because it is local.</p>
+</section><section id="the-same-thing-from-the-other-side"><h2><span class="hn">04</span>The same thing, from the other side</h2>
+<p>Flip it, because this cuts both ways and the second edge is sharper than people expect.</p>
+
+<h3>If you defend an environment</h3>
+<p>A local model is not a private one in any sense that matters forensically. It does not phone home, which is the fear everyone actually has, and it writes an unusually candid record to local disk, which is the risk nobody budgeted for. If your data-classification policy covers documents and chat messages but not prompt histories, it has a hole in it the size of your engineering team.</p>
+<p>Concretely: prompt histories should be in scope for disk encryption, for endpoint backup exclusions, and for offboarding wipes. Most of the time they are in none of the three.</p>
+
+<h3>If you run an insider-risk programme</h3>
+<p>This is the highest-signal artifact you are currently not collecting. It is also exactly the kind of monitoring that needs written policy and legal review <em>before</em> you touch it, because the same file that proves exfiltration also contains somebody's half-finished questions about a medical diagnosis, a divorce, or a job application. Collect it deliberately, with notice and a retention limit, or do not collect it at all. There is no defensible middle.</p>
+
+<h3>If you just use these tools</h3>
+<p>Assume the transcript is permanent and discoverable. Do not paste production credentials into a local model to save thirty seconds; rotate anything you already have. If your workflow genuinely requires sensitive context, find out whether your tooling supports disabling history, and verify the setting rather than trusting it:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">shell</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code># verify, do not assume
+ls -la ~/.ollama/history 2>/dev/null && echo "history is being written"
+stat -c '%y %n' ~/.ollama/history 2>/dev/null</code></pre></figure>
+<p>Investigators spent two decades learning to reconstruct intent from fragments. The tooling now writes it down in full sentences. Whether that is a gift or a liability depends entirely on which side of the disk image you are standing on.</p>
 </section></article>
-        <aside class="wu-rail"><h2>On this page</h2><ol><li><a href="#a-new-artifact-class">A new artifact class</a></li><li><a href="#what-this-looks-like-in-practice">What this looks like in practice</a></li><li><a href="#where-the-artifacts-live">Where the artifacts live</a></li><li><a href="#what-it-means-for-everyone-else">What it means for everyone else</a></li></ol></aside>
+        <aside class="wu-rail"><h2>On this page</h2><ol><li><a href="#forensics-used-to-require-inference">Forensics used to require inference</a></li><li><a href="#what-it-looks-like-when-it-goes-wrong">What it looks like when it goes wrong</a></li><li><a href="#where-these-artifacts-live">Where these artifacts live</a></li><li><a href="#the-same-thing-from-the-other-side">The same thing, from the other side</a></li></ol></aside>
       </div>
     </div>
   </section>

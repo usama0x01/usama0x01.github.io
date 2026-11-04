@@ -74,7 +74,7 @@
         <p class="masthead-meta">
           <span>Challenge 3 of 15</span>
           <span>Crypto</span>
-          <span class="live">Solved · 100 pts</span>
+          <span class="live">Full writeup</span>
         </p>
       </div>
       <div class="hero-deck">
@@ -84,7 +84,6 @@
           <p class="deck">Reduce what you waste. Reuse what you can. Recycle what remains.</p>
           <p class="wu-meta">
             <span class="cat cat-crypto">Crypto</span><span class="sep">·</span>
-            <span>100 points</span><span class="sep">·</span>
             <span>4 November 2026</span>
           </p>
         </div>
@@ -97,7 +96,7 @@
       <div class="wu-layout">
         <article class="wu" data-reveal>
           <div class="tldr"><p class="lab">TL;DR</p><p>AES-GCM key &lt;i&gt;and&lt;/i&gt; nonce are reused on every encryption while the plaintext contains the key's own hex. Half of each tag recovers the GHASH key H; multi-byte UTF-8 characters slide the key hex across GHASH block boundaries; a hex-alphabet quirk collapses the residual 2^48 ambiguity to 2^16.</p></div>
-          <div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{584bc40e6b665f84224a4f932eef4ebf}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{56539435a1ce7e0190d0f93adfb1edee}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><p class="flag-note">Instances are provisioned per run, so these are the values our instances returned.</p>
+          <div class="flagbox"><span class="lab">Captured</span></div>
           <section id="recon"><h2><span class="hn">01</span>Recon</h2><figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">python</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>signal.alarm(300)
 keys = [os.urandom(16), os.urandom(16)]
 for r in [0, 1]:

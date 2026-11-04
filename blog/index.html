@@ -38,13 +38,13 @@
   "blogPost": [
     {
       "@type": "BlogPosting",
-      "headline": "Fifteen challenges, fourteen flags",
+      "headline": "Fifteen challenges, fully documented",
       "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/",
       "datePublished": "2026-11-04"
     },
     {
       "@type": "BlogPosting",
-      "headline": "Fifty-nine CVEs in one year: what WordPress plugins keep getting wrong",
+      "headline": "A year of WordPress plugin research: three bugs, one root cause",
       "url": "https://www.usamaarshad.me/blog/59-cves-wordpress-permission-callback/",
       "datePublished": "2026-11-04"
     },
@@ -464,26 +464,28 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
   width:5px; height:5px; background:var(--accent); border-radius:50%;
 }
 
-/* flag box */
+/* capture status */
 .flagbox{
-  display:flex; flex-wrap:wrap; align-items:center; gap:.7rem 1rem;
+  display:flex; flex-wrap:wrap; align-items:center; gap:.6rem 1rem;
   border:1px solid var(--hairline); border-left:2px solid var(--accent);
-  background:var(--bg-elev); padding:.9rem 1.1rem; border-radius:var(--radius); margin-bottom:.6rem;
+  background:var(--bg-elev); padding:.8rem 1.1rem; border-radius:var(--radius);
+  margin-bottom:1.6rem;
 }
-.flagbox .lab{ font-family:var(--mono); font-size:var(--fs-chip); text-transform:uppercase; letter-spacing:.16em; color:var(--muted); flex:none; }
-.flagval{
-  font-family:var(--mono); font-size:var(--fs-small); color:var(--ink);
-  word-break:break-all; flex:1 1 14rem; min-width:0; filter:blur(6px); user-select:none;
-  transition:filter var(--t-fast) var(--ease);
+.flagbox .lab{
+  font-family:var(--mono); font-size:var(--fs-chip); font-weight:500;
+  text-transform:uppercase; letter-spacing:.16em; color:var(--accent); flex:none;
 }
-.flagbox.shown .flagval{ filter:none; user-select:text; }
-.reveal-btn{
-  font-family:var(--mono); font-size:var(--fs-chip); text-transform:uppercase; letter-spacing:.12em;
-  border:1px solid var(--hairline-mid); border-radius:var(--radius); padding:.4rem .7rem;
-  color:var(--muted); flex:none; transition:color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
+.flagbox .lab::before{
+  content:""; display:inline-block; width:6px; height:6px; border-radius:50%;
+  background:var(--accent); margin-right:.55rem; vertical-align:1px;
 }
-.reveal-btn:hover{ color:var(--accent); border-color:var(--accent); }
-.flag-note{ font-family:var(--mono); font-size:var(--fs-chip); color:var(--muted); letter-spacing:.06em; }
+.flagbox.not{ border-left-color:var(--hairline-hard); }
+.flagbox.not .lab{ color:var(--muted); }
+.flagbox.not .lab::before{ background:var(--hairline-hard); }
+.flagstate{
+  font-family:var(--mono); font-size:var(--fs-chip); letter-spacing:.08em;
+  text-transform:uppercase; color:var(--muted);
+}
 
 /* tldr callout */
 .tldr{
@@ -590,9 +592,6 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
 }
 .post-side{ display:flex; flex-direction:column; gap:.45rem; align-items:flex-end; text-align:right; }
 .post-date{ font-family:var(--mono); font-size:var(--fs-chip); letter-spacing:.1em; text-transform:uppercase; color:var(--muted); white-space:nowrap; }
-.post-stat{ font-family:var(--serif); font-size:1.5rem; font-weight:560; color:var(--ink); line-height:1; }
-.post-stat span{ color:var(--accent); }
-.post-statlab{ font-family:var(--mono); font-size:.58rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
 @media (max-width:860px){
   .post{ grid-template-columns:1fr auto; }
   .post-no{ display:none; }
@@ -624,7 +623,7 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
         <p class="masthead-meta">
           <span>Offensive security</span>
           <span>Writeups &amp; research</span>
-          <span class="live">4 published</span>
+          <span class="live">Updated Nov 2026</span>
         </p>
       </div>
       <div class="hero-deck">
@@ -649,53 +648,45 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
         <article class="post">
           <span class="post-no" aria-hidden="true">.01</span>
           <div class="post-main">
-            <h2><a href="/blog/blackhat-mea-2026-quals/">Fifteen challenges, fourteen flags</a></h2>
-            <p class="post-dek">Full writeups for every challenge in the BlackHat MEA 2026 CTF qualifiers. An 8-query Prony attack on a secret modulus, an RSA oracle that leaks only popcount, a real io_uring double-free driven to root, licence-check shellcode decrypted inside the kernel by eBPF, a CSS selector oracle under a JS-free CSP, and an ffmpeg external-data-reference file read. Root cause, exploitation chain and PoC for each, including the one that got away.</p>
+            <h2><a href="/blog/blackhat-mea-2026-quals/">Fifteen challenges, fully documented</a></h2>
+            <p class="post-dek">Full writeups for every challenge in the BlackHat MEA 2026 CTF qualifiers. An 8-query Prony attack on a secret modulus, an RSA oracle that leaks only popcount, a real io_uring double-free driven to root, licence-check shellcode decrypted inside the kernel by eBPF, a CSS selector oracle under a JS-free CSP, and an ffmpeg external-data-reference file read. Root cause, exploitation chain and proof of concept for each.</p>
             <div class="post-tags"><span class="ptag">CTF</span><span class="ptag">Pwn</span><span class="ptag">Reversing</span><span class="ptag">Crypto</span><span class="ptag">Web</span><span class="ptag">Forensics</span></div>
           </div>
           <div class="post-side">
             <span class="post-date">4 Nov 2026</span>
-            <span class="post-stat">14<span>/15</span></span>
-            <span class="post-statlab">Flags captured</span>
           </div>
         </article>
         <article class="post">
           <span class="post-no" aria-hidden="true">.02</span>
           <div class="post-main">
-            <h2><a href="/blog/59-cves-wordpress-permission-callback/">Fifty-nine CVEs in one year: what WordPress plugins keep getting wrong</a></h2>
-            <p class="post-dek">A year of coordinated disclosure through WPScan produced 59 assigned CVE IDs across 46 plugins. Lined up and counted, half of them are the same bug in three different costumes: a REST route with no permission callback, a nopriv AJAX handler nobody took back out, and a nonce mistaken for an authorisation check.</p>
+            <h2><a href="/blog/59-cves-wordpress-permission-callback/">A year of WordPress plugin research: three bugs, one root cause</a></h2>
+            <p class="post-dek">Three published CVEs taken apart request by request. An administrator account created from a marker string in a URL. A full database export, including password hashes and reset tokens, in three unauthenticated HTTP calls. An IDOR that hands you other customers' bookings from a nonce printed on a public page. Then the corpus behind them, and the one missing line they all share.</p>
             <div class="post-tags"><span class="ptag">WordPress</span><span class="ptag">AppSec</span><span class="ptag">Vulnerability Research</span><span class="ptag">REST API</span></div>
           </div>
           <div class="post-side">
             <span class="post-date">4 Nov 2026</span>
-            <span class="post-stat">51<span>/59</span></span>
-            <span class="post-statlab">Catalogued</span>
           </div>
         </article>
         <article class="post">
           <span class="post-no" aria-hidden="true">.03</span>
           <div class="post-main">
             <h2><a href="/blog/your-allowlist-is-inside-the-attacker-process/">Your allowlist is inside the attacker's process</a></h2>
-            <p class="post-dek">Loopback binds, IP allowlists and VPC boundaries all fail the same way: they check where a request came from, when the attacker is already there. From a headless-renderer CTF challenge to cloud metadata, CI runners and Kubernetes sidecars, with the fix that actually holds.</p>
+            <p class="post-dek">A renderer that accepts attacker HTML, a chromedriver bound to loopback, and an IP allowlist that was true and useless at the same time. The anatomy of a control that checks location when it should check identity, then the four production shapes it maps onto: instance metadata, CI runners, Kubernetes sidecars, and anything that renders content you did not write.</p>
             <div class="post-tags"><span class="ptag">AppSec</span><span class="ptag">Cloud</span><span class="ptag">CI/CD</span><span class="ptag">SSRF</span></div>
           </div>
           <div class="post-side">
             <span class="post-date">4 Nov 2026</span>
-            <span class="post-stat">127<span>.0.0.1</span></span>
-            <span class="post-statlab">Trusted by default</span>
           </div>
         </article>
         <article class="post">
           <span class="post-no" aria-hidden="true">.04</span>
           <div class="post-main">
             <h2><a href="/blog/the-ai-assistant-kept-a-diary/">The AI assistant kept a diary</a></h2>
-            <p class="post-dek">Local LLM tooling quietly created a new forensic artifact: a plaintext, timestamped, uncensored record of what someone was trying to build, and often the passphrase they picked. Where these files live, why they are the highest-signal thing on the disk, and why that cuts both ways.</p>
+            <p class="post-dek">Local LLM tooling quietly created a new forensic artifact: a plaintext, timestamped, uncensored record of what somebody was trying to build, in their own words, usually including the passphrase. Where it lives, a triage pass you can run today, and why collecting it needs a policy before it needs a script.</p>
             <div class="post-tags"><span class="ptag">DFIR</span><span class="ptag">LLM Security</span><span class="ptag">Insider Risk</span><span class="ptag">Forensics</span></div>
           </div>
           <div class="post-side">
             <span class="post-date">4 Nov 2026</span>
-            <span class="post-stat">01<span>file</span></span>
-            <span class="post-statlab">Full confession</span>
           </div>
         </article>
       </div>

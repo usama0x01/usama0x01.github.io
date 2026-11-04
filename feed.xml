@@ -8,20 +8,20 @@
     <lastBuildDate>Tue, 04 Nov 2026 00:00:00 +0300</lastBuildDate>
     <atom:link href="https://www.usamaarshad.me/feed.xml" rel="self" type="application/rss+xml"/>
     <item>
-      <title>Fifteen challenges, fourteen flags: BlackHat MEA 2026 CTF qualifiers</title>
+      <title>BlackHat MEA 2026 CTF qualifiers: fifteen full writeups</title>
       <link>https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/</link>
       <guid isPermaLink="true">https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/</guid>
       <pubDate>Tue, 04 Nov 2026 00:00:00 +0300</pubDate>
-      <description>Full writeups for all 15 qualifier challenges: an 8-query Prony attack on a secret modulus, an RSA oracle leaking only popcount, a real io_uring double-free driven to root, eBPF-decrypted licence shellcode, a CSS selector oracle under a JS-free CSP, and an ffmpeg external-data-reference file read.</description>
+      <description>Full writeups for every qualifier challenge: an 8-query Prony attack on a secret modulus, an RSA oracle leaking only popcount, a real io_uring double-free driven to root, eBPF-decrypted licence shellcode, a CSS selector oracle under a JS-free CSP, and an ffmpeg external-data-reference file read.</description>
       <category>CTF</category>
       <category>Security research</category>
     </item>
     <item>
-      <title>Fifty-nine CVEs in one year: what WordPress plugins keep getting wrong</title>
+      <title>A year of WordPress plugin research: three bugs, one root cause</title>
       <link>https://www.usamaarshad.me/blog/59-cves-wordpress-permission-callback/</link>
       <guid isPermaLink="true">https://www.usamaarshad.me/blog/59-cves-wordpress-permission-callback/</guid>
       <pubDate>Tue, 04 Nov 2026 00:00:00 +0300</pubDate>
-      <description>A data-backed study of 51 catalogued WordPress plugin CVEs across 46 plugins: 53% unauthenticated, 49% data disclosure, and one recurring root cause behind nearly all of it.</description>
+      <description>Three published CVEs taken apart request by request: an unauthenticated administrator account, a full database export in three HTTP calls, and an IDOR over a public nonce.</description>
       <category>WordPress</category>
       <category>AppSec</category>
     </item>

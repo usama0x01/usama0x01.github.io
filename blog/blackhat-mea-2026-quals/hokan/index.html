@@ -74,7 +74,7 @@
         <p class="masthead-meta">
           <span>Challenge 1 of 15</span>
           <span>Crypto</span>
-          <span class="live">Solved · 100 pts</span>
+          <span class="live">Full writeup</span>
         </p>
       </div>
       <div class="hero-deck">
@@ -84,7 +84,6 @@
           <p class="deck">...Wait, 8 queries?</p>
           <p class="wu-meta">
             <span class="cat cat-crypto">Crypto</span><span class="sep">·</span>
-            <span>100 points</span><span class="sep">·</span>
             <span>4 November 2026</span>
           </p>
         </div>
@@ -97,7 +96,7 @@
       <div class="wu-layout">
         <article class="wu" data-reveal>
           <div class="tldr"><p class="lab">TL;DR</p><p>Reconstruct a secret 11-variable degree-11 polynomial over an unknown 256-bit prime field from only 8 evaluations, two fewer than Prony interpolation nominally requires, by choosing query points whose structure makes the integer kernel depend only on the exponents.</p></div>
-          <div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{ea9380bc79fd02eefb1fbb538337a432}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{f4e3c8951a06dad601af1687cf8fd74d}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><p class="flag-note">Instances are provisioned per run, so these are the values our instances returned.</p>
+          <div class="flagbox"><span class="lab">Captured</span></div>
           <section id="recon"><h2><span class="hn">01</span>Recon</h2><p>The whole service is five lines of Sage:</p>
 <figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">python</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>R = PolynomialRing(Zmod(random_prime(2^256)), 11, "x")
 f = R.random_element(degree=11)

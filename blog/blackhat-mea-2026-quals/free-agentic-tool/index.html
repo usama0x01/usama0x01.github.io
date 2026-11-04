@@ -74,7 +74,7 @@
         <p class="masthead-meta">
           <span>Challenge 10 of 15</span>
           <span>Reversing</span>
-          <span class="live">Solved · 100 pts</span>
+          <span class="live">Full writeup</span>
         </p>
       </div>
       <div class="hero-deck">
@@ -84,7 +84,6 @@
           <p class="deck">A “free” AI agent CLI, its session debug bundle, and a packet capture of the traffic it produced.</p>
           <p class="wu-meta">
             <span class="cat cat-reversing">Reversing</span><span class="sep">·</span>
-            <span>100 points</span><span class="sep">·</span>
             <span>4 November 2026</span>
           </p>
         </div>
@@ -97,7 +96,7 @@
       <div class="wu-layout">
         <article class="wu" data-reveal>
           <div class="tldr"><p class="lab">TL;DR</p><p>The distributed binary is a dropper. Its real payload is a reflectively-loaded second Go executable that speaks gRPC to a C2, and that stage derives its X25519 private key from &lt;code&gt;sha256(USERNAME + "_" + COMPUTERNAME)&lt;/code&gt; instead of generating one, so the whole captured session decrypts from the pcap alone.</p></div>
-          <div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{wh4t_y0u_5Ee_15n&#x27;t_wh4t_y0u_G3t_8cc56ad688964fd5f72f3c414971b1d6}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><p class="flag-note">Instances are provisioned per run, so these are the values our instances returned.</p>
+          <div class="flagbox"><span class="lab">Captured</span></div>
           <section id="recon"><h2><span class="hn">01</span>Recon</h2><p>Three artifacts ship together:</p>
 <figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>free-agent.exe                   ~11 MB Go PE32+
 free-agent_session_debug.zip     15 encrypted "diagnostics" entries

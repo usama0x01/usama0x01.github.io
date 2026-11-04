@@ -74,7 +74,7 @@
         <p class="masthead-meta">
           <span>Challenge 4 of 15</span>
           <span>Forensics</span>
-          <span class="live">Solved · 100 pts</span>
+          <span class="live">Full writeup</span>
         </p>
       </div>
       <div class="hero-deck">
@@ -84,7 +84,6 @@
           <p class="deck">Windows host triage: encrypted user files, Defender quarantine, event logs, registry hives.</p>
           <p class="wu-meta">
             <span class="cat cat-forensics">Forensics</span><span class="sep">·</span>
-            <span>100 points</span><span class="sep">·</span>
             <span>4 November 2026</span>
           </p>
         </div>
@@ -97,7 +96,7 @@
       <div class="wu-layout">
         <article class="wu" data-reveal>
           <div class="tldr"><p class="lab">TL;DR</p><p>Windows Defender quarantined the ransomware but the evidence set ships the quarantine store. Decrypt the quarantine with the static MsMpEng RC4 key, read the AES key out of the dropper, rebuild the IV from host identifiers found in the registry, and decrypt the victim files.</p></div>
-          <div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{d3f3nd3r_qu4r4nt1n3_r3c0v3ry_2026}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><p class="flag-note">Instances are provisioned per run, so these are the values our instances returned.</p>
+          <div class="flagbox"><span class="lab">Captured</span></div>
           <section id="recon"><h2><span class="hn">01</span>Recon</h2><p>The evidence archive is a classic Windows triage collection:</p>
 <figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>EncryptedFiles/   9 x *.enc   (sizes all multiples of 16, no header, high entropy)
 EventLogs/        Security, System, Application, PowerShell-Operational,
@@ -129,7 +128,7 @@ C:\Users\jmartin</code></pre></figure>
 <p>IV = MD5("DESKTOP-KLPAT9O" + "jmartin") = a31de3916e88f240c2bf08735b965aa9.</p>
 <ol class="steps" start="4"><li>Decrypt and read. All 9 files decrypt to clean UTF-8 with valid PKCS#7. The flag is in <code>Q3_auth_memo.txt</code>, base64-encoded "for secure internal transmission":</li></ol>
 <figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>QkhGbGFnWXtkM2YzbmQzcl9xdTRyNG50MW4zX3IzYzB2M3J5XzIwMjZ9
-  -&gt; BHFlagY{d3f3nd3r_qu4r4nt1n3_r3c0v3ry_2026}</code></pre></figure>
+  -&gt; BHFlagY{...}</code></pre></figure>
 <p>Key code KEY = bytes([<code>0x1E</code>,<code>0x87</code>,<code>0x78</code>,<code>0x1B</code>,<code>0x8D</code>,<code>0xBA</code>,<code>0xA8</code>,<code>0x44</code>...]) # 256-byte static MsMpEng RC4 key</p>
 <figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">python</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>def rc4(data, key=KEY):
     S = list(range(256)); j = 0

@@ -74,7 +74,7 @@
         <p class="masthead-meta">
           <span>Challenge 15 of 15</span>
           <span>Web</span>
-          <span class="live">Solved · 100 pts</span>
+          <span class="live">Full writeup</span>
         </p>
       </div>
       <div class="hero-deck">
@@ -84,7 +84,6 @@
           <p class="deck">Huddle is a small team chat workspace. Members post in channels, invite teammates with a shareable link, and the workspace owner can switch on extra features such as video messages. You arrive as an ordinary member. Work your way into the owner's seat, then turn the workspace's own tooling into a window onto the server.</p>
           <p class="wu-meta">
             <span class="cat cat-web">Web</span><span class="sep">·</span>
-            <span>100 points</span><span class="sep">·</span>
             <span>4 November 2026</span>
           </p>
         </div>
@@ -97,7 +96,7 @@
       <div class="wu-layout">
         <article class="wu" data-reveal>
           <div class="tldr"><p class="lab">TL;DR</p><p>Huddle signs invite tokens with sha256(secret ‖ "team=main&amp;email=…&amp;role=member") and parses them with a hand-rolled last-duplicate-key-wins splitter, so a SHA-256 length-extension appending &amp;role=owner promotes any member to workspace owner. Owner unlocks the video- message thumbnailer, which shells out to ffmpeg -enable_drefs 1 -use_absolute_path 1; a hand- built MP4 with a Mac-alias (alis) external data reference plus a custom 256-entry pal8 colour table turns each thumbnail into one JPEG-lossless bit-plane of an arbitrary server file, and 8 requests reconstruct <code>/flag.txt</code> byte-exact.</p></div>
-          <div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{91c5fde3a1ef9948fac9a90a2a4545a3}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{8c455742ac0f75ec8f5d645761b7a3d5}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><p class="flag-note">Instances are provisioned per run, so these are the values our instances returned.</p>
+          <div class="flagbox"><span class="lab">Captured</span></div>
           <section id="recon"><h2><span class="hn">01</span>Recon</h2><p>Target: http://k9bade1ac79139f00d48a9813d1318e9e.playat.flagyard.com (later re-run against a second instance k85c055eb8836a37c0d581c3dc51ab1c2…). Express + React SPA; nginx front, static catch-all returns index.html (200, 18191 bytes) for every unknown path, so path/file enumeration is dead (/server.js, / <code>package.json</code>, /.git/HEAD, <code>/flag.txt</code> all return the SPA). API 404s are JSON: {"error":"not found"}.</p>
 <p>Endpoints extracted from /bundle.js:</p>
 <figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>"/api/channels/" "/api/files/thumbnail"   "/api/files/upload"
@@ -190,9 +189,9 @@ NO /flag NO /app/flag.txt NO /root/flag.txt NO /app/.env</code></pre></figure>
 <ol class="steps" start="8"><li>Flag</li></ol>
 <figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">shell</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>$ python3 rf.py /flag.txt
 ========================= /flag.txt
-b'BHFlagY{91c5fde3a1ef9948fac9a90a2a4545a3}'</code></pre></figure>
+b'BHFlagY{...}'</code></pre></figure>
 <p>Verified at three read widths (128 / 2048 / 8192). Second instance, driven end-to-end by a single <code>pwn.py</code> &lt;url&gt; (register → length-extend → enable video → read) in ~15 s, secret length 17, and re-verified with a fresh account at a different width:</p>
-<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>BHFlagY{8c455742ac0f75ec8f5d645761b7a3d5}</code></pre></figure>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>BHFlagY{...}</code></pre></figure>
 <p>Key code import base64, json, io, sys, http.cookiejar, urllib.request import sha256ext, mkdref from PIL import Image import numpy as np</p>
 <figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">python</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>U = sys.argv[1].rstrip('/')
 EMAIL, PASS = "pwn9@x.com", "Passw0rd123"

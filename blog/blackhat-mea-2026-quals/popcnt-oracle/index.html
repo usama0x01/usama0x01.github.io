@@ -74,7 +74,7 @@
         <p class="masthead-meta">
           <span>Challenge 2 of 15</span>
           <span>Crypto</span>
-          <span class="live">Solved · 100 pts</span>
+          <span class="live">Full writeup</span>
         </p>
       </div>
       <div class="hero-deck">
@@ -84,7 +84,6 @@
           <p class="deck">Poping Shower!</p>
           <p class="wu-meta">
             <span class="cat cat-crypto">Crypto</span><span class="sep">·</span>
-            <span>100 points</span><span class="sep">·</span>
             <span>4 November 2026</span>
           </p>
         </div>
@@ -97,7 +96,7 @@
       <div class="wu-layout">
         <article class="wu" data-reveal>
           <div class="tldr"><p class="lab">TL;DR</p><p>The service is an unrestricted RSA decryption oracle that leaks only popcount(x^d mod n); because 2y mod n is a pure left shift (identical popcount) exactly when 2y &lt; n, a popcount change along a doubling chain proves a modular wrap, and for the chain seeded at m those wrap flags are literally the binary digits of m/n. Three chains (k = 1, 3, 5, 2051 queries each) driven through a beam search recovered all 2048 bits of the secret m in ~1020–1080 s, which was then submitted verbatim to get the flag.</p></div>
-          <div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{ecc3a2adc3ccb6a6120005fa8c5bfde3} (tcp.flagyard.com:23476)</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{304e06cf9e9d383613a7ad30ca8a667b} (tcp.flagyard.com:19546)</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><p class="flag-note">Instances are provisioned per run, so these are the values our instances returned.</p>
+          <div class="flagbox"><span class="lab">Captured</span></div>
           <section id="recon"><h2><span class="hn">01</span>Recon</h2><p>The archive contained a single 510-byte <code>prob.py</code> (local copy at <code>/home/kali/Desktop/CTF/Crpto/</code> popcnt_oracle.tar.gz/prob.py):</p>
 <figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">python</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>e = 65537
 while True:
@@ -160,7 +159,7 @@ pred         =    (k*B &gt;&gt; s) &amp; 1</code></pre></figure>
 <ol class="steps" start="6"><li>Interval → integer. Each surviving A gives lo = ceil(A·n / 2^nbits); candidates lo−1 … hi are emitted and deduped. The correct m is the unique candidate satisfying pow(m, e, n) == c. Live runs emitted 876 and 1125 candidates at beam=600 gap=40 and hit m on the first beam pass.</li><li>Submit m on the same socket and regex the flag out of the reply (rb"[A-Za-z0-9_]\{[^}]\}").</li></ol>
 <p>Validation before touching the remote (offline, <code>ranktest.py</code>, RSA-2048, k = 1,3,5, beam 600): the true candidate never fell below rank 2 with a penalty gap ≤ 1–2, and the beam search itself ran in ~1.1 s. A 9-agent adversarial review confirmed the math: the shift invariant held over 1,165,890 exhaustive (y, n) pairs with 0 violations, and the wrap identity over 30,608,640 cases for k ∈ {1,3,5,7,9} with 0 mismatches. Under-provisioned configs were also measured: k = 1,3,5 at beam 150 → 3/3 (rank ≤ 6), but k = 1,3 at beam 2000 → 1/3.</p>
 <p>Run log.</p>
-<ul class="bullets"><li>Local end-to-end (--local against a spawned <code>prob.py</code>): m recovered, FLAG: BHFlagY{local_test}, 98.7 s total.</li><li>tcp.flagyard.com:23476, run 2 (<code>solve2.py</code>): chain k=1 350 s, k=3 721 s, k=5 1082 s; beam=600 gap=40</li><li>&gt; 876 candidates; BHFlagY{ecc3a2adc3ccb6a6120005fa8c5bfde3} in 1082 s.</li><li>tcp.flagyard.com:19546: beam=600 gap=40 -&gt; 1125 candidates; BHFlagY{304e06cf9e9d383613a7ad30ca8a667b} in 1021 s.</li></ul>
+<ul class="bullets"><li>Local end-to-end (--local against a spawned <code>prob.py</code>): m recovered, FLAG: BHFlagY{local_test}, 98.7 s total.</li><li>tcp.flagyard.com:23476, run 2 (<code>solve2.py</code>): chain k=1 350 s, k=3 721 s, k=5 1082 s; beam=600 gap=40</li><li>&gt; 876 candidates; BHFlagY{...} in 1082 s.</li><li>tcp.flagyard.com:19546: beam=600 gap=40 -&gt; 1125 candidates; BHFlagY{...} in 1021 s.</li></ul>
 <p>Stream-integrity check on the raw dump (chain k=1, 2047-bit n): 2050 entries as expected; popcounts min 954 / max 1117 / mean 1022.0 / sd 22.7 against the expected 1023.5 / 22.6; zero out-of- range values (a truncated read would surface as a tiny value like 10); proven wraps 990/2049 = 0.483 against the ~0.495 expected, the 0.012 shortfall is the hidden-wrap rate, matching the independently measured 0.84 %.</p>
 <p>Key code def chain_queries(c, e, n, k, L): """x_j = c * k^e * (2^e)^j -&gt; oracle answers popcount(k*2^j*m mod n).""" two_e, x, out = pow(2, e, n), c * pow(k, e, n) % n, [] for _ in range(L): out.append(x) x = x * two_e % n return out</p>
 <figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">python</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>def measured_bits(popcounts):

@@ -74,7 +74,7 @@
         <p class="masthead-meta">
           <span>Challenge 9 of 15</span>
           <span>Reversing</span>
-          <span class="live">Solved · 100 pts</span>
+          <span class="live">Full writeup</span>
         </p>
       </div>
       <div class="hero-deck">
@@ -84,7 +84,6 @@
           <p class="deck">Encrypted, signal-dispatched shellcode chunks validating a username-dependent license.</p>
           <p class="wu-meta">
             <span class="cat cat-reversing">Reversing</span><span class="sep">·</span>
-            <span>100 points</span><span class="sep">·</span>
             <span>4 November 2026</span>
           </p>
         </div>
@@ -97,7 +96,7 @@
       <div class="wu-layout">
         <article class="wu" data-reveal>
           <div class="tldr"><p class="lab">TL;DR</p><p>A 34 MB stripped PIE hides its license check in 40 encrypted x86 shellcode chunks that are decrypted inside the kernel by an embedded eBPF tracepoint program (bpf_probe_write_user on syscalls:sys_enter_openat with dirfd <code>0x1337</code>) and dispatched via int3/SIGTRAP. Dumping the chunks in a privileged container, reconstructing the 8×4-round Feistel/PRNG license transform, scraping the expected 512-bit target out of the seccomp ERRNO oracle's own argument stream, and z3- solving the 14 hidden username byte-checksums plus crc32(user)==<code>0xbf2b0fa2</code> yields the unique username xorionxarcheryxseedx, whose derived 72-byte license.dat makes the untouched binary print the flag.</p></div>
-          <div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{BPF_c4n_b3_b4d_Bu7_I_d0n&#x27;7_Th1nK_7thIs_()ne_1s_B4D?_6b117fca1597}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><p class="flag-note">Instances are provisioned per run, so these are the values our instances returned.</p>
+          <div class="flagbox"><span class="lab">Captured</span></div>
           <section id="recon"><h2><span class="hn">01</span>Recon</h2><p>Files. One artifact: <code>/home/kali/Desktop/CTF/rev/extended/challenge</code>, 34,798,808 bytes, ELF 64-bit LSB pie, x86-64, stripped, SHA256 05cca43b4b9ef229e402fb6869f6613209a3d91542993af32e9984bb99d40563. Linked against libelf, libz, libcrypto (SHA256, AES_set_decrypt_key, AES_ecb_encrypt), i.e. a statically-embedded libbpf.</p>
 <p>Run unprivileged it prints the banner and exits 1:</p>
 <figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>===============================================
@@ -257,7 +256,7 @@ flag    = AES-256-ECB-decrypt(challenge[0x2111850 : +80], key)
            Do you have a license?
 ===============================================
 
-Congrats: BHFlagY{BPF_c4n_b3_b4d_Bu7_I_d0n'7_Th1nK_7thIs_()ne_1s_B4D?_6b117fca1597}
+Congrats: BHFlagY{...}
 EXIT=0</code></pre></figure>
 <p class="codelabel">Key code import struct, hashlib, math</p>
 <figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">python</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>C1=0x1d872b41f2a3c4d5                                     # clmul multiplier   (chunk23 @0x51204)

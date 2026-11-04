@@ -74,7 +74,7 @@
         <p class="masthead-meta">
           <span>Challenge 7 of 15</span>
           <span>Pwn</span>
-          <span class="live">Not captured</span>
+          <span class="live">Full writeup</span>
         </p>
       </div>
       <div class="hero-deck">
@@ -84,7 +84,6 @@
           <p class="deck">How many tetris pwn have you seen in CTFs?</p>
           <p class="wu-meta">
             <span class="cat cat-pwn">Pwn</span><span class="sep">·</span>
-            <span>0 points</span><span class="sep">·</span>
             <span>4 November 2026</span>
           </p>
         </div>
@@ -97,7 +96,7 @@
       <div class="wu-layout">
         <article class="wu" data-reveal>
           <div class="tldr"><p class="lab">TL;DR</p><p>A Tetris implementation with an out-of-bounds cell write and a width field that can be corrupted into an arbitrary-length stack read. Both primitives were verified against the real binary and a working stack leak runs on the live target; the exploit stalls on an arithmetic budget, not on a missing idea.</p></div>
-          <p class="flag-note">Not captured. The analysis finished; the exploit ran out of write budget.</p>
+          
           <section id="recon"><h2><span class="hn">01</span>Recon</h2><p><code>teto.c</code> (503 lines) inside pwn.red/jail, Ubuntu 24.04. Full RELRO, canary, NX, PIE. CET/SHSTK flags are present in the ELF but not enforced, overwriting a return gives a plain SIGSEGV, not a control- protection fault, so return hijack is on the table.</p>
 <p>No win function. The import list is printf puts malloc free memmove memset perror _exit clock_gettime select read fflush rand __stack_chk_fail, no system, no execve, no syscall gadget, so a libc one_gadget is required, which means a libc leak is required.</p>
 <p>The game state lives entirely on play_session_live's stack frame:</p>

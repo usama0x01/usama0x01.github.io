@@ -74,7 +74,7 @@
         <p class="masthead-meta">
           <span>Challenge 5 of 15</span>
           <span>Forensics</span>
-          <span class="live">Solved · 100 pts</span>
+          <span class="live">Full writeup</span>
         </p>
       </div>
       <div class="hero-deck">
@@ -84,7 +84,6 @@
           <p class="deck">Linux workstation triage. An insider used a local LLM to build an exfiltration tool.</p>
           <p class="wu-meta">
             <span class="cat cat-forensics">Forensics</span><span class="sep">·</span>
-            <span>100 points</span><span class="sep">·</span>
             <span>4 November 2026</span>
           </p>
         </div>
@@ -97,7 +96,7 @@
       <div class="wu-layout">
         <article class="wu" data-reveal>
           <div class="tldr"><p class="lab">TL;DR</p><p>The local Ollama prompt history is an uncensored record of the insider designing the exfil tool, including the passphrase. The script itself survives in the GNOME Trash, and it reveals both the key- derivation function and where the archive was staged.</p></div>
-          <div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{l0c4l_0ll4m4_llm_f4r3n51c5_2026}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><p class="flag-note">Instances are provisioned per run, so these are the values our instances returned.</p>
+          <div class="flagbox"><span class="lab">Captured</span></div>
           <section id="recon"><h2><span class="hn">01</span>Recon</h2><p>The evidence set is a full Ubuntu 24.04 workstation tree (~14,000 entries) plus curated collections:</p>
 <figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>journal_exports/   journalctl_{full,cron,ssh,ollama}.txt
 system_info/       process_list, network_sockets, dpkg_installed, pip_packages, ...
@@ -135,7 +134,7 @@ vendor_contracts.csv                                            yes
 internal_api_keys.csv                                           no</code></pre></figure>
 <p>The extra file is the payload. Its key_b64 column is base64; one row decodes to the flag:</p>
 <figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>master_vault, production, vault_root
-  -&gt; BHFlagY{l0c4l_0ll4m4_llm_f4r3n51c5_2026}</code></pre></figure>
+  -&gt; BHFlagY{...}</code></pre></figure>
 <p class="codelabel">Key code import hashlib, pyzipper, base64, csv, io</p>
 <figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>pw = hashlib.blake2b(b"Gr33nF0x42!D1amond", digest_size=32).hexdigest()[:20].encode()</code></pre></figure>
 <p>with pyzipper.AESZipFile("home/dwright/.cache/fontconfig/session.zip") as zf: zf.setpassword(pw) rows = zf.read("internal_api_keys.csv").<code>decode()</code></p>
@@ -143,7 +142,7 @@ internal_api_keys.csv                                           no</code></pre><
     v = base64.b64decode(row["key_b64"]).decode("utf-8", "replace")
     if "BHFlagY" in v:
         print(row["service"], "-&gt;", v)
-# master_vault -&gt; BHFlagY{l0c4l_0ll4m4_llm_f4r3n51c5_2026}</code></pre></figure></section><section id="dead-ends"><h2><span class="hn">04</span>Dead ends</h2><ul class="bullets"><li>Everything in <code>/tmp</code> is a decoy. All seven "interesting" dotfiles are uniform random bytes: no headers, no repeating-key structure, no single-byte XOR to printable. Do not spend time on them, and do not treat core.python3.1234... as a real core dump, it is noise too.</li><li>The passphrase from the prompt log is not the archive password. Feeding Gr33nF0x42!D1amond straight to pyzipper fails; the blake2b-truncate-to-20-hex-chars derivation in the script is mandatory. The LLM prompt even asks about hashlib sha256 while the script ships blake2b, trust the code, not the prompt.</li><li>auditd was installed on the host but its logs do not contain the exfil execution; the.trashinfo timestamps and the ollama journal are the reliable timeline sources.</li></ul></section>
+# master_vault -&gt; BHFlagY{...}</code></pre></figure></section><section id="dead-ends"><h2><span class="hn">04</span>Dead ends</h2><ul class="bullets"><li>Everything in <code>/tmp</code> is a decoy. All seven "interesting" dotfiles are uniform random bytes: no headers, no repeating-key structure, no single-byte XOR to printable. Do not spend time on them, and do not treat core.python3.1234... as a real core dump, it is noise too.</li><li>The passphrase from the prompt log is not the archive password. Feeding Gr33nF0x42!D1amond straight to pyzipper fails; the blake2b-truncate-to-20-hex-chars derivation in the script is mandatory. The LLM prompt even asks about hashlib sha256 while the script ships blake2b, trust the code, not the prompt.</li><li>auditd was installed on the host but its logs do not contain the exfil execution; the.trashinfo timestamps and the ollama journal are the reliable timeline sources.</li></ul></section>
           <nav class="pager" aria-label="Challenge navigation"><a href="/blog/blackhat-mea-2026-quals/qfact/"><span class="dir">← Previous</span><span class="t">Qfact</span></a><a class="nx" href="/blog/blackhat-mea-2026-quals/baiby-pwn/"><span class="dir">Next →</span><span class="t">baiby-pwn</span></a></nav>
         </article>
         <aside class="wu-rail">
