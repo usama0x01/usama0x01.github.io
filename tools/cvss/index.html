@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>CVSS 3.1 Calculator · Usama Arshad</title>
+<meta name="description" content="Build a CVSS 3.1 base score from the eight base metrics. Exact spec formula, live severity and a copyable vector string.">
+<link rel="canonical" href="https://www.usamaarshad.me/tools/cvss/">
+<link rel="alternate" type="application/rss+xml" title="Usama Arshad, Writing" href="/feed.xml">
+<link rel="icon" href="/assets/favicon.ico">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#131110">
+<link rel="stylesheet" href="/assets/css/print.css" media="print">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Usama Arshad">
+<meta property="og:title" content="CVSS 3.1 Calculator · Usama Arshad">
+<meta property="og:description" content="Build a CVSS 3.1 base score from the eight base metrics. Exact spec formula, live severity and a copyable vector string.">
+<meta property="og:url" content="https://www.usamaarshad.me/tools/cvss/">
+<meta property="og:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@usama0x01">
+<meta name="twitter:title" content="CVSS 3.1 Calculator · Usama Arshad">
+<meta name="twitter:description" content="Build a CVSS 3.1 base score from the eight base metrics. Exact spec formula, live severity and a copyable vector string.">
+<meta name="twitter:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "CVSS 3.1 Calculator \u00b7 Usama Arshad",
+  "applicationCategory": "SecurityApplication",
+  "operatingSystem": "Any (web browser)",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "description": "Build a CVSS 3.1 base score from the eight base metrics. Exact spec formula, live severity and a copyable vector string.",
+  "url": "https://www.usamaarshad.me/tools/cvss/",
+  "creator": {
+    "@type": "Person",
+    "name": "Usama Arshad",
+    "url": "https://www.usamaarshad.me/"
+  },
+  "isAccessibleForFree": true
+}
+</script>
+<link rel="preload" href="/assets/fonts/fraunces-normal-340-640.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/inter-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/jetbrainsmono-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.classList.add("js");</script>
+<link rel="stylesheet" href="/assets/css/writeup.css">
+<link rel="stylesheet" href="/assets/css/tools.css">
+
+</head>
+<body>
+<div class="progress" id="prog" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head" id="top">
+  <div class="container head-inner">
+    <a class="wordmark" href="/" aria-label="Usama Arshad, home">Usama Arshad<span class="dot">.</span></a>
+    <nav aria-label="Breadcrumb">
+      <a class="back-link" href="/tools/"><span class="arr" aria-hidden="true">←</span><span class="txt">All tools</span></a>
+    </nav>
+    <a class="btn btn-ghost head-cta" href="/assets/Usama-Arshad-Resume.pdf" download>Résumé</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" aria-labelledby="pt">
+    <div class="container">
+      <div class="masthead" data-reveal>
+        <p class="masthead-meta"><span>Tool</span><span>Client-side</span><span class="live">No upload</span></p>
+      </div>
+      <div class="hero-deck">
+        <div class="deck-copy" data-reveal style="--d:.08s">
+          <p class="kicker">Tools</p>
+          <h1 class="hero-title" id="pt">CVSS 3.1 Calculator<span class="dot">.</span></h1>
+          <p class="deck">Build a CVSS 3.1 base score from the eight base metrics. Exact spec formula, live severity and a copyable vector string.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <div class="tool" data-reveal>
+        <h2 class="tool-h2">CVSS 3.1 base score</h2>
+        <p class="tool-note"><b>Private by design.</b> Implements the official CVSS v3.1 base-score formula, including scope-dependent impact and the spec roundup.</p>
+<div class="cvss-grid"><div class="metric" data-metric="AV"><div class="m-lab"><b>Attack Vector</b> (AV)</div><div class="seg" role="group" aria-label="Attack Vector"><button type="button" data-v="N" class="on">Network</button><button type="button" data-v="A">Adjacent</button><button type="button" data-v="L">Local</button><button type="button" data-v="P">Physical</button></div></div><div class="metric" data-metric="AC"><div class="m-lab"><b>Attack Complexity</b> (AC)</div><div class="seg" role="group" aria-label="Attack Complexity"><button type="button" data-v="L" class="on">Low</button><button type="button" data-v="H">High</button></div></div><div class="metric" data-metric="PR"><div class="m-lab"><b>Privileges Required</b> (PR)</div><div class="seg" role="group" aria-label="Privileges Required"><button type="button" data-v="N" class="on">None</button><button type="button" data-v="L">Low</button><button type="button" data-v="H">High</button></div></div><div class="metric" data-metric="UI"><div class="m-lab"><b>User Interaction</b> (UI)</div><div class="seg" role="group" aria-label="User Interaction"><button type="button" data-v="N" class="on">None</button><button type="button" data-v="R">Required</button></div></div><div class="metric" data-metric="S"><div class="m-lab"><b>Scope</b> (S)</div><div class="seg" role="group" aria-label="Scope"><button type="button" data-v="U" class="on">Unchanged</button><button type="button" data-v="C">Changed</button></div></div><div class="metric" data-metric="C"><div class="m-lab"><b>Confidentiality</b> (C)</div><div class="seg" role="group" aria-label="Confidentiality"><button type="button" data-v="N" class="on">None</button><button type="button" data-v="L">Low</button><button type="button" data-v="H">High</button></div></div><div class="metric" data-metric="I"><div class="m-lab"><b>Integrity</b> (I)</div><div class="seg" role="group" aria-label="Integrity"><button type="button" data-v="N" class="on">None</button><button type="button" data-v="L">Low</button><button type="button" data-v="H">High</button></div></div><div class="metric" data-metric="A"><div class="m-lab"><b>Availability</b> (A)</div><div class="seg" role="group" aria-label="Availability"><button type="button" data-v="N" class="on">None</button><button type="button" data-v="L">Low</button><button type="button" data-v="H">High</button></div></div></div>
+      <div class="result" style="margin-top:1.4rem">
+        <div class="gauge">
+          <span class="num" id="cvNum">0.0</span>
+          <span class="rate sev-low" id="cvRate">None</span>
+          <span class="bar"><i id="cvBar"></i></span>
+        </div>
+        <p class="vecline">Vector: <b id="cvVec">CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:N</b></p>
+        <div class="btnrow" style="margin-top:.9rem;margin-bottom:0"><button class="tbtn" id="cvCopy" type="button">Copy vector</button></div>
+      </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="wordmark" href="/">Usama Arshad<span class="dot">.</span></a>
+        <p>Offensive Security Lead. Red team, AppSec, and cloud security for fintech at scale. Based in Riyadh, Saudi Arabia.</p>
+      </div>
+      <nav class="foot-col" aria-label="Site index">
+        <h2>Index</h2>
+        <ul>
+          <li><a href="/">Portfolio</a></li>
+          <li><a href="/blog/">Writing</a></li>
+          <li><a href="/research/">Research</a></li>
+          <li><a href="/tools/">Tools</a></li>
+          <li><a href="/#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="foot-col">
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://github.com/usama0x01" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">WPScan leaderboard</a></li>
+          <li><a href="https://medium.com/@usama0x01" target="_blank" rel="noopener">Medium</a></li>
+          <li><a href="mailto:gusama21@gmail.com">gusama21@gmail.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>© 2026 Usama Arshad · Riyadh, Saudi Arabia</span>
+      <span class="colophon">Set in Fraunces, Inter &amp; JetBrains Mono, self-hosted · No trackers, no cookies</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduceMotion=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var head=document.querySelector(".site-head");
+  function onScroll(){ head.classList.toggle("scrolled", window.scrollY>8); }
+  window.addEventListener("scroll",onScroll,{passive:true}); onScroll();
+  var prog=document.getElementById("prog");
+  if(prog){ var tick=function(){ var h=document.documentElement,m=h.scrollHeight-h.clientHeight; prog.style.width=(m>0?(h.scrollTop/m)*100:0)+"%"; };
+    window.addEventListener("scroll",tick,{passive:true}); window.addEventListener("resize",tick); tick(); }
+  var rev=Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
+  if(reduceMotion||!("IntersectionObserver" in window)) rev.forEach(function(e){e.classList.add("in");});
+  else{ var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target);}});},{threshold:0.08,rootMargin:"0px 0px -5% 0px"});
+    rev.forEach(function(e){io.observe(e);});
+    var geo=function(){rev.forEach(function(e){if(!e.classList.contains("in")&&e.getBoundingClientRect().top<window.innerHeight*0.95)e.classList.add("in");});};
+    window.addEventListener("scroll",geo,{passive:true}); window.addEventListener("resize",geo); geo(); }
+})();
+</script>
+<script>
+(function(){
+  var W={AV:{N:0.85,A:0.62,L:0.55,P:0.2},AC:{L:0.77,H:0.44},UI:{N:0.85,R:0.62},
+         PRU:{N:0.85,L:0.62,H:0.27},PRC:{N:0.85,L:0.68,H:0.5},CIA:{N:0,L:0.22,H:0.56}};
+  var sel={AV:'N',AC:'L',PR:'N',UI:'N',S:'U',C:'N',I:'N',A:'N'};
+  function roundup(x){ var i=Math.round(x*100000); return (i%10000===0)? i/100000 : (Math.floor(i/10000)+1)/10; }
+  function rate(s){ if(s===0)return['None','sev-low']; if(s<4)return['Low','sev-low']; if(s<7)return['Medium','sev-med']; if(s<9)return['High','sev-high']; return['Critical','sev-crit']; }
+  function calc(){
+    var av=W.AV[sel.AV],ac=W.AC[sel.AC],ui=W.UI[sel.UI];
+    var pr=(sel.S==='C')?W.PRC[sel.PR]:W.PRU[sel.PR];
+    var c=W.CIA[sel.C],i=W.CIA[sel.I],a=W.CIA[sel.A];
+    var iss=1-((1-c)*(1-i)*(1-a));
+    var impact=(sel.S==='C')? 7.52*(iss-0.029)-3.25*Math.pow(iss-0.02,15) : 6.42*iss;
+    var expl=8.22*av*ac*pr*ui, score;
+    if(impact<=0) score=0;
+    else if(sel.S==='C') score=roundup(Math.min(1.08*(impact+expl),10));
+    else score=roundup(Math.min(impact+expl,10));
+    var r=rate(score);
+    document.getElementById('cvNum').textContent=score.toFixed(1);
+    var rt=document.getElementById('cvRate'); rt.textContent=r[0]; rt.className='rate '+r[1];
+    var bar=document.getElementById('cvBar'); bar.style.width=(score*10)+'%';
+    bar.style.background=({'sev-low':'#9a9184','sev-med':'#e0b071','sev-high':'#e5484d','sev-crit':'#ff6b6b'})[r[1]];
+    document.getElementById('cvVec').textContent='CVSS:3.1/AV:'+sel.AV+'/AC:'+sel.AC+'/PR:'+sel.PR+'/UI:'+sel.UI+'/S:'+sel.S+'/C:'+sel.C+'/I:'+sel.I+'/A:'+sel.A;
+  }
+  document.querySelectorAll('.metric').forEach(function(m){
+    var key=m.getAttribute('data-metric');
+    m.querySelectorAll('.seg button').forEach(function(b){
+      b.addEventListener('click',function(){ sel[key]=b.getAttribute('data-v'); m.querySelectorAll('.seg button').forEach(function(x){x.classList.toggle('on',x===b);}); calc(); });
+    });
+  });
+  document.getElementById('cvCopy').addEventListener('click',function(){ var t=document.getElementById('cvVec').textContent,btn=this; (navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(t):Promise.reject()).then(function(){btn.textContent='Copied';btn.classList.add('done');setTimeout(function(){btn.textContent='Copy vector';btn.classList.remove('done');},1400);},function(){}); });
+  calc();
+})();
+</script>
+</body>
+</html>

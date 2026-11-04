@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Security Tools · Usama Arshad</title>
+<meta name="description" content="Free offensive-security tools that run entirely in your browser: JWT analyzer, CVSS calculator, hash toolkit, encoder, CSP analyzer and more.">
+<link rel="canonical" href="https://www.usamaarshad.me/tools/">
+<link rel="alternate" type="application/rss+xml" title="Usama Arshad, Writing" href="/feed.xml">
+<link rel="icon" href="/assets/favicon.ico">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#131110">
+<link rel="stylesheet" href="/assets/css/print.css" media="print">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Usama Arshad">
+<meta property="og:title" content="Security Tools · Usama Arshad">
+<meta property="og:description" content="Free offensive-security tools that run entirely in your browser: JWT analyzer, CVSS calculator, hash toolkit, encoder, CSP analyzer and more.">
+<meta property="og:url" content="https://www.usamaarshad.me/tools/">
+<meta property="og:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@usama0x01">
+<meta name="twitter:title" content="Security Tools · Usama Arshad">
+<meta name="twitter:description" content="Free offensive-security tools that run entirely in your browser: JWT analyzer, CVSS calculator, hash toolkit, encoder, CSP analyzer and more.">
+<meta name="twitter:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Security Tools \u00b7 Usama Arshad",
+  "url": "https://www.usamaarshad.me/tools/",
+  "description": "A set of free, client-side offensive-security tools: JWT analyzer, CVSS calculator, hash toolkit, encoder, CSP analyzer, password entropy and a search-dork builder. Nothing is uploaded.",
+  "hasPart": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "JWT Analyzer",
+      "applicationCategory": "SecurityApplication",
+      "operatingSystem": "Web",
+      "url": "https://www.usamaarshad.me/tools/jwt/"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "CVSS 3.1 Calculator",
+      "applicationCategory": "SecurityApplication",
+      "operatingSystem": "Web",
+      "url": "https://www.usamaarshad.me/tools/cvss/"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Hash Toolkit",
+      "applicationCategory": "SecurityApplication",
+      "operatingSystem": "Web",
+      "url": "https://www.usamaarshad.me/tools/hash/"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Encoder / Decoder",
+      "applicationCategory": "SecurityApplication",
+      "operatingSystem": "Web",
+      "url": "https://www.usamaarshad.me/tools/encoder/"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "CSP Analyzer",
+      "applicationCategory": "SecurityApplication",
+      "operatingSystem": "Web",
+      "url": "https://www.usamaarshad.me/tools/csp/"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Password Entropy",
+      "applicationCategory": "SecurityApplication",
+      "operatingSystem": "Web",
+      "url": "https://www.usamaarshad.me/tools/password/"
+    }
+  ]
+}
+</script>
+<link rel="preload" href="/assets/fonts/fraunces-normal-340-640.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/inter-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/jetbrainsmono-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.classList.add("js");</script>
+<link rel="stylesheet" href="/assets/css/writeup.css">
+<link rel="stylesheet" href="/assets/css/tools.css">
+
+</head>
+<body>
+<div class="progress" id="prog" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head" id="top">
+  <div class="container head-inner">
+    <a class="wordmark" href="/" aria-label="Usama Arshad, home">Usama Arshad<span class="dot">.</span></a>
+    <nav aria-label="Breadcrumb">
+      <a class="back-link" href="/"><span class="arr" aria-hidden="true">←</span><span class="txt">Portfolio</span></a>
+    </nav>
+    <a class="btn btn-ghost head-cta" href="/assets/Usama-Arshad-Resume.pdf" download>Résumé</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" aria-labelledby="pt">
+    <div class="container">
+      <div class="masthead" data-reveal>
+        <p class="masthead-meta"><span>Offensive security</span><span>Runs in your browser</span><span class="live">Nothing uploaded</span></p>
+      </div>
+      <div class="hero-deck">
+        <div class="deck-copy" data-reveal style="--d:.08s">
+          <p class="kicker">Tools</p>
+          <h1 class="hero-title" id="pt">Small sharp tools<span class="dot">.</span></h1>
+          <p class="deck">The utilities I reach for often, rebuilt to run <strong>entirely in your browser</strong>. No uploads, no accounts, no tracking: the page does the work and the data never leaves it. That is a deliberate choice for anything you paste into a security tool.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <header class="sec-head" data-reveal>
+        <span class="sec-no" aria-hidden="true">01</span>
+        <div class="sec-title"><p class="kicker">Seven tools</p><h2>The toolbox<span class="dot">.</span></h2></div>
+      </header>
+      <div class="tool-cats">
+      <div class="tool-cat" data-reveal>
+        <p class="cat-sub">Recon &amp; discovery</p>
+        <div class="tool-grid">
+        <a class="tcard" href="/dorks/">
+          <div class="tcard-top"><span class="tcard-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span><span class="tcard-tag">Client-side</span></div>
+          <h3>Search Dork Builder</h3>
+          <p>A searchable library of search-engine dorks with combined OR-sweeps, a live site: scope field and a Google / Bing / DuckDuckGo switch.</p>
+          <div class="feats"><span>118 queries</span><span>Domain scope</span><span>Copy &amp; run</span></div>
+          <span class="open">Open tool <span class="arr" aria-hidden="true">→</span></span>
+        </a>
+        </div>
+      </div>
+      <div class="tool-cat" data-reveal>
+        <p class="cat-sub">Tokens &amp; crypto</p>
+        <div class="tool-grid">
+        <a class="tcard" href="/tools/jwt/">
+          <div class="tcard-top"><span class="tcard-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 2v20M2 12h20" opacity=".4"/><circle cx="12" cy="12" r="9"/></svg></span><span class="tcard-tag">Client-side</span></div>
+          <h3>JWT Analyzer</h3>
+          <p>Decode a JSON Web Token and flag what gets them forged: alg none, symmetric signing, missing expiry, external key URLs.</p>
+          <div class="feats"><span>Header + payload</span><span>Security findings</span><span>No network</span></div>
+          <span class="open">Open tool <span class="arr" aria-hidden="true">→</span></span>
+        </a>
+        <a class="tcard" href="/tools/hash/">
+          <div class="tcard-top"><span class="tcard-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18"/></svg></span><span class="tcard-tag">Client-side</span></div>
+          <h3>Hash Toolkit</h3>
+          <p>Generate SHA-1/256/384/512 of any text with the browser&#x27;s own crypto, or identify an unknown hash by length and charset.</p>
+          <div class="feats"><span>SHA family</span><span>Identify type</span><span>WebCrypto</span></div>
+          <span class="open">Open tool <span class="arr" aria-hidden="true">→</span></span>
+        </a>
+        </div>
+      </div>
+      <div class="tool-cat" data-reveal>
+        <p class="cat-sub">AppSec &amp; scoring</p>
+        <div class="tool-grid">
+        <a class="tcard" href="/tools/cvss/">
+          <div class="tcard-top"><span class="tcard-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M3 12a9 9 0 1 1 18 0"/><path d="M12 12l5-3"/></svg></span><span class="tcard-tag">Client-side</span></div>
+          <h3>CVSS 3.1 Calculator</h3>
+          <p>Build a CVSS 3.1 base score from the eight base metrics. Exact spec formula, live severity and a copyable vector string.</p>
+          <div class="feats"><span>Base score</span><span>Severity</span><span>Vector string</span></div>
+          <span class="open">Open tool <span class="arr" aria-hidden="true">→</span></span>
+        </a>
+        <a class="tcard" href="/tools/csp/">
+          <div class="tcard-top"><span class="tcard-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 8.5 8 11 4.6-2.5 8-6 8-11V5z"/></svg></span><span class="tcard-tag">Client-side</span></div>
+          <h3>CSP Analyzer</h3>
+          <p>Paste a Content-Security-Policy and get the weaknesses: unsafe-inline, unsafe-eval, wildcards, bare schemes, missing directives.</p>
+          <div class="feats"><span>Directive parse</span><span>Severity</span><span>Hardening tips</span></div>
+          <span class="open">Open tool <span class="arr" aria-hidden="true">→</span></span>
+        </a>
+        </div>
+      </div>
+      <div class="tool-cat" data-reveal>
+        <p class="cat-sub">Encoding &amp; secrets</p>
+        <div class="tool-grid">
+        <a class="tcard" href="/tools/encoder/">
+          <div class="tcard-top"><span class="tcard-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m7 8-4 4 4 4M17 8l4 4-4 4M14 4l-4 16"/></svg></span><span class="tcard-tag">Client-side</span></div>
+          <h3>Encoder / Decoder</h3>
+          <p>Base64, Base64URL, URL, hex and HTML entities, encode and decode, both directions, UTF-8 safe. The everyday scratchpad.</p>
+          <div class="feats"><span>5 encodings</span><span>Both ways</span><span>UTF-8 safe</span></div>
+          <span class="open">Open tool <span class="arr" aria-hidden="true">→</span></span>
+        </a>
+        <a class="tcard" href="/tools/password/">
+          <div class="tcard-top"><span class="tcard-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span><span class="tcard-tag">Client-side</span></div>
+          <h3>Password Entropy</h3>
+          <p>Estimate password entropy and how long it survives offline and online guessing. Charset-based, never sent anywhere.</p>
+          <div class="feats"><span>Entropy bits</span><span>Crack time</span><span>Local only</span></div>
+          <span class="open">Open tool <span class="arr" aria-hidden="true">→</span></span>
+        </a>
+        </div>
+      </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="wordmark" href="/">Usama Arshad<span class="dot">.</span></a>
+        <p>Offensive Security Lead. Red team, AppSec, and cloud security for fintech at scale. Based in Riyadh, Saudi Arabia.</p>
+      </div>
+      <nav class="foot-col" aria-label="Site index">
+        <h2>Index</h2>
+        <ul>
+          <li><a href="/">Portfolio</a></li>
+          <li><a href="/blog/">Writing</a></li>
+          <li><a href="/research/">Research</a></li>
+          <li><a href="/tools/">Tools</a></li>
+          <li><a href="/#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="foot-col">
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://github.com/usama0x01" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">WPScan leaderboard</a></li>
+          <li><a href="https://medium.com/@usama0x01" target="_blank" rel="noopener">Medium</a></li>
+          <li><a href="mailto:gusama21@gmail.com">gusama21@gmail.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>© 2026 Usama Arshad · Riyadh, Saudi Arabia</span>
+      <span class="colophon">Set in Fraunces, Inter &amp; JetBrains Mono, self-hosted · No trackers, no cookies</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduceMotion=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var head=document.querySelector(".site-head");
+  function onScroll(){ head.classList.toggle("scrolled", window.scrollY>8); }
+  window.addEventListener("scroll",onScroll,{passive:true}); onScroll();
+  var prog=document.getElementById("prog");
+  if(prog){ var tick=function(){ var h=document.documentElement,m=h.scrollHeight-h.clientHeight; prog.style.width=(m>0?(h.scrollTop/m)*100:0)+"%"; };
+    window.addEventListener("scroll",tick,{passive:true}); window.addEventListener("resize",tick); tick(); }
+  var rev=Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
+  if(reduceMotion||!("IntersectionObserver" in window)) rev.forEach(function(e){e.classList.add("in");});
+  else{ var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target);}});},{threshold:0.08,rootMargin:"0px 0px -5% 0px"});
+    rev.forEach(function(e){io.observe(e);});
+    var geo=function(){rev.forEach(function(e){if(!e.classList.contains("in")&&e.getBoundingClientRect().top<window.innerHeight*0.95)e.classList.add("in");});};
+    window.addEventListener("scroll",geo,{passive:true}); window.addEventListener("resize",geo); geo(); }
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Password Entropy · Usama Arshad</title>
+<meta name="description" content="Estimate password entropy and how long it survives offline and online guessing. Charset-based, never sent anywhere.">
+<link rel="canonical" href="https://www.usamaarshad.me/tools/password/">
+<link rel="alternate" type="application/rss+xml" title="Usama Arshad, Writing" href="/feed.xml">
+<link rel="icon" href="/assets/favicon.ico">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#131110">
+<link rel="stylesheet" href="/assets/css/print.css" media="print">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Usama Arshad">
+<meta property="og:title" content="Password Entropy · Usama Arshad">
+<meta property="og:description" content="Estimate password entropy and how long it survives offline and online guessing. Charset-based, never sent anywhere.">
+<meta property="og:url" content="https://www.usamaarshad.me/tools/password/">
+<meta property="og:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@usama0x01">
+<meta name="twitter:title" content="Password Entropy · Usama Arshad">
+<meta name="twitter:description" content="Estimate password entropy and how long it survives offline and online guessing. Charset-based, never sent anywhere.">
+<meta name="twitter:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Password Entropy \u00b7 Usama Arshad",
+  "applicationCategory": "SecurityApplication",
+  "operatingSystem": "Any (web browser)",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "description": "Estimate password entropy and how long it survives offline and online guessing. Charset-based, never sent anywhere.",
+  "url": "https://www.usamaarshad.me/tools/password/",
+  "creator": {
+    "@type": "Person",
+    "name": "Usama Arshad",
+    "url": "https://www.usamaarshad.me/"
+  },
+  "isAccessibleForFree": true
+}
+</script>
+<link rel="preload" href="/assets/fonts/fraunces-normal-340-640.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/inter-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/jetbrainsmono-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.classList.add("js");</script>
+<link rel="stylesheet" href="/assets/css/writeup.css">
+<link rel="stylesheet" href="/assets/css/tools.css">
+
+</head>
+<body>
+<div class="progress" id="prog" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head" id="top">
+  <div class="container head-inner">
+    <a class="wordmark" href="/" aria-label="Usama Arshad, home">Usama Arshad<span class="dot">.</span></a>
+    <nav aria-label="Breadcrumb">
+      <a class="back-link" href="/tools/"><span class="arr" aria-hidden="true">←</span><span class="txt">All tools</span></a>
+    </nav>
+    <a class="btn btn-ghost head-cta" href="/assets/Usama-Arshad-Resume.pdf" download>Résumé</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" aria-labelledby="pt">
+    <div class="container">
+      <div class="masthead" data-reveal>
+        <p class="masthead-meta"><span>Tool</span><span>Client-side</span><span class="live">No upload</span></p>
+      </div>
+      <div class="hero-deck">
+        <div class="deck-copy" data-reveal style="--d:.08s">
+          <p class="kicker">Tools</p>
+          <h1 class="hero-title" id="pt">Password Entropy<span class="dot">.</span></h1>
+          <p class="deck">Estimate password entropy and how long it survives offline and online guessing. Charset-based, never sent anywhere.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <div class="tool" data-reveal>
+        <h2 class="tool-h2">Password entropy &amp; crack time</h2>
+        <p class="tool-note"><b>Private by design.</b> An entropy model based on length and character set, not a dictionary check, so a long common phrase can score higher than it should. Nothing is transmitted.</p>
+
+      <div class="field"><label for="pwIn">Password or passphrase</label>
+        <input id="pwIn" class="inp" type="password" placeholder="nothing is sent anywhere" autocomplete="off" spellcheck="false">
+        <label class="show-toggle"><input type="checkbox" id="pwShow"> show</label></div>
+      <div class="result" id="pwOut" hidden>
+        <div class="gauge">
+          <span class="num" id="pwBits">0</span>
+          <span class="rate sev-low" id="pwRate">&mdash;</span>
+          <span class="bar"><i id="pwBar"></i></span>
+        </div>
+        <p class="vecline" id="pwBitsLab">bits of entropy</p>
+        <dl class="kv" id="pwKv" style="margin-top:.8rem"></dl>
+      </div>
+
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="wordmark" href="/">Usama Arshad<span class="dot">.</span></a>
+        <p>Offensive Security Lead. Red team, AppSec, and cloud security for fintech at scale. Based in Riyadh, Saudi Arabia.</p>
+      </div>
+      <nav class="foot-col" aria-label="Site index">
+        <h2>Index</h2>
+        <ul>
+          <li><a href="/">Portfolio</a></li>
+          <li><a href="/blog/">Writing</a></li>
+          <li><a href="/research/">Research</a></li>
+          <li><a href="/tools/">Tools</a></li>
+          <li><a href="/#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="foot-col">
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://github.com/usama0x01" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">WPScan leaderboard</a></li>
+          <li><a href="https://medium.com/@usama0x01" target="_blank" rel="noopener">Medium</a></li>
+          <li><a href="mailto:gusama21@gmail.com">gusama21@gmail.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>© 2026 Usama Arshad · Riyadh, Saudi Arabia</span>
+      <span class="colophon">Set in Fraunces, Inter &amp; JetBrains Mono, self-hosted · No trackers, no cookies</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduceMotion=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var head=document.querySelector(".site-head");
+  function onScroll(){ head.classList.toggle("scrolled", window.scrollY>8); }
+  window.addEventListener("scroll",onScroll,{passive:true}); onScroll();
+  var prog=document.getElementById("prog");
+  if(prog){ var tick=function(){ var h=document.documentElement,m=h.scrollHeight-h.clientHeight; prog.style.width=(m>0?(h.scrollTop/m)*100:0)+"%"; };
+    window.addEventListener("scroll",tick,{passive:true}); window.addEventListener("resize",tick); tick(); }
+  var rev=Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
+  if(reduceMotion||!("IntersectionObserver" in window)) rev.forEach(function(e){e.classList.add("in");});
+  else{ var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target);}});},{threshold:0.08,rootMargin:"0px 0px -5% 0px"});
+    rev.forEach(function(e){io.observe(e);});
+    var geo=function(){rev.forEach(function(e){if(!e.classList.contains("in")&&e.getBoundingClientRect().top<window.innerHeight*0.95)e.classList.add("in");});};
+    window.addEventListener("scroll",geo,{passive:true}); window.addEventListener("resize",geo); geo(); }
+})();
+</script>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  function human(s){ if(s<1)return 'instant'; var u=[['year',31557600],['day',86400],['hour',3600],['minute',60],['second',1]];
+    for(var i=0;i<u.length;i++){ if(s>=u[i][1]){ var n=s/u[i][1]; return (n>=1e6?n.toExponential(1):Math.round(n).toLocaleString())+' '+u[i][0]+(Math.round(n)!==1?'s':''); } } return 'instant'; }
+  function rate(b){ if(b<28)return['Very weak','sev-crit',12]; if(b<40)return['Weak','sev-high',32]; if(b<60)return['Fair','sev-med',55]; if(b<80)return['Strong','sev-low',78]; return['Very strong','sev-ok',100]; }
+  function analyze(){
+    var p=$('pwIn').value; if(!p){ $('pwOut').hidden=true; return; }
+    var pool=0;
+    if(/[a-z]/.test(p))pool+=26; if(/[A-Z]/.test(p))pool+=26; if(/[0-9]/.test(p))pool+=10;
+    if(/[^A-Za-z0-9\s]/.test(p))pool+=33; if(/\s/.test(p))pool+=1;
+    var bits=Math.round(p.length*Math.log2(pool||1)), guesses=Math.pow(2,bits), r=rate(bits);
+    $('pwBits').textContent=bits; var rt=$('pwRate'); rt.textContent=r[0]; rt.className='rate '+r[1];
+    var bar=$('pwBar'); bar.style.width=Math.min(100,r[2])+'%';
+    bar.style.background=({'sev-crit':'#ff6b6b','sev-high':'#e5484d','sev-med':'#e0b071','sev-low':'#9a9184','sev-ok':'#9ad2a4'})[r[1]];
+    $('pwKv').innerHTML='<dt>Length</dt><dd>'+p.length+' chars</dd><dt>Charset</dt><dd>'+pool+' symbols</dd><dt>Guesses</dt><dd>~2^'+bits+'</dd><dt>Offline 10B/s</dt><dd>'+human(guesses/2/1e10)+'</dd><dt>Online 1k/s</dt><dd>'+human(guesses/2/1e3)+'</dd>';
+    $('pwOut').hidden=false;
+  }
+  $('pwIn').addEventListener('input',analyze);
+  $('pwShow').addEventListener('change',function(){ $('pwIn').type=this.checked?'text':'password'; });
+})();
+</script>
+</body>
+</html>

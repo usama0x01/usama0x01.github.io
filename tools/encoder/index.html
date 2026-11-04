@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Encoder / Decoder · Usama Arshad</title>
+<meta name="description" content="Base64, Base64URL, URL, hex and HTML entities, encode and decode, both directions, UTF-8 safe. The everyday scratchpad.">
+<link rel="canonical" href="https://www.usamaarshad.me/tools/encoder/">
+<link rel="alternate" type="application/rss+xml" title="Usama Arshad, Writing" href="/feed.xml">
+<link rel="icon" href="/assets/favicon.ico">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#131110">
+<link rel="stylesheet" href="/assets/css/print.css" media="print">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Usama Arshad">
+<meta property="og:title" content="Encoder / Decoder · Usama Arshad">
+<meta property="og:description" content="Base64, Base64URL, URL, hex and HTML entities, encode and decode, both directions, UTF-8 safe. The everyday scratchpad.">
+<meta property="og:url" content="https://www.usamaarshad.me/tools/encoder/">
+<meta property="og:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@usama0x01">
+<meta name="twitter:title" content="Encoder / Decoder · Usama Arshad">
+<meta name="twitter:description" content="Base64, Base64URL, URL, hex and HTML entities, encode and decode, both directions, UTF-8 safe. The everyday scratchpad.">
+<meta name="twitter:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Encoder / Decoder \u00b7 Usama Arshad",
+  "applicationCategory": "SecurityApplication",
+  "operatingSystem": "Any (web browser)",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "description": "Base64, Base64URL, URL, hex and HTML entities, encode and decode, both directions, UTF-8 safe. The everyday scratchpad.",
+  "url": "https://www.usamaarshad.me/tools/encoder/",
+  "creator": {
+    "@type": "Person",
+    "name": "Usama Arshad",
+    "url": "https://www.usamaarshad.me/"
+  },
+  "isAccessibleForFree": true
+}
+</script>
+<link rel="preload" href="/assets/fonts/fraunces-normal-340-640.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/inter-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/jetbrainsmono-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.classList.add("js");</script>
+<link rel="stylesheet" href="/assets/css/writeup.css">
+<link rel="stylesheet" href="/assets/css/tools.css">
+
+</head>
+<body>
+<div class="progress" id="prog" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head" id="top">
+  <div class="container head-inner">
+    <a class="wordmark" href="/" aria-label="Usama Arshad, home">Usama Arshad<span class="dot">.</span></a>
+    <nav aria-label="Breadcrumb">
+      <a class="back-link" href="/tools/"><span class="arr" aria-hidden="true">←</span><span class="txt">All tools</span></a>
+    </nav>
+    <a class="btn btn-ghost head-cta" href="/assets/Usama-Arshad-Resume.pdf" download>Résumé</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" aria-labelledby="pt">
+    <div class="container">
+      <div class="masthead" data-reveal>
+        <p class="masthead-meta"><span>Tool</span><span>Client-side</span><span class="live">No upload</span></p>
+      </div>
+      <div class="hero-deck">
+        <div class="deck-copy" data-reveal style="--d:.08s">
+          <p class="kicker">Tools</p>
+          <h1 class="hero-title" id="pt">Encoder / Decoder<span class="dot">.</span></h1>
+          <p class="deck">Base64, Base64URL, URL, hex and HTML entities, encode and decode, both directions, UTF-8 safe. The everyday scratchpad.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <div class="tool" data-reveal>
+        <h2 class="tool-h2">Encode &amp; decode</h2>
+        <p class="tool-note"><b>Private by design.</b> All transforms run locally and are Unicode-safe. Use Output to input to chain transforms.</p>
+
+      <div class="field"><label for="encIn">Input</label>
+        <textarea id="encIn" class="ta" placeholder="type or paste..." autocomplete="off" spellcheck="false"></textarea></div>
+      <div class="field-lab">Transform</div>
+      <div class="btnrow">
+        <button class="tbtn" data-op="b64e" type="button">Base64 encode</button>
+        <button class="tbtn" data-op="b64d" type="button">Base64 decode</button>
+        <button class="tbtn" data-op="b64ue" type="button">Base64URL enc</button>
+        <button class="tbtn" data-op="b64ud" type="button">Base64URL dec</button>
+        <button class="tbtn" data-op="urle" type="button">URL encode</button>
+        <button class="tbtn" data-op="urld" type="button">URL decode</button>
+        <button class="tbtn" data-op="hexe" type="button">Hex encode</button>
+        <button class="tbtn" data-op="hexd" type="button">Hex decode</button>
+        <button class="tbtn" data-op="htme" type="button">HTML encode</button>
+        <button class="tbtn" data-op="htmd" type="button">HTML decode</button>
+      </div>
+      <div class="field"><label for="encOut">Output</label>
+        <textarea id="encOut" class="ta" readonly placeholder="result appears here"></textarea></div>
+      <div class="btnrow"><button class="tbtn" id="encCopy" type="button">Copy output</button><button class="tbtn" id="encSwap" type="button">Output to input</button></div>
+      <p class="err" id="encErr" hidden></p>
+
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="wordmark" href="/">Usama Arshad<span class="dot">.</span></a>
+        <p>Offensive Security Lead. Red team, AppSec, and cloud security for fintech at scale. Based in Riyadh, Saudi Arabia.</p>
+      </div>
+      <nav class="foot-col" aria-label="Site index">
+        <h2>Index</h2>
+        <ul>
+          <li><a href="/">Portfolio</a></li>
+          <li><a href="/blog/">Writing</a></li>
+          <li><a href="/research/">Research</a></li>
+          <li><a href="/tools/">Tools</a></li>
+          <li><a href="/#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="foot-col">
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://github.com/usama0x01" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">WPScan leaderboard</a></li>
+          <li><a href="https://medium.com/@usama0x01" target="_blank" rel="noopener">Medium</a></li>
+          <li><a href="mailto:gusama21@gmail.com">gusama21@gmail.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>© 2026 Usama Arshad · Riyadh, Saudi Arabia</span>
+      <span class="colophon">Set in Fraunces, Inter &amp; JetBrains Mono, self-hosted · No trackers, no cookies</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduceMotion=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var head=document.querySelector(".site-head");
+  function onScroll(){ head.classList.toggle("scrolled", window.scrollY>8); }
+  window.addEventListener("scroll",onScroll,{passive:true}); onScroll();
+  var prog=document.getElementById("prog");
+  if(prog){ var tick=function(){ var h=document.documentElement,m=h.scrollHeight-h.clientHeight; prog.style.width=(m>0?(h.scrollTop/m)*100:0)+"%"; };
+    window.addEventListener("scroll",tick,{passive:true}); window.addEventListener("resize",tick); tick(); }
+  var rev=Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
+  if(reduceMotion||!("IntersectionObserver" in window)) rev.forEach(function(e){e.classList.add("in");});
+  else{ var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target);}});},{threshold:0.08,rootMargin:"0px 0px -5% 0px"});
+    rev.forEach(function(e){io.observe(e);});
+    var geo=function(){rev.forEach(function(e){if(!e.classList.contains("in")&&e.getBoundingClientRect().top<window.innerHeight*0.95)e.classList.add("in");});};
+    window.addEventListener("scroll",geo,{passive:true}); window.addEventListener("resize",geo); geo(); }
+})();
+</script>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  function u8ToStr(u8){ return decodeURIComponent(Array.prototype.map.call(u8,function(b){return '%'+('00'+b.toString(16)).slice(-2);}).join('')); }
+  function strToU8(s){ return new TextEncoder().encode(s); }
+  var ops={
+    b64e:function(s){ return btoa(String.fromCharCode.apply(null,strToU8(s))); },
+    b64d:function(s){ var bin=atob(s.trim()); var u=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i); return u8ToStr(u); },
+    b64ue:function(s){ return ops.b64e(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); },
+    b64ud:function(s){ s=s.trim().replace(/-/g,'+').replace(/_/g,'/'); while(s.length%4)s+='='; return ops.b64d(s); },
+    urle:function(s){ return encodeURIComponent(s); },
+    urld:function(s){ return decodeURIComponent(s.replace(/\+/g,' ')); },
+    hexe:function(s){ return Array.prototype.map.call(strToU8(s),function(b){return ('0'+b.toString(16)).slice(-2);}).join(''); },
+    hexd:function(s){ s=s.replace(/[^0-9a-fA-F]/g,''); var u=new Uint8Array(s.length/2); for(var i=0;i<u.length;i++)u[i]=parseInt(s.substr(i*2,2),16); return u8ToStr(u); },
+    htme:function(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); },
+    htmd:function(s){ var d=document.createElement('textarea'); d.innerHTML=s; return d.value; }
+  };
+  document.querySelectorAll('.btnrow .tbtn[data-op]').forEach(function(b){
+    b.addEventListener('click',function(){ $('encErr').hidden=true;
+      try{ $('encOut').value=ops[b.getAttribute('data-op')]($('encIn').value); }
+      catch(e){ $('encOut').value=''; $('encErr').textContent='Could not apply that transform ('+e.message+').'; $('encErr').hidden=false; } });
+  });
+  $('encCopy').addEventListener('click',function(){ var t=$('encOut').value,btn=this; if(!t)return; (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){btn.textContent='Copied';btn.classList.add('done');setTimeout(function(){btn.textContent='Copy output';btn.classList.remove('done');},1400);},function(){}); });
+  $('encSwap').addEventListener('click',function(){ $('encIn').value=$('encOut').value; $('encOut').value=''; });
+})();
+</script>
+</body>
+</html>

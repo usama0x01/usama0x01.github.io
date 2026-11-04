@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>JWT Analyzer · Usama Arshad</title>
+<meta name="description" content="Decode a JSON Web Token and flag what gets them forged: alg none, symmetric signing, missing expiry, external key URLs.">
+<link rel="canonical" href="https://www.usamaarshad.me/tools/jwt/">
+<link rel="alternate" type="application/rss+xml" title="Usama Arshad, Writing" href="/feed.xml">
+<link rel="icon" href="/assets/favicon.ico">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#131110">
+<link rel="stylesheet" href="/assets/css/print.css" media="print">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Usama Arshad">
+<meta property="og:title" content="JWT Analyzer · Usama Arshad">
+<meta property="og:description" content="Decode a JSON Web Token and flag what gets them forged: alg none, symmetric signing, missing expiry, external key URLs.">
+<meta property="og:url" content="https://www.usamaarshad.me/tools/jwt/">
+<meta property="og:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@usama0x01">
+<meta name="twitter:title" content="JWT Analyzer · Usama Arshad">
+<meta name="twitter:description" content="Decode a JSON Web Token and flag what gets them forged: alg none, symmetric signing, missing expiry, external key URLs.">
+<meta name="twitter:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "JWT Analyzer \u00b7 Usama Arshad",
+  "applicationCategory": "SecurityApplication",
+  "operatingSystem": "Any (web browser)",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "description": "Decode a JSON Web Token and flag what gets them forged: alg none, symmetric signing, missing expiry, external key URLs.",
+  "url": "https://www.usamaarshad.me/tools/jwt/",
+  "creator": {
+    "@type": "Person",
+    "name": "Usama Arshad",
+    "url": "https://www.usamaarshad.me/"
+  },
+  "isAccessibleForFree": true
+}
+</script>
+<link rel="preload" href="/assets/fonts/fraunces-normal-340-640.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/inter-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/jetbrainsmono-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.classList.add("js");</script>
+<link rel="stylesheet" href="/assets/css/writeup.css">
+<link rel="stylesheet" href="/assets/css/tools.css">
+
+</head>
+<body>
+<div class="progress" id="prog" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head" id="top">
+  <div class="container head-inner">
+    <a class="wordmark" href="/" aria-label="Usama Arshad, home">Usama Arshad<span class="dot">.</span></a>
+    <nav aria-label="Breadcrumb">
+      <a class="back-link" href="/tools/"><span class="arr" aria-hidden="true">←</span><span class="txt">All tools</span></a>
+    </nav>
+    <a class="btn btn-ghost head-cta" href="/assets/Usama-Arshad-Resume.pdf" download>Résumé</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" aria-labelledby="pt">
+    <div class="container">
+      <div class="masthead" data-reveal>
+        <p class="masthead-meta"><span>Tool</span><span>Client-side</span><span class="live">No upload</span></p>
+      </div>
+      <div class="hero-deck">
+        <div class="deck-copy" data-reveal style="--d:.08s">
+          <p class="kicker">Tools</p>
+          <h1 class="hero-title" id="pt">JWT Analyzer<span class="dot">.</span></h1>
+          <p class="deck">Decode a JSON Web Token and flag what gets them forged: alg none, symmetric signing, missing expiry, external key URLs.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <div class="tool" data-reveal>
+        <h2 class="tool-h2">Decode &amp; analyze a JWT</h2>
+        <p class="tool-note"><b>Private by design.</b> Decoding only. Signature verification needs the server key; this runs entirely in your browser and sends nothing.</p>
+
+      <div class="field">
+        <label for="jwtIn">Paste a JWT</label>
+        <textarea id="jwtIn" class="ta" placeholder="eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0In0.sig" autocomplete="off" spellcheck="false"></textarea>
+      </div>
+      <div class="btnrow">
+        <button class="tbtn primary" id="jwtGo" type="button">Decode &amp; analyze</button>
+        <button class="tbtn" id="jwtSample" type="button">Load sample</button>
+        <button class="tbtn" id="jwtClear" type="button">Clear</button>
+      </div>
+      <div id="jwtOut" hidden>
+        <div class="result"><h3>Header</h3><pre class="out" id="jwtHdr"></pre></div>
+        <div class="result"><h3>Payload</h3><pre class="out" id="jwtPay"></pre></div>
+        <div class="result"><h3>Security findings</h3><div id="jwtFind"></div></div>
+      </div>
+      <p class="err" id="jwtErr" hidden></p>
+
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="wordmark" href="/">Usama Arshad<span class="dot">.</span></a>
+        <p>Offensive Security Lead. Red team, AppSec, and cloud security for fintech at scale. Based in Riyadh, Saudi Arabia.</p>
+      </div>
+      <nav class="foot-col" aria-label="Site index">
+        <h2>Index</h2>
+        <ul>
+          <li><a href="/">Portfolio</a></li>
+          <li><a href="/blog/">Writing</a></li>
+          <li><a href="/research/">Research</a></li>
+          <li><a href="/tools/">Tools</a></li>
+          <li><a href="/#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="foot-col">
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://github.com/usama0x01" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">WPScan leaderboard</a></li>
+          <li><a href="https://medium.com/@usama0x01" target="_blank" rel="noopener">Medium</a></li>
+          <li><a href="mailto:gusama21@gmail.com">gusama21@gmail.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>© 2026 Usama Arshad · Riyadh, Saudi Arabia</span>
+      <span class="colophon">Set in Fraunces, Inter &amp; JetBrains Mono, self-hosted · No trackers, no cookies</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduceMotion=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var head=document.querySelector(".site-head");
+  function onScroll(){ head.classList.toggle("scrolled", window.scrollY>8); }
+  window.addEventListener("scroll",onScroll,{passive:true}); onScroll();
+  var prog=document.getElementById("prog");
+  if(prog){ var tick=function(){ var h=document.documentElement,m=h.scrollHeight-h.clientHeight; prog.style.width=(m>0?(h.scrollTop/m)*100:0)+"%"; };
+    window.addEventListener("scroll",tick,{passive:true}); window.addEventListener("resize",tick); tick(); }
+  var rev=Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
+  if(reduceMotion||!("IntersectionObserver" in window)) rev.forEach(function(e){e.classList.add("in");});
+  else{ var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target);}});},{threshold:0.08,rootMargin:"0px 0px -5% 0px"});
+    rev.forEach(function(e){io.observe(e);});
+    var geo=function(){rev.forEach(function(e){if(!e.classList.contains("in")&&e.getBoundingClientRect().top<window.innerHeight*0.95)e.classList.add("in");});};
+    window.addEventListener("scroll",geo,{passive:true}); window.addEventListener("resize",geo); geo(); }
+})();
+</script>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  function b64urlToStr(s){
+    s=s.replace(/-/g,'+').replace(/_/g,'/'); while(s.length%4) s+='=';
+    var bin=atob(s);
+    try{ return decodeURIComponent(Array.prototype.map.call(bin,function(c){return '%'+('00'+c.charCodeAt(0).toString(16)).slice(-2);}).join('')); }
+    catch(e){ return bin; }
+  }
+  function pretty(o){ try{return JSON.stringify(o,null,2);}catch(e){return String(o);} }
+  function fin(sev,label,txt){ return '<div class="finding"><span class="sev sev-'+sev+'">'+label+'</span><span class="ftxt">'+txt+'</span></div>'; }
+  function when(ts){ try{return new Date(ts*1000).toISOString().replace('T',' ').replace('.000Z',' UTC');}catch(e){return String(ts);} }
+  function analyze(){
+    var raw=($('jwtIn').value||'').trim();
+    $('jwtErr').hidden=true; $('jwtOut').hidden=true;
+    if(!raw) return;
+    var parts=raw.split('.');
+    if(parts.length<2){ $('jwtErr').textContent='Not a JWT: expected at least two dot-separated segments.'; $('jwtErr').hidden=false; return; }
+    var hdr,pay;
+    try{ hdr=JSON.parse(b64urlToStr(parts[0])); }catch(e){ $('jwtErr').textContent='Header is not valid base64url JSON.'; $('jwtErr').hidden=false; return; }
+    try{ pay=JSON.parse(b64urlToStr(parts[1])); }catch(e){ $('jwtErr').textContent='Payload is not valid base64url JSON.'; $('jwtErr').hidden=false; return; }
+    $('jwtHdr').textContent=pretty(hdr); $('jwtPay').textContent=pretty(pay);
+    var F=[], now=Math.floor(Date.now()/1000), alg=(hdr.alg||'').toString();
+    if(/^none$/i.test(alg)) F.push(fin('crit','alg: none','The token declares <b>no signature algorithm</b>. If the server accepts it, anyone can forge any claims.'));
+    else if(/^HS/i.test(alg)) F.push(fin('med','Symmetric ('+alg+')','HMAC signing uses a shared secret. Weak or leaked secret means forgeable tokens; also the target of RS256 to HS256 confusion.'));
+    else if(/^(RS|ES|PS)/i.test(alg)) F.push(fin('ok',alg,'Asymmetric signature. Confirm the server pins the algorithm and will not accept HS* with the public key as the secret.'));
+    else if(alg) F.push(fin('med','alg: '+alg,'Unusual algorithm. Confirm the verifier expects exactly this and rejects others.'));
+    if(hdr.kid!==undefined) F.push(fin('low','kid present','Header carries a key id. Test it for path traversal, SQLi and SSRF in the key lookup.'));
+    if(hdr.jku||hdr.x5u) F.push(fin('high','External key URL','Header references a remote key. If the verifier fetches it without an allowlist, point it at your own key.'));
+    if(pay.exp===undefined) F.push(fin('med','No exp claim','The token never expires; a leaked token is valid forever.'));
+    else if(pay.exp<now) F.push(fin('ok','Expired','exp = '+when(pay.exp)+' (past). No longer valid if the server checks exp.'));
+    else F.push(fin('low','Valid window','exp = '+when(pay.exp)+' (future).'));
+    if(pay.nbf!==undefined && pay.nbf>now) F.push(fin('low','Not yet valid','nbf = '+when(pay.nbf)+' is in the future.'));
+    if(pay.exp!==undefined && pay.iat!==undefined && (pay.exp-pay.iat)>2592000) F.push(fin('low','Long lifetime','Lives over 30 days; a leak has a wide blast radius.'));
+    F.push(fin('ok','Signature','Not verified: that needs the server key. This tool decodes locally and sends nothing.'));
+    $('jwtFind').innerHTML=F.join(''); $('jwtOut').hidden=false;
+  }
+  $('jwtGo').addEventListener('click',analyze);
+  $('jwtIn').addEventListener('keydown',function(e){ if((e.ctrlKey||e.metaKey)&&e.key==='Enter') analyze(); });
+  $('jwtClear').addEventListener('click',function(){ $('jwtIn').value=''; $('jwtOut').hidden=true; $('jwtErr').hidden=true; $('jwtIn').focus(); });
+  $('jwtSample').addEventListener('click',function(){ $('jwtIn').value='eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiJhZG1pbiIsInJvbGUiOiJhZG1pbmlzdHJhdG9yIiwiaWF0IjoxNzAwMDAwMDAwfQ.'; analyze(); });
+})();
+</script>
+</body>
+</html>
