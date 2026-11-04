@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>extended-license · BlackHat MEA 2026 writeup</title>
+<meta name="description" content="A 34 MB stripped PIE hides its license check in 40 encrypted x86 shellcode chunks that are decrypted inside the kernel by an embedded eBPF.">
+<link rel="canonical" href="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/extended-license/">
+<link rel="alternate" type="application/rss+xml" title="Usama Arshad, Writing" href="/feed.xml">
+<link rel="icon" href="/assets/favicon.ico">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#131110">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Usama Arshad">
+<meta property="og:title" content="extended-license · BlackHat MEA 2026 writeup">
+<meta property="og:description" content="A 34 MB stripped PIE hides its license check in 40 encrypted x86 shellcode chunks that are decrypted inside the kernel by an embedded eBPF.">
+<meta property="og:url" content="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/extended-license/">
+<meta property="og:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@usama0x01">
+<meta name="twitter:title" content="extended-license · BlackHat MEA 2026 writeup">
+<meta name="twitter:description" content="A 34 MB stripped PIE hides its license check in 40 encrypted x86 shellcode chunks that are decrypted inside the kernel by an embedded eBPF.">
+<meta name="twitter:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "extended-license: BlackHat MEA 2026 CTF writeup",
+  "description": "A 34 MB stripped PIE hides its license check in 40 encrypted x86 shellcode chunks that are decrypted inside the kernel by an embedded eBPF.",
+  "datePublished": "2026-11-04",
+  "author": {
+    "@type": "Person",
+    "name": "Usama Arshad",
+    "url": "https://www.usamaarshad.me/"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/extended-license/"
+  },
+  "articleSection": "Reversing",
+  "proficiencyLevel": "Expert",
+  "isPartOf": {
+    "@type": "Article",
+    "name": "BlackHat MEA 2026 CTF qualifiers",
+    "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/"
+  }
+}
+</script>
+<link rel="preload" href="/assets/fonts/fraunces-normal-340-640.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/inter-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/jetbrainsmono-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.classList.add("js");</script>
+<link rel="stylesheet" href="/assets/css/writeup.css">
+</head>
+<body>
+<div class="progress" id="prog" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head" id="top">
+  <div class="container head-inner">
+    <a class="wordmark" href="/" aria-label="Usama Arshad, home">Usama Arshad<span class="dot">.</span></a>
+    <nav aria-label="Breadcrumb">
+      <a class="back-link" href="/blog/blackhat-mea-2026-quals/"><span class="arr" aria-hidden="true">←</span><span class="txt">All 15 challenges</span></a>
+    </nav>
+    <a class="btn btn-ghost head-cta" href="/assets/Usama-Arshad-Resume.pdf" download>Résumé</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" aria-labelledby="pt">
+    <div class="container">
+      <div class="masthead" data-reveal>
+        <p class="masthead-meta">
+          <span>Challenge 9 of 15</span>
+          <span>Reversing</span>
+          <span class="live">Solved · 100 pts</span>
+        </p>
+      </div>
+      <div class="hero-deck">
+        <div class="deck-copy" data-reveal style="--d:.08s">
+          <p class="kicker">BlackHat MEA 2026 · Qualifiers</p>
+          <h1 class="hero-title" id="pt">extended-license<span class="dot">.</span></h1>
+          <p class="deck">Encrypted, signal-dispatched shellcode chunks validating a username-dependent license.</p>
+          <p class="wu-meta">
+            <span class="cat cat-reversing">Reversing</span><span class="sep">·</span>
+            <span>100 points</span><span class="sep">·</span>
+            <span>4 November 2026</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="wu-layout">
+        <article class="wu" data-reveal>
+          <div class="tldr"><p class="lab">TL;DR</p><p>A 34 MB stripped PIE hides its license check in 40 encrypted x86 shellcode chunks that are decrypted inside the kernel by an embedded eBPF tracepoint program (bpf_probe_write_user on syscalls:sys_enter_openat with dirfd <code>0x1337</code>) and dispatched via int3/SIGTRAP. Dumping the chunks in a privileged container, reconstructing the 8×4-round Feistel/PRNG license transform, scraping the expected 512-bit target out of the seccomp ERRNO oracle's own argument stream, and z3- solving the 14 hidden username byte-checksums plus crc32(user)==<code>0xbf2b0fa2</code> yields the unique username xorionxarcheryxseedx, whose derived 72-byte license.dat makes the untouched binary print the flag.</p></div>
+          <div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{BPF_c4n_b3_b4d_Bu7_I_d0n&#x27;7_Th1nK_7thIs_()ne_1s_B4D?_6b117fca1597}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><p class="flag-note">Instances are provisioned per run, so these are the values our instances returned.</p>
+          <section id="recon"><h2><span class="hn">01</span>Recon</h2><p>Files. One artifact: <code>/home/kali/Desktop/CTF/rev/extended/challenge</code>, 34,798,808 bytes, ELF 64-bit LSB pie, x86-64, stripped, SHA256 05cca43b4b9ef229e402fb6869f6613209a3d91542993af32e9984bb99d40563. Linked against libelf, libz, libcrypto (SHA256, AES_set_decrypt_key, AES_ecb_encrypt), i.e. a statically-embedded libbpf.</p>
+<p>Run unprivileged it prints the banner and exits 1:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>===============================================
+           Do you have a license?
+===============================================
+EXIT=1</code></pre></figure>
+<p>strace shows why: three bpf(BPF_PROG_LOAD...) calls all return -EPERM. <code>/proc/sys/kernel/</code> unprivileged_bpf_disabled = 2.</p>
+<p>Interesting rodata at <code>0x2111750</code> – <code>0x2111850</code>: the banner, SUDO_UID, SUDO_USER, <code>/proc/self/loginuid</code>, sys_enter_openat, syscalls, rb, Congrats:, I don't think so, and immediately after them at <code>0x2111850</code> an 80-byte blob of high-entropy data (31626a4c1711dc1f…), the encrypted flag.</p>
+<p>main (<code>0x68c0</code>). puts banner → signal(SIGALRM=14, <code>0x74d0</code>) → alarm(5) → rdtsc → resolve username from SUDO_USER / SUDO_UID / <code>/proc/self/loginuid</code> + getpwuid → load &amp; attach the BPF program → then:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>6c56:   mov $0x35,%esi
+6c5b:   mov $0x539,%edi
+6c60:   call 70b0                      ; id-mangler, returns u16
+6c65:   lea 0x2129954(%rip),%rdx       ; 0x21305c0 = ctx
+6c6f:   mov %rax,%r10                  ; r10 = chunk id (0x539 first)
+6c72:   mov %rdx,%r12                  ; r12 = ctx
+6c75:   int3                           ; &lt;-- dispatch
+6c77:   cmpq $0x0,0x2130618(%rip)
+6c81:   cmp $0xbf2b0fa2,%ebx           ; &lt;-- win condition
+6c87:   je   6d5a                      ; flag path
+6c8d:   lea 0x2111839(%rip),%rdi       ; "I don't think so"</code></pre></figure>
+<p>The flag path at <code>0x6d5a</code> runs SHA256 (<code>0x6e40</code>) → AES_set_decrypt_key (<code>0x6e68</code>) → AES_ecb_encrypt (<code>0x6ea0</code>) over the blob at <code>0x2111850</code>, then puts.</p>
+<p>Embedded blobs.</p>
+<ul class="bullets"><li><code>0x20e6b18</code>, length <code>0x2ab55</code> (174,933 bytes): the first, plaintext shellcode. <code>0x92e0</code> memcpy s it into an RWX mmap and calls it with rdi=username, rsi=ctx.</li><li><code>0x2129010</code>, length <code>0x6218</code>: ELF 64-bit LSB relocatable, eBPF, not stripped. llvm-readelf -p.strtab gives the source name <code>oooo.bpf.c</code> and symbols qh, q0_prog, q1_prog, maps buffer_map (PERCPU_ARRAY, value 8192), rb (RINGBUF). Section tp/syscalls/sys_enter_openat, 1,394 instructions, first block:</li></ul>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">c</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>0: r9 = r1
+1: call 0xe                        ; bpf_get_current_pid_tgid
+3: r1 = *(u64 *)(r9 + 0x10)        ; dfd
+4: if r1 != 0x1337 goto +0x56b     ; magic dirfd
+...
+28: call 0x70                      ; bpf_probe_write_user</code></pre></figure>
+<p>Shellcode shape. objdump of <code>sc.bin</code> shows a control-flow-flattened dispatcher: a 32-bit state word lives at ctx+<code>0x140</code>, scratch at +<code>0x144</code> / +<code>0x148</code>, saved EFLAGS at +<code>0x150</code>. Every real basic block is wrapped as</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>mov 0x150(%r12),%r11 ; push %r11 ; popf      ; restore flags
+   &lt;real instructions, interleaved with SSE/lea/xchg junk&gt;
+pushf ; pop %r11 ; and $~0x100,%r11 ; mov %r11,0x150(%r12)
+mov $K1,%r11d ; mov %r11d,0x144(%r12)
+mov $K2,%r11d ; cmov&lt;cc&gt; 0x144(%r12),%r11d ; branch = state selection
+xor $M,%r11d ; xor $M,%r11d
+mov %r11d,0x140(%r12) ; jmp &lt;dispatcher&gt;</code></pre></figure>
+<p>The dispatcher (<code>0x191</code> in <code>sc.bin</code>, <code>0x18c</code> in every decrypted chunk) is a linear chain of 341 cmp $state, %r11d / je &lt;block&gt; pairs. Only one real rdtsc exists in the whole blob (<code>0x1c121</code>).</p>
+<p>First shellcode = CRC32. A Unicorn emulator over <code>sc.bin</code> reproduced the return exactly: ret == crc32(username) ^ <code>0x14</code> for 25 random inputs, except for one input class (see Vulnerability).</p>
+<p>Chunk chain. The int3 at <code>0x6c75</code> raises SIGTRAP into the handler at <code>0x97e0</code> (installed via sigaction at <code>0x6c38</code>, setjmp at <code>0x9832</code>, a 600 M-cycle rdtsc watchdog at <code>0x989d</code>). Under strace in a privileged container:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>openat(4919, "\334\276\226\315\3\3477\320…", O_RDONLY|O_DSYNC) = -1 EBADF</code></pre></figure>
+<p>4919 = <code>0x1337</code>. Each call hands the kernel one 4096-byte page of ciphertext; the eBPF program rewrites it in place with bpf_probe_write_user and the syscall itself fails with EBADF. Chunk k ends with its own int3 (r10 = next chunk id) so the chain is: <code>0x539</code> → <code>0x5cf</code> → <code>0x535</code> → <code>0x596</code> → <code>0x5f7</code> → <code>0x55d</code> → <code>0x5be</code> → <code>0x524</code> → <code>0x585</code> → …, 40 chunks total, 8 KB to 7.3 MB each, 8,385 pages.</p>
+<p>Syscalls the chain makes, in order: memfd_secret(0) → ftruncate(fd,4096) → mmap(...,MAP_SHARED,fd,0) (a rw-s /secretmem page) → prctl(<code>0x26</code>,1) = PR_SET_NO_NEW_PRIVS → prctl(<code>0x16</code>,2) = PR_SET_SECCOMP, SECCOMP_MODE_FILTER → open("license.dat",O_RDONLY) → read(fd, ctx+<code>0x98</code>, <code>0x80</code>) → the checks → mprotect → write / exit.</p>
+<p>ctx layout (<code>0x21305c0</code>, i.e. area+<code>0x120</code>): +<code>0x00</code> username ptr, +<code>0x10</code> username hash, +<code>0x60</code> shellcode CRC result, +<code>0x88</code> license length, +<code>0x98</code> license buffer (128 B), +<code>0x140</code>/144/148 flattening PRNG, +<code>0x150</code> saved flags.</p>
+<p>Seccomp filter (30 instructions, dumped from the prctl argument):</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>000 ld arch                          004 jeq nr,0x1337 else -&gt; 029 ALLOW
+005 ld [0x18]       ; args[1] = "mode"
+006 jeq 1 -&gt; 011    007 jeq 2 -&gt; 016     008 jeq 3 -&gt; 021   009 jeq 4 -&gt; 025
+011 ld [0x10] ; and 1 ; jeq 0 -&gt; ret ERRNO(1) else ret ERRNO(0)
+
+016 ld [0x10] ; and 1 ; jeq 1 -&gt; ret ERRNO(1)   else ret ERRNO(0)
+...
+029 ret ALLOW (0x7fff0000)</code></pre></figure>
+<p>syscall(<code>0x1337</code>, bit, mode) is a pure oracle: the filter turns (args[0]&amp;1, args[1]) into 0 or EPERM. 512 such calls per run, 64 bytes × 8 bits.</p></section><section id="the-bug"><h2><span class="hn">02</span>The bug</h2><p>Three separate root causes chain into the solve.</p>
+<ol class="steps"><li>The bit-comparison oracle leaks the expected value in its own arguments. The final check compares the Feistel-transformed license payload against a hard-coded 512-bit constant one bit at a time, using syscall(<code>0x1337</code>, actual_bit, mode) and reading the seccomp SECCOMP_RET_ERRNO return as the comparison result. But the seccomp program has four separate parity arms selected by args[1], and the shellcode picks the arm according to the expected bit. So the mode argument is the answer. Scraping 512 strace lines and reading args[1] off each yields the target directly:</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">python</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>def decode(calls):                     # calls = [(arg0, arg1, arg5), ...]
+    actual=[]; expected=[]
+    for i in range(0, len(calls), 8):
+        a=e=0
+        for j,(a0,a1,_) in enumerate(calls[i:i+8]):
+            a |= (a0 &amp; 1) &lt;&lt; j         # what the license produced
+            e |= (1 if a1==1 else 0) &lt;&lt; j    # what it should have produced
+        actual.append(a); expected.append(e)
+    return bytes(actual), bytes(expected)</code></pre></figure>
+<p>Target (username-independent, identical for alice, bob, zzzz): 5865ae6b9ab3837b261c1051d1bb1ee69e5d9ae4580d42f1d867ca7d9d9229e38fb236f04e2012894f66f96f573ef8b00ec30c eb7388b9684a38ee408c9e7504</p>
+<ol class="steps" start="2"><li>The license transform is an invertible 8×4-round Feistel network. Differential probing showed byte-8 locality (flipping payload byte i only changes output bytes 8*(i//8).. 8*(i//8)+7), and it is not affine. Chunks 23–30 are eight near-identical copies differing only in the [r14 + <code>0x00</code>/<code>0x08</code>/<code>0x10</code>/…] offsets, one per 8-byte block. Each does mov ecx,4 (rounds) and call a common subroutine whose real instructions are:</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>movq    xmm0, r13
+movq    xmm1, [rip+0xd337]            ; 0x1d872b41f2a3c4d5
+pclmulqdq xmm0, xmm1, 0
+movq    r13, xmm0
+xor     r13, [rip+0x96ad]             ; 0x9e3779b97f4a7c15
+mov     eax, r13d
+cvtsi2ss xmm2, rax
+mulss   xmm2, [rip+0x1b349]           ; 2^-32
+mulss   xmm3, [rip+0x17043]           ; 1.69
+addss   xmm3, [rip+0xadaa]            ; 0.1234567
+vfmadd132ss xmm7, xmm3, xmm2
+roundss / subss / mulss 2^32 / cvttss2si</code></pre></figure>
+<p>i.e. a carry-less-multiply PRNG passed through a float32 fractional mixer, producing 4 round keys per block. The round function is g(t,k) = (t+k) ^ ((t+k)&lt;&lt;7) ^ ((t+k)&gt;&gt;9) on 32-bit halves. The PRNG is seeded from ctx+<code>0x10</code> = SHA256(username padded/truncated to 20 bytes) XOR-folded to 64 bits. Feistel ⇒ invertible, so payload = inverse(TARGET, username) gives a valid license.dat for any username.</p>
+<ol class="steps" start="3"><li>The CRC path self-poisons, forcing the intended username. main wins only if ebx == <code>0xbf2b0fa2</code> after the chain. The first shellcode is a control-flow-flattened CRC32, but before returning it does (blocks <code>0x4a816ca8</code> → <code>0xf5d7ecb7</code> → <code>0xbe1daee1</code> in <code>sc.bin</code>):</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>mov r8d, eax
+rdtsc                                    ; edx = TSC high
+mov ecx, edx                             ; @ sc.bin+0x1c137
+xor eax, ecx
+xor eax, 0x8(%r12)
+...
+xor eax, 0x14
+cmp eax, 0xbf2b0fa2                      ; @ sc.bin+0x200b7
+cmovne &lt;continue&gt;, &lt;poison&gt;              ; if EQUAL -&gt; result ^= 0x42483236</code></pre></figure>
+<p>Measured directly with the emulator:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>crc32(u)=0xbf2b0fb6   -&gt;   ret=0xfd633d94   (expected 0xbf2b0fa2, delta 0x42483236)
+crc32(u)=0xbf2b0fa2   -&gt;   ret=0xbf2b0fb6   (no poison)</code></pre></figure>
+<p>So any username forged to hit the magic CRC is deliberately corrupted. The clean path is a different branch entirely, gated by:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>cmp r8d, 0x14                   ; length == 20?
+cmp byte ptr [rdi+0x14], 0      ; and NUL-terminated at 20?
+cmp al, 0x61 / cmp al, 0x7a     ; every byte in [a-z]   (x20)</code></pre></figure>
+<p>Only a username of exactly 20 lowercase letters enters that branch, which skips the poison and instead runs 14 hidden byte-checksum constraints over all 20 username bytes (rotate / add / sub / and / or / xor, e.g. ror(u[6],1); sub; add u[<code>0x13</code>]; sub u[0]; and ror(u[9],3); add ror(u[12],1); add ror(u[3],6); cmp al, <code>0xfe</code>). Failing any of them jumps to the flattening state <code>0x2d0d239c</code> (the reject sink). The username is therefore over-determined and recoverable.</p></section><section id="exploitation"><h2><span class="hn">03</span>Exploitation</h2><ol class="steps"><li>Get BPF privileges. Unprivileged the binary silently exits 1. Build a container image with the right runtime libs and run privileged with tracefs/debugfs mounted:</li></ol>
+<p>FROM debian:trixie-slim RUN apt-get update &amp;&amp; apt-get install -y --no-install-recommends \ libelf1t64 zlib1g libssl3t64 gdb python3 strace file procps</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>docker run --rm --privileged -e SUDO_USER=alice \
+  -v /home/kali/Desktop/CTF/rev/extended:/ch:ro -v "$PWD":/w chsolve bash -c \
+  'mount -t debugfs none /sys/kernel/debug; mount -t tracefs none /sys/kernel/tracing;
+   cd /w/work &amp;&amp; /ch/challenge'</code></pre></figure>
+<ol class="steps" start="2"><li>Dump all 40 decrypted chunks. GDB single-stepping the SIGTRAP chain does not survive (the handler setjmps and re-raises). Instead LD_PRELOAD a <code>syscall()</code> interposer that writes each page after the real call returns, by then the eBPF program has already rewritten it:</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>long syscall(long nr, ...) {
+    /* varargs -&gt; a0..a5 */
+    long r = real_syscall(nr,a0,a1,a2,a3,a4,a5);
+    if (nr == 257 &amp;&amp; a0 == 0x1337) {                  /* openat, dirfd magic */
+        char name[128];
+        snprintf(name,sizeof name,"/w/pages/p%05d_%p_%ld.bin",idx++,(void*)a1,a2);
+        FILE *g = fopen(name,"wb");
+        if (g) { fwrite((void*)a1,1,a2,g); fclose(g); }
+    }
+    return r;
+}</code></pre></figure>
+<p>Reassemble pages into chunks by address contiguity (a short final page ends a chunk). First pass: 9 chunks; the chain only unlocks further chunks as the license gets more correct, so this step is re-run after every license improvement.</p>
+<ol class="steps" start="3"><li>Build a standalone chunk runner so the chain can be driven thousands of times without Docker. <code>harness3.c</code>: mmap a 32 MB RWX region, install a SIGTRAP handler that maps r10 (chunk id) → chunk file, memcpys it into the region, and rewrites uc_mcontext.gregs[REG_RIP] = region, REG_R8 = rip+1. Entry trampoline sets r12 = ctx, ebx = crc32(user)^<code>0x14</code>, ctx+<code>0x10</code> = SHA256(user padded to 20) XOR-folded. This reproduces the real chain exactly:</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>[trap] id=0x5cf -&gt; chunk 1 (len 113482)
+[trap] id=0x535 -&gt; chunk 2 (len 156122)
+...</code></pre></figure>
+<ol class="steps" start="4"><li>Recover the license header byte-by-byte. Each header byte is checked by a single real cmp inside its own chunk, and a correct byte unlocks a brand-new chunk (new int3 id → [!] unknown id 0x…). Extracting the wrapped-block payloads with the pattern 4d8b9c2450010000 4153 9d … 9c415b shows exactly one comparison per chunk:</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>chunk08: 80 3e 42           cmp byte [rsi],   0x42    'B'
+chunk09: 80 7e 01 48        cmp byte [rsi+1], 0x48    'H'
+...</code></pre></figure>
+<p>Iterating (dump chunks → read the new cmp → append the byte) yields BHLCNS_, then a cmp byte [rsi+rbx], <code>0x21</code> with rbx=<code>0x47</code> ⇒ '!' at index 71. Length probe: only BHLCNS_ + 64 bytes +! (72 bytes) reaches the transform.</p>
+<ol class="steps" start="5"><li>Scrape the 512-bit target from the oracle. With a 72-byte license installed, strace the harness and parse the 512 syscall_0x1337(a0, a1, …) lines; a0&amp;1 is the produced bit, a1 selects the expected parity (see Vulnerability). This is username-independent.</li><li>Reconstruct the Feistel/PRNG and invert it. Locate the round subroutine via call 0x… inside chunk 23 (e840bf0000 at <code>0x24326</code> → <code>0x3026b</code>), read the constant pool at <code>0x51200</code> (d5c4a3f2412b871d 157c4a7fb979379e 0000802f 0000804f ec51d83f ded6fc3d), and re-implement in Python (see keycode). Verified against ground truth:</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>transform(b'A'*64, 'alice')
+got      0c2fa824728196fb0dd382ad62b8843f…de81c2
+expected 0c2fa824728196fb0dd382ad62b8843f…de81c2     MATCH True</code></pre></figure>
+<p>Then license_for(u) = b'BHLCNS_' + inverse(TARGET, u) + b'!' produces a valid license for any username.</p>
+<ol class="steps" start="7"><li>Confirm end-to-end with the CRC compare patched out. Patching <code>0x6c81</code> cmp $<code>0xbf2b0fa2</code>,%ebx to always take the branch made the unmodified license logic reach the decryptor and print Congrats: &lt;garbage&gt;, proving only the username remained unknown.</li><li>Recover the username. Brute-force is dead: forging crc32 triggers the ^ <code>0x42483236</code> poison, and rockyou/seclists/binary-strings searches (≈140 M candidates, filtered on "AES plaintext looks like a flag") produced nothing. Instead, exploit the 20-lowercase branch: • Patch <code>sc.bin</code>+<code>0x1c137</code> (89 d1 mov ecx,edx) → 31 c9 xor ecx,ecx to neutralise rdtsc, giving a deterministic emulator. • Emulate with Unicorn + Capstone. On every cmov{e,ne} r11d, [r12+<code>0x144</code>] where the loser state is <code>0x2d0d239c</code> (the reject sink), flip ZF so the continue state always wins. This forces past all failing constraints and exposes the full check chain:</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>ret 0x1a596ae5   stream 243930   forced 14</code></pre></figure>
+<ul class="bullets"><li>Replay the instruction stream (all junk-free, since only instructions between popfq and pushfq are real), and lift it to an op list: al_buf i / cl_buf i (mov al, [r10+i]), rot {ror,rol} k (the mov ecx,k / shr edx,cl / mov ecx,8 / shl eax,cl / or eax,edx / and eax,<code>0xff</code> idiom), binreg add|sub|xor|and|or, binimm, cmpimm, plus a DECIDE marker at each forced branch. 448 ops, 14 decides, referencing buffer</li></ul>
+<p>indices 0–19. The op list is identical for abcdefghijklmnopqrst, zyxwvutsrqponmlkjihg and qqqqqqqqqqqqqqqqqqqq, i.e. it is a fixed straight-line formula. • Re-evaluate symbolically in z3 with byte constraints and the CRC:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>N=20
+buf=[BitVec('b%d'%i,8) for i in range(N)]
+s=Solver()
+for b in buf: s.add(UGE(b,0x61), ULE(b,0x7a))       # [a-z]
+for z in sym_eval(ops,buf): s.add(z==0)             # the 14 checksums
+s.add(crc32_sym(buf)==BitVecVal(0xbf2b0fa2,32))     # main's magic at 0x6c81
+
+check: sat
+SOLUTION: b'xorionxarcheryxseedx' crc=0xbf2b0fa2
+check: unsat            &lt;-- unique</code></pre></figure>
+<ol class="steps" start="9"><li>Derive the license and the flag.</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>username: xorionxarcheryxseedx   crc32 = 0xbf2b0fa2
+license.dat (72 raw bytes):
+42484c434e535f667b1f27e68d329b95ba85c41eb42c68d36b144af250b84d72
+69063c50b400db2bf1caeaa28dcfb9e54c8620d2fff7c1b62bab2a651e39373f
+e292d650a11ec621
+AES key = SHA256(license || username)
+        = 808d79f30075750b3897f3ddff0268dd240449dbd9a481e7c600c14c859b3382
+flag    = AES-256-ECB-decrypt(challenge[0x2111850 : +80], key)
+        = b"BHFlagY{...}\x07\x07\x07\x07\x07\x07\x07"</code></pre></figure>
+<ol class="steps" start="10"><li>Verify on the untouched binary (SHA256 05cca43b…), with the raw 72-byte license.dat in cwd:</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>SUDO_USER=xorionxarcheryxseedx ./challenge
+===============================================
+           Do you have a license?
+===============================================
+
+Congrats: BHFlagY{BPF_c4n_b3_b4d_Bu7_I_d0n'7_Th1nK_7thIs_()ne_1s_B4D?_6b117fca1597}
+EXIT=0</code></pre></figure>
+<p class="codelabel">Key code import struct, hashlib, math</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">python</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>C1=0x1d872b41f2a3c4d5                                     # clmul multiplier   (chunk23 @0x51204)
+C2=0x9e3779b97f4a7c15                                     # xor constant
+C3=struct.unpack('&lt;f', bytes.fromhex('0000802f'))[0]      # 2^-32
+C6=struct.unpack('&lt;f', bytes.fromhex('0000804f'))[0]      # 2^32
+C4=struct.unpack('&lt;f', bytes.fromhex('ec51d83f'))[0]      # 1.69
+C5=struct.unpack('&lt;f', bytes.fromhex('ded6fc3d'))[0]      # 0.1234567
+M=(1&lt;&lt;32)-1
+
+def f32(x): return struct.unpack('&lt;f', struct.pack('&lt;f', x))[0]
+
+def clmul64(a,b):                                         # pclmulqdq xmm0, xmm1, 0
+    r=0
+    for i in range(64):
+        if (b&gt;&gt;i)&amp;1: r ^= a&lt;&lt;i
+    return r
+
+def prng(state):                                          # one round key
+    state = (clmul64(state, C1) &amp; ((1&lt;&lt;64)-1)) ^ C2
+    u = state &amp; M
+    x2 = f32(f32(float(u)) * C3)                          # cvtsi2ss ; mulss
+    x3 = f32(f32(x2 * C4) + C5)                           # mulss ; addss
+    x3 = f32(x3 - math.floor(x3))                         # roundss floor ; subss
+    return state, int(f32(x3 * C6)) &amp; M                   # mulss 2^32 ; cvttss2si
+
+def g(t, k):                                              # Feistel round function
+    t = (t + k) &amp; M
+    return (t ^ ((t&lt;&lt;7)&amp;M) ^ (t&gt;&gt;9)) &amp; M
+
+def userhash(u):                                        # ctx+0x10 seed
+    if isinstance(u,str): u=u.encode()
+    w=struct.unpack('&lt;4Q', hashlib.sha256(u[:20].ljust(20,b'\0')).digest())
+    return w[0]^w[1]^w[2]^w[3]
+
+def keystream(seed, nblocks=8, rounds=4):
+    st=seed; ks=[]
+    for _ in range(nblocks):
+        blk=[]
+        for _ in range(rounds):
+            st,k=prng(st); blk.append(k)
+        ks.append(blk)
+    return ks
+
+def dec_block(L,R,ks):
+    for k in reversed(ks):
+        Rp = L
+        L = (R ^ g(Rp,k)) &amp; M
+        R = Rp
+    return L,R
+
+def inverse(target, user):                              # 64-byte target -&gt; 64-byte payload
+    ks=keystream(userhash(user)); out=b''
+    for i in range(8):
+        L,R=struct.unpack('&lt;II', target[i*8:i*8+8])
+        L,R=dec_block(L,R,ks[i])
+        out+=struct.pack('&lt;II',L,R)
+    return out
+
+TARGET=bytes.fromhex('5865ae6b9ab3837b261c1051d1bb1ee69e5d9ae4580d42f1'
+                     'd867ca7d9d9229e38fb236f04e2012894f66f96f573ef8b0'
+                     '0ec30ceb7388b9684a38ee408c9e7504')
+license_for = lambda u: b'BHLCNS_' + inverse(TARGET, u) + b'!'   # 72 bytes</code></pre></figure></section><section id="dead-ends"><h2><span class="hn">04</span>Dead ends</h2><ul class="bullets"><li>GDB cannot walk the SIGTRAP chain. hbreak past the int3 and signal SIGTRAP loops both ended in Program terminated with signal SIGTRAP after 1–4 stops, the handler setjmp s at <code>0x9832</code> and re- raises. Only a breakpoint at the pre- memcpy point (base+<code>0x9986</code>) captured a chunk, and only the first one. Replaced entirely by the LD_PRELOAD <code>syscall()</code> interposer, which got all 8,385 pages in one run.</li><li>Unprivileged runs look like a working program. The banner prints and it exits 1 with no error; all three bpf(BPF_PROG_LOAD) calls fail with EPERM. sagemath/sagemath as a container base segfaulted the binary (wrong glibc); a debian:trixie-slim image with libelf1t64 zlib1g libssl3t64 worked. tracefs / debugfs must also be mounted inside the container or sys_enter_openat can't be attached.</li><li>Unicorn refused vfmadd132ss (UC_ERR_INSN_INVALID at chunk23+ <code>0x49da5</code>) until mu.ctl_set_cpu_model(UC_CPU_X86_SKYLAKE_SERVER) was set.</li><li>Harness exec region too small. The runner mapped 1 MB but chunks 31–34 are 7.3 MB; the chain silently died mid-way. Bumped regsz to 32 MB, NCH to 128, and the scaddr table to 512 entries.</li><li>rdtsc made the emulator non-deterministic in exactly the branch that mattered. Patching <code>sc.bin</code>+<code>0x1c137</code> (mov ecx,edx → xor ecx,ecx) into <code>sc_nots.bin</code> was required before any of the constraint work was reproducible.</li><li>Long dead end: forging the CRC. Built <code>crcgen.c</code> (CRC-suffix solver + full Feistel + AES) and swept ~1.2 G username prefixes across charsets, filtering on "license payload is printable" and "AES plaintext contains { ". Also ran rockyou (14.3 M), seclists (124 M), <code>/usr/share/dict</code>, binary strings (318 K) and 9 key-derivation variants (lic+u, lic+u+NL, …). All produced only false positives, because the shellcode poisons any username whose CRC matches, this was only understood after locating cmp eax,<code>0xbf2b0fa2</code> inside the shellcode at <code>sc.bin</code>+<code>0x200b7</code> and measuring delta = <code>0x42483236</code>.</li><li>Block-level tracing mis-modelled the constraints. A first pass that lifted whole flattened blocks reported 10 constraints and reproduced only 9 of the observed al values (MATCH als: False) because</li></ul>
+<p>block boundaries interleave real instructions across state transitions. Redone at single-instruction granularity, keying "real" on the popfq … pushfq window, which found 14. • Over-broad branch forcing. The first forcing hook also clobbered the cmp al,<code>0x61</code> / cmp al,<code>0x7a</code> range checks, so the trace showed 40 irrelevant character comparisons and 0 checksums. Restricting the force to cmov* whose losing state is <code>0x2d0d239c</code> fixed it. • license.dat written as hex text. A 145-byte file containing the 144-char hex string silently fails, the program read s the file raw and needs the decoded 72 bytes. • No public writeup exists for this challenge (web search returned only unrelated FlagYard writeups), so everything had to come from the binary.</p></section>
+          <nav class="pager" aria-label="Challenge navigation"><a href="/blog/blackhat-mea-2026-quals/bug-where/"><span class="dir">← Previous</span><span class="t">Bug Where</span></a><a class="nx" href="/blog/blackhat-mea-2026-quals/free-agentic-tool/"><span class="dir">Next →</span><span class="t">free-agentic-tool</span></a></nav>
+        </article>
+        <aside class="wu-rail">
+          <h2>On this page</h2>
+          <ol><li><a href="#recon">Recon</a></li><li><a href="#the-bug">The bug</a></li><li><a href="#exploitation">Exploitation</a></li><li><a href="#dead-ends">Dead ends</a></li></ol>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="wordmark" href="/">Usama Arshad<span class="dot">.</span></a>
+        <p>Offensive Security Lead. Red team, AppSec, and cloud security for fintech at scale. Based in Riyadh, Saudi Arabia.</p>
+      </div>
+      <nav class="foot-col" aria-label="Site index">
+        <h2>Index</h2>
+        <ul>
+          <li><a href="/">Portfolio</a></li>
+          <li><a href="/blog/">Writing</a></li>
+          <li><a href="/research/">Research</a></li>
+          <li><a href="/dorks/">Dork library</a></li>
+          <li><a href="/#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="foot-col">
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://github.com/usama0x01" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">WPScan leaderboard</a></li>
+          <li><a href="https://medium.com/@usama0x01" target="_blank" rel="noopener">Medium</a></li>
+          <li><a href="mailto:gusama21@gmail.com">gusama21@gmail.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>© 2026 Usama Arshad · Riyadh, Saudi Arabia</span>
+      <span class="colophon">Set in Fraunces, Inter &amp; JetBrains Mono, self-hosted · No trackers, no cookies</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var head = document.querySelector(".site-head");
+  function onScroll(){ head.classList.toggle("scrolled", window.scrollY > 8); }
+  window.addEventListener("scroll", onScroll, { passive:true }); onScroll();
+
+  var prog = document.getElementById("prog");
+  if (prog) {
+    var tick = function () {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      prog.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
+    };
+    window.addEventListener("scroll", tick, { passive:true });
+    window.addEventListener("resize", tick); tick();
+  }
+
+  var revealEls = Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
+  if (reduceMotion || !("IntersectionObserver" in window)) {
+    revealEls.forEach(function (el) { el.classList.add("in"); });
+  } else {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold:0.08, rootMargin:"0px 0px -5% 0px" });
+    revealEls.forEach(function (el) { io.observe(el); });
+    var geo = function () {
+      revealEls.forEach(function (el) {
+        if (!el.classList.contains("in") && el.getBoundingClientRect().top < window.innerHeight*0.95) el.classList.add("in");
+      });
+    };
+    window.addEventListener("scroll", geo, { passive:true });
+    window.addEventListener("resize", geo); geo();
+  }
+
+  document.querySelectorAll(".code-copy").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var pre = btn.closest(".code").querySelector("code");
+      var text = pre ? pre.textContent : "";
+      var done = function () {
+        btn.textContent = "Copied"; btn.classList.add("done");
+        setTimeout(function(){ btn.textContent = "Copy"; btn.classList.remove("done"); }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function(){});
+      else {
+        var ta=document.createElement("textarea"); ta.value=text; ta.style.position="absolute"; ta.style.left="-9999px";
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy"); done(); } catch(e){}
+        document.body.removeChild(ta);
+      }
+    });
+  });
+
+  document.querySelectorAll(".flagbox .reveal-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var box = btn.closest(".flagbox");
+      btn.textContent = box.classList.toggle("shown") ? "Hide" : "Reveal";
+    });
+  });
+
+  var rail = document.querySelector(".wu-rail");
+  if (rail && "IntersectionObserver" in window) {
+    var links = Array.prototype.slice.call(rail.querySelectorAll("a"));
+    var secs = links.map(function (a) { return document.querySelector(a.getAttribute("href")); }).filter(Boolean);
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        links.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id); });
+      });
+    }, { rootMargin:"-20% 0px -70% 0px" });
+    secs.forEach(function (s) { spy.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>

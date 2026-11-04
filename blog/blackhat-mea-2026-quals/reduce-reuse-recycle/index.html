@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Reduce, Reuse, Recycle · BlackHat MEA 2026 writeup</title>
+<meta name="description" content="AES-GCM key and nonce are reused on every encryption while the plaintext contains the key&#x27;s own hex. Half of each tag recovers the GHASH key.">
+<link rel="canonical" href="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/reduce-reuse-recycle/">
+<link rel="alternate" type="application/rss+xml" title="Usama Arshad, Writing" href="/feed.xml">
+<link rel="icon" href="/assets/favicon.ico">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#131110">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Usama Arshad">
+<meta property="og:title" content="Reduce, Reuse, Recycle · BlackHat MEA 2026 writeup">
+<meta property="og:description" content="AES-GCM key and nonce are reused on every encryption while the plaintext contains the key&#x27;s own hex. Half of each tag recovers the GHASH key.">
+<meta property="og:url" content="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/reduce-reuse-recycle/">
+<meta property="og:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@usama0x01">
+<meta name="twitter:title" content="Reduce, Reuse, Recycle · BlackHat MEA 2026 writeup">
+<meta name="twitter:description" content="AES-GCM key and nonce are reused on every encryption while the plaintext contains the key&#x27;s own hex. Half of each tag recovers the GHASH key.">
+<meta name="twitter:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Reduce, Reuse, Recycle: BlackHat MEA 2026 CTF writeup",
+  "description": "AES-GCM key and nonce are reused on every encryption while the plaintext contains the key's own hex. Half of each tag recovers the GHASH key.",
+  "datePublished": "2026-11-04",
+  "author": {
+    "@type": "Person",
+    "name": "Usama Arshad",
+    "url": "https://www.usamaarshad.me/"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/reduce-reuse-recycle/"
+  },
+  "articleSection": "Crypto",
+  "proficiencyLevel": "Expert",
+  "isPartOf": {
+    "@type": "Article",
+    "name": "BlackHat MEA 2026 CTF qualifiers",
+    "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/"
+  }
+}
+</script>
+<link rel="preload" href="/assets/fonts/fraunces-normal-340-640.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/inter-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/jetbrainsmono-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.classList.add("js");</script>
+<link rel="stylesheet" href="/assets/css/writeup.css">
+</head>
+<body>
+<div class="progress" id="prog" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head" id="top">
+  <div class="container head-inner">
+    <a class="wordmark" href="/" aria-label="Usama Arshad, home">Usama Arshad<span class="dot">.</span></a>
+    <nav aria-label="Breadcrumb">
+      <a class="back-link" href="/blog/blackhat-mea-2026-quals/"><span class="arr" aria-hidden="true">←</span><span class="txt">All 15 challenges</span></a>
+    </nav>
+    <a class="btn btn-ghost head-cta" href="/assets/Usama-Arshad-Resume.pdf" download>Résumé</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" aria-labelledby="pt">
+    <div class="container">
+      <div class="masthead" data-reveal>
+        <p class="masthead-meta">
+          <span>Challenge 3 of 15</span>
+          <span>Crypto</span>
+          <span class="live">Solved · 100 pts</span>
+        </p>
+      </div>
+      <div class="hero-deck">
+        <div class="deck-copy" data-reveal style="--d:.08s">
+          <p class="kicker">BlackHat MEA 2026 · Qualifiers</p>
+          <h1 class="hero-title" id="pt">Reduce, Reuse, Recycle<span class="dot">.</span></h1>
+          <p class="deck">Reduce what you waste. Reuse what you can. Recycle what remains.</p>
+          <p class="wu-meta">
+            <span class="cat cat-crypto">Crypto</span><span class="sep">·</span>
+            <span>100 points</span><span class="sep">·</span>
+            <span>4 November 2026</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="wu-layout">
+        <article class="wu" data-reveal>
+          <div class="tldr"><p class="lab">TL;DR</p><p>AES-GCM key &lt;i&gt;and&lt;/i&gt; nonce are reused on every encryption while the plaintext contains the key's own hex. Half of each tag recovers the GHASH key H; multi-byte UTF-8 characters slide the key hex across GHASH block boundaries; a hex-alphabet quirk collapses the residual 2^48 ambiguity to 2^16.</p></div>
+          <div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{584bc40e6b665f84224a4f932eef4ebf}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{56539435a1ce7e0190d0f93adfb1edee}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><p class="flag-note">Instances are provisioned per run, so these are the values our instances returned.</p>
+          <section id="recon"><h2><span class="hn">01</span>Recon</h2><figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">python</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>signal.alarm(300)
+keys = [os.urandom(16), os.urandom(16)]
+for r in [0, 1]:
+    for ch in input("&gt; ")[:6]:
+        cipher = AES.new(keys[0], AES.MODE_GCM, nonce=keys[1])
+        cipher.encrypt(f"{ch}|encrypted by {keys[0].hex()}".encode())
+        print(cipher.hexdigest()[r::2])
+    assert input(f"keys[{r}]&gt; ") == keys[r].hex()
+print(flag)</code></pre></figure>
+<p>Three things stack up:</p>
+<ul class="bullets"><li>Key and nonce are reused for every single encryption, AES.new is called inside the loop with the same keys[0] / keys[1], so H = AES_K(0) and E(J0) are constant.</li><li>The plaintext contains keys[0].<code>hex()</code>, the secret is literally inside the message being authenticated.</li><li>You only ever see half of each tag. Round 0 prints <code>hexdigest()</code>[0::2] (the even hex digits, the high nibble of each tag byte, 64 bits); round 1 prints the odd ones. And you must hand over keys[0] correctly before round 1 ever runs.</li></ul>
+<p>Only 6 characters are accepted per round, and the same 6 are replayed in round 1.</p></section><section id="the-bug"><h2><span class="hn">02</span>The bug</h2><p>Nonce reuse in GCM destroys authentication: with a fixed H and a fixed E(J0), the XOR of two tags from equal-length messages cancels E(J0) entirely and leaves a known polynomial in H over GF(2^128), the classic forbidden attack.</p>
+<p>The subtler half is that same-length queries leak nothing about the key. The key hex sits at a fixed offset in every message, so it contributes identically to every GHASH and cancels in every difference. Only a length change slides the key hex across GHASH's 16-byte block boundaries and turns it into new linear equations, and multi-byte UTF-8 is exactly the lever that changes the length, because <code>input()</code> is counted in characters but encoded in bytes.</p></section><section id="exploitation"><h2><span class="hn">03</span>Exploitation</h2><p>Stage 1, forbidden attack recovers H. Same-length queries differ only in the leading character, so Tag_i XOR Tag_j = D_ij * H^4 with D known. Round 0 exposes only the even hex digits (64 bits per tag), but two well-chosen difference pairs give 128 equations over GF(2^128), enough to pin H^4 uniquely. Then H = (H^4)^(2^126), since squaring is a bijection on GF(2^128).</p>
+<p>Character choice mattered: the first candidate set left a 2^45 nullspace. U+0080, U+00BF, U+07FF collapse it to zero.</p>
+<p>Stage 2, UTF-8 length juggling recovers the key. The six characters chosen cover all four reachable message lengths:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>CHARACTER                              UTF-8 BYTES            ROLE
+
+U+0080 , U+00BF , U+07FF               2                      three same-length queries, pin H
+
+U+0061 ( a )                           1                      length 47
+
+U+0800                                 3                      length 49
+
+U+10000                                4                      length 50</code></pre></figure>
+<p>Four lengths yield 128 usable bits against 256 unknowns, leaving an irreducible 2^48 ambiguity (about 2^16 of those points being valid hex).</p>
+<p>The way in is a property of the hex alphabet: bit 3 of a lowercase hex character is set only for '8' and '9' (probability 1/8), and when it is set, that byte is fully pinned, contributing 4 linear constraints instead of 1. Branching on those 32 bits in Hamming-weight order makes the linear system self-prune. AES_K(0) == H then selects the unique survivor.</p>
+<p>Measured: 0.17 s mean, 100% success, no weight cap needed, the uncapped search ran faster than the capped one because it terminates on the hit.</p>
+<p>Stage 3, round 1 recovers the nonce. Replaying the same 6 characters yields the odd nibbles, which recombine with round 0's into full 128-bit tags. With the key known, U4 XOR H*U3 cancels E(J0)'s partner terms; guessing the single keystream byte ks[48] (256 tries) gives E(J0). Since the nonce here is 16 bytes, J0 = GHASH(nonce), which inverts to:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>nonce = (J0 XOR L*H) * H^-2</code></pre></figure>
+<p>Submit both hex strings and the flag prints. The whole exploit needs one connection because every stage is deterministic.</p></section><section id="dead-ends"><h2><span class="hn">04</span>Dead ends</h2><ul class="bullets"><li>The first difference-pair character set left a 2^45 nullspace in the H recovery; the pairs have to be chosen so the resulting GF(2^128) system has full rank.</li><li>The 2^48 residual after length juggling is genuinely irreducible from linear structure alone. Trying to find more length variants is wasted effort, four lengths is the ceiling.</li><li>Instances are short-lived: the first endpoint began refusing connections after a few probes. The final exploit needs only one connection, so this is a nuisance rather than a blocker.</li><li>Recovered end to end in ~1.1 s per instance, against a 300 s alarm.</li></ul></section>
+          <nav class="pager" aria-label="Challenge navigation"><a href="/blog/blackhat-mea-2026-quals/popcnt-oracle/"><span class="dir">← Previous</span><span class="t">Popcnt Oracle</span></a><a class="nx" href="/blog/blackhat-mea-2026-quals/qfact/"><span class="dir">Next →</span><span class="t">Qfact</span></a></nav>
+        </article>
+        <aside class="wu-rail">
+          <h2>On this page</h2>
+          <ol><li><a href="#recon">Recon</a></li><li><a href="#the-bug">The bug</a></li><li><a href="#exploitation">Exploitation</a></li><li><a href="#dead-ends">Dead ends</a></li></ol>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="wordmark" href="/">Usama Arshad<span class="dot">.</span></a>
+        <p>Offensive Security Lead. Red team, AppSec, and cloud security for fintech at scale. Based in Riyadh, Saudi Arabia.</p>
+      </div>
+      <nav class="foot-col" aria-label="Site index">
+        <h2>Index</h2>
+        <ul>
+          <li><a href="/">Portfolio</a></li>
+          <li><a href="/blog/">Writing</a></li>
+          <li><a href="/research/">Research</a></li>
+          <li><a href="/dorks/">Dork library</a></li>
+          <li><a href="/#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="foot-col">
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://github.com/usama0x01" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">WPScan leaderboard</a></li>
+          <li><a href="https://medium.com/@usama0x01" target="_blank" rel="noopener">Medium</a></li>
+          <li><a href="mailto:gusama21@gmail.com">gusama21@gmail.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>© 2026 Usama Arshad · Riyadh, Saudi Arabia</span>
+      <span class="colophon">Set in Fraunces, Inter &amp; JetBrains Mono, self-hosted · No trackers, no cookies</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var head = document.querySelector(".site-head");
+  function onScroll(){ head.classList.toggle("scrolled", window.scrollY > 8); }
+  window.addEventListener("scroll", onScroll, { passive:true }); onScroll();
+
+  var prog = document.getElementById("prog");
+  if (prog) {
+    var tick = function () {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      prog.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
+    };
+    window.addEventListener("scroll", tick, { passive:true });
+    window.addEventListener("resize", tick); tick();
+  }
+
+  var revealEls = Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
+  if (reduceMotion || !("IntersectionObserver" in window)) {
+    revealEls.forEach(function (el) { el.classList.add("in"); });
+  } else {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold:0.08, rootMargin:"0px 0px -5% 0px" });
+    revealEls.forEach(function (el) { io.observe(el); });
+    var geo = function () {
+      revealEls.forEach(function (el) {
+        if (!el.classList.contains("in") && el.getBoundingClientRect().top < window.innerHeight*0.95) el.classList.add("in");
+      });
+    };
+    window.addEventListener("scroll", geo, { passive:true });
+    window.addEventListener("resize", geo); geo();
+  }
+
+  document.querySelectorAll(".code-copy").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var pre = btn.closest(".code").querySelector("code");
+      var text = pre ? pre.textContent : "";
+      var done = function () {
+        btn.textContent = "Copied"; btn.classList.add("done");
+        setTimeout(function(){ btn.textContent = "Copy"; btn.classList.remove("done"); }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function(){});
+      else {
+        var ta=document.createElement("textarea"); ta.value=text; ta.style.position="absolute"; ta.style.left="-9999px";
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy"); done(); } catch(e){}
+        document.body.removeChild(ta);
+      }
+    });
+  });
+
+  document.querySelectorAll(".flagbox .reveal-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var box = btn.closest(".flagbox");
+      btn.textContent = box.classList.toggle("shown") ? "Hide" : "Reveal";
+    });
+  });
+
+  var rail = document.querySelector(".wu-rail");
+  if (rail && "IntersectionObserver" in window) {
+    var links = Array.prototype.slice.call(rail.querySelectorAll("a"));
+    var secs = links.map(function (a) { return document.querySelector(a.getAttribute("href")); }).filter(Boolean);
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        links.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id); });
+      });
+    }, { rootMargin:"-20% 0px -70% 0px" });
+    secs.forEach(function (s) { spy.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>

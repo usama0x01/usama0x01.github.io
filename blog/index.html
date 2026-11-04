@@ -6,7 +6,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Writing · Usama Arshad</title>
-<meta name="description" content="Offensive security writing by Usama Arshad: CTF writeups, vulnerability research and exploitation technique from red team and AppSec work.">
+<meta name="description" content="Offensive security writing by Usama Arshad: CTF writeups, WordPress vulnerability research, cloud and AppSec technique from red team work.">
 <link rel="canonical" href="https://www.usamaarshad.me/blog/">
 <link rel="alternate" type="application/rss+xml" title="Usama Arshad, Writing" href="/feed.xml">
 <link rel="icon" href="/assets/favicon.ico">
@@ -38,8 +38,26 @@
   "blogPost": [
     {
       "@type": "BlogPosting",
-      "headline": "Fifteen challenges, fourteen flags: BlackHat MEA 2026 CTF qualifiers",
+      "headline": "Fifteen challenges, fourteen flags",
       "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/",
+      "datePublished": "2026-11-04"
+    },
+    {
+      "@type": "BlogPosting",
+      "headline": "Fifty-nine CVEs in one year: what WordPress plugins keep getting wrong",
+      "url": "https://www.usamaarshad.me/blog/59-cves-wordpress-permission-callback/",
+      "datePublished": "2026-11-04"
+    },
+    {
+      "@type": "BlogPosting",
+      "headline": "Your allowlist is inside the attacker's process",
+      "url": "https://www.usamaarshad.me/blog/your-allowlist-is-inside-the-attacker-process/",
+      "datePublished": "2026-11-04"
+    },
+    {
+      "@type": "BlogPosting",
+      "headline": "The AI assistant kept a diary",
+      "url": "https://www.usamaarshad.me/blog/the-ai-assistant-kept-a-diary/",
       "datePublished": "2026-11-04"
     }
   ]
@@ -231,6 +249,49 @@ body::after{
 
 
 /* ============================================================
+   HERO
+   ============================================================ */
+.hero{ padding-top:clamp(1.5rem, 4vw, 3rem); padding-bottom:clamp(2.5rem, 6vw, 4rem); }
+.masthead{
+  border-top:2px solid var(--hairline-hard);
+  border-bottom:1px solid var(--hairline);
+  position:relative;
+  padding:.85rem 0 .8rem;
+}
+.masthead::before{
+  content:""; position:absolute; top:4px; left:0; right:0; height:1px;
+  background:var(--hairline-mid);
+}
+.masthead-meta{
+  display:flex; flex-wrap:wrap; justify-content:space-between; gap:.3rem 2rem;
+  font-family:var(--mono); font-size:var(--fs-meta); font-weight:500;
+  text-transform:uppercase; letter-spacing:.16em; color:var(--muted);
+}
+.masthead-meta .live{ color:var(--ink); }
+.masthead-meta .live::before{
+  content:""; display:inline-block; width:6px; height:6px; border-radius:50%;
+  background:var(--accent); margin-right:.55rem; vertical-align:2px;
+}
+.hero-title{
+  font-size:clamp(2.9rem, 8.5vw, 6.4rem);
+  font-weight:600; line-height:.98; letter-spacing:-.03em;
+  margin:clamp(1.75rem, 4vw, 2.75rem) 0 clamp(1.5rem, 3.5vw, 2.25rem);
+  max-width:14ch;
+}
+.hero-deck{ max-width:46em; }
+.deck-copy .kicker{ margin-bottom:1rem; }
+.deck{
+  font-size:clamp(1.1rem, 1.7vw, 1.3rem);
+  line-height:1.65; color:var(--text); max-width:44em;
+}
+.deck strong{ color:var(--ink); font-weight:600; }
+.deck a{
+  color:var(--ink); border-bottom:1px solid var(--hairline-mid);
+  transition:color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
+}
+.deck a:hover{ color:var(--accent); border-color:var(--accent); }
+
+/* ============================================================
    SECTIONS
    ============================================================ */
 .section{ padding-top:var(--sec-pad); }
@@ -305,49 +366,199 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
   }
 }
 
-
 /* ============================================================
-   HERO
+   WRITEUP BODY
    ============================================================ */
-.hero{ padding-top:clamp(1.5rem, 4vw, 3rem); padding-bottom:clamp(2.5rem, 6vw, 4rem); }
-.masthead{
-  border-top:2px solid var(--hairline-hard);
-  border-bottom:1px solid var(--hairline);
-  position:relative;
-  padding:.85rem 0 .8rem;
+.vh{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+/* reading progress */
+.progress{ position:fixed; top:0; left:0; height:2px; background:var(--accent); width:0; z-index:200; transition:width 90ms linear; }
+
+.wu-layout{ display:grid; grid-template-columns:1fr; gap:clamp(2rem,5vw,4rem); }
+@media (min-width:1000px){ .wu-layout{ grid-template-columns:1fr 15rem; } }
+.wu-rail{ display:none; }
+@media (min-width:1000px){
+  .wu-rail{ display:block; position:sticky; top:calc(var(--head-h) + 2rem); align-self:start; }
 }
-.masthead::before{
-  content:""; position:absolute; top:4px; left:0; right:0; height:1px;
-  background:var(--hairline-mid);
+.wu-rail h2{
+  font-family:var(--mono); font-size:var(--fs-chip); font-weight:500; color:var(--muted);
+  text-transform:uppercase; letter-spacing:.16em; margin-bottom:.9rem;
 }
-.masthead-meta{
-  display:flex; flex-wrap:wrap; justify-content:space-between; gap:.3rem 2rem;
-  font-family:var(--mono); font-size:var(--fs-meta); font-weight:500;
-  text-transform:uppercase; letter-spacing:.16em; color:var(--muted);
-}
-.masthead-meta .live{ color:var(--ink); }
-.masthead-meta .live::before{
-  content:""; display:inline-block; width:6px; height:6px; border-radius:50%;
-  background:var(--accent); margin-right:.55rem; vertical-align:2px;
-}
-.hero-title{
-  font-size:clamp(2.9rem, 8.5vw, 6.4rem);
-  font-weight:600; line-height:.98; letter-spacing:-.03em;
-  margin:clamp(1.75rem, 4vw, 2.75rem) 0 clamp(1.5rem, 3.5vw, 2.25rem);
-  max-width:14ch;
-}
-.hero-deck{ max-width:46em; }
-.deck-copy .kicker{ margin-bottom:1rem; }
-.deck{
-  font-size:clamp(1.1rem, 1.7vw, 1.3rem);
-  line-height:1.65; color:var(--text); max-width:44em;
-}
-.deck strong{ color:var(--ink); font-weight:600; }
-.deck a{
-  color:var(--ink); border-bottom:1px solid var(--hairline-mid);
+.wu-rail ol{ list-style:none; border-left:1px solid var(--hairline); }
+.wu-rail li a{
+  display:block; padding:.42rem 0 .42rem 1rem; margin-left:-1px;
+  border-left:1px solid transparent;
+  font-size:.82rem; color:var(--muted); line-height:1.4;
   transition:color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
 }
-.deck a:hover{ color:var(--accent); border-color:var(--accent); }
+.wu-rail li a:hover{ color:var(--ink); }
+.wu-rail li a.on{ color:var(--accent); border-left-color:var(--accent); }
+
+.wu h2{
+  font-size:clamp(1.6rem,3vw,2.1rem); letter-spacing:-.02em;
+  margin:clamp(2.6rem,5vw,3.4rem) 0 1.2rem; scroll-margin-top:calc(var(--head-h) + 1.5rem);
+}
+.wu h2:first-child{ margin-top:0; }
+.wu h2 .hn{
+  font-family:var(--mono); font-size:.5em; color:var(--accent);
+  letter-spacing:.14em; text-transform:uppercase; display:block; margin-bottom:.5rem;
+}
+.wu p{ max-width:44em; line-height:1.74; margin-bottom:1.05rem; }
+.wu p.codelabel{
+  font-family:var(--mono); font-size:.76rem;
+  letter-spacing:.04em; color:var(--muted); margin-bottom:.55rem;
+}
+.wu p.codelabel code{ font-size:1em; background:none; padding:0; color:var(--ink); }
+.wu code{
+  font-family:var(--mono); font-size:.86em; color:var(--ink);
+  background:var(--bg-elev-2); padding:.12em .38em; border-radius:var(--radius);
+  word-break:break-word;
+}
+
+/* code block */
+.code{ margin:1.5rem 0; border:1px solid var(--hairline); border-radius:var(--radius); overflow:hidden; background:#100e0d; }
+.code-bar{
+  display:flex; align-items:center; gap:.7rem;
+  padding:.55rem .85rem; border-bottom:1px solid var(--hairline); background:var(--bg-elev);
+}
+.dots{ display:inline-flex; gap:.3rem; }
+.dots i{ width:7px; height:7px; border-radius:50%; background:var(--hairline-mid); display:block; }
+.dots i:first-child{ background:rgba(229,72,77,.65); }
+.code-lang{
+  font-family:var(--mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.16em;
+  color:var(--muted); margin-right:auto;
+}
+.code-copy{
+  font-family:var(--mono); font-size:.58rem; text-transform:uppercase; letter-spacing:.12em;
+  color:var(--muted); border:1px solid var(--hairline-mid); border-radius:var(--radius);
+  padding:.28rem .5rem; transition:color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
+}
+.code-copy:hover{ color:var(--accent); border-color:var(--accent); }
+.code-copy.done{ color:var(--accent); border-color:var(--accent); }
+.code pre{ margin:0; padding:1rem 1.1rem; overflow-x:auto; }
+.code code{
+  background:none; padding:0; font-size:.79rem; line-height:1.62;
+  color:#d6cfc3; white-space:pre; display:block;
+}
+.code pre::-webkit-scrollbar{ height:8px; }
+.code pre::-webkit-scrollbar-thumb{ background:var(--hairline-mid); border-radius:4px; }
+
+/* steps */
+.steps{ counter-reset:none; margin:1.2rem 0 1.5rem; max-width:46em; }
+.steps li{
+  position:relative; counter-increment:s; padding-left:2.5rem;
+  margin-bottom:.95rem; line-height:1.72;
+}
+.steps{ counter-reset:s calc(var(--st, 1) - 1); }
+.steps li::before{
+  content:counter(s); position:absolute; left:0; top:.1rem;
+  font-family:var(--mono); font-size:.68rem; font-weight:500; color:var(--accent);
+  border:1px solid rgba(229,72,77,.4); border-radius:var(--radius);
+  width:1.7rem; height:1.7rem; display:flex; align-items:center; justify-content:center;
+}
+/* bullets */
+.bullets{ margin:1.1rem 0 1.4rem; max-width:46em; }
+.bullets li{ position:relative; padding-left:1.4rem; margin-bottom:.8rem; line-height:1.72; }
+.bullets li::before{
+  content:""; position:absolute; left:.1rem; top:.72em;
+  width:5px; height:5px; background:var(--accent); border-radius:50%;
+}
+
+/* flag box */
+.flagbox{
+  display:flex; flex-wrap:wrap; align-items:center; gap:.7rem 1rem;
+  border:1px solid var(--hairline); border-left:2px solid var(--accent);
+  background:var(--bg-elev); padding:.9rem 1.1rem; border-radius:var(--radius); margin-bottom:.6rem;
+}
+.flagbox .lab{ font-family:var(--mono); font-size:var(--fs-chip); text-transform:uppercase; letter-spacing:.16em; color:var(--muted); flex:none; }
+.flagval{
+  font-family:var(--mono); font-size:var(--fs-small); color:var(--ink);
+  word-break:break-all; flex:1 1 14rem; min-width:0; filter:blur(6px); user-select:none;
+  transition:filter var(--t-fast) var(--ease);
+}
+.flagbox.shown .flagval{ filter:none; user-select:text; }
+.reveal-btn{
+  font-family:var(--mono); font-size:var(--fs-chip); text-transform:uppercase; letter-spacing:.12em;
+  border:1px solid var(--hairline-mid); border-radius:var(--radius); padding:.4rem .7rem;
+  color:var(--muted); flex:none; transition:color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
+}
+.reveal-btn:hover{ color:var(--accent); border-color:var(--accent); }
+.flag-note{ font-family:var(--mono); font-size:var(--fs-chip); color:var(--muted); letter-spacing:.06em; }
+
+/* tldr callout */
+.tldr{
+  border:1px solid var(--hairline); border-left:2px solid var(--accent);
+  background:var(--bg-elev); padding:clamp(1.1rem,2.4vw,1.5rem); border-radius:var(--radius);
+  margin-bottom:1.6rem;
+}
+.tldr .lab{
+  font-family:var(--mono); font-size:var(--fs-chip); font-weight:500; text-transform:uppercase;
+  letter-spacing:.16em; color:var(--accent); margin-bottom:.55rem;
+}
+.tldr p{ margin:0; }
+
+/* meme panel */
+.meme{ margin:2rem 0; max-width:34rem; }
+.meme-card{
+  border:1px solid var(--hairline); border-radius:var(--radius);
+  background:var(--bg-elev); overflow:hidden;
+}
+.meme-cap{
+  font-family:var(--mono); font-size:.74rem; letter-spacing:.04em; text-align:center;
+  color:var(--ink); padding:.75rem 1rem; line-height:1.45;
+}
+.meme-cap.top{ border-bottom:1px solid var(--hairline); }
+.meme-cap.bot{ border-top:1px solid var(--hairline); color:var(--accent); }
+.meme svg{ display:block; width:100%; height:auto; background:#100e0d; }
+.meme figcaption{
+  font-family:var(--mono); font-size:var(--fs-chip); color:var(--muted);
+  letter-spacing:.08em; margin-top:.6rem; text-align:center;
+}
+
+/* prev/next */
+.pager{ display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--hairline); border-block:1px solid var(--hairline); margin-top:clamp(3rem,6vw,4.5rem); }
+.pager a{ background:var(--bg); padding:1.4rem 1.2rem; transition:background var(--t-fast) var(--ease); }
+.pager a:hover{ background:var(--bg-elev); }
+.pager .dir{ font-family:var(--mono); font-size:var(--fs-chip); text-transform:uppercase; letter-spacing:.14em; color:var(--accent); }
+.pager .t{ display:block; margin-top:.45rem; font-family:var(--serif); font-size:1.1rem; color:var(--ink); }
+.pager .nx{ text-align:right; }
+.pager .empty{ background:var(--bg); }
+@media (max-width:620px){ .pager{ grid-template-columns:1fr; } .pager .nx{ text-align:left; } }
+
+.wu-meta{
+  display:flex; flex-wrap:wrap; gap:.4rem 1.2rem; margin-top:1.3rem;
+  font-family:var(--mono); font-size:var(--fs-meta); letter-spacing:.12em;
+  text-transform:uppercase; color:var(--muted);
+}
+.wu-meta .sep{ color:var(--hairline-hard); }
+.cat{
+  font-family:var(--mono); font-size:.58rem; font-weight:500; letter-spacing:.16em;
+  text-transform:uppercase; border:1px solid var(--hairline-mid); border-radius:var(--radius);
+  padding:.26rem .5rem; color:var(--muted); white-space:nowrap;
+}
+.cat-crypto{ color:#8ab4f8; border-color:rgba(138,180,248,.42); }
+.cat-forensics{ color:#9ad2a4; border-color:rgba(154,210,164,.42); }
+.cat-pwn{ color:var(--accent); border-color:rgba(229,72,77,.5); }
+.cat-reversing{ color:#e0b071; border-color:rgba(224,176,113,.45); }
+.cat-web{ color:#c49bdd; border-color:rgba(196,155,221,.45); }
+
+/* article extras: subheads + data tables */
+.wu h3{
+  font-family:var(--serif); font-size:clamp(1.12rem,1.9vw,1.32rem); font-weight:560;
+  color:var(--ink); letter-spacing:-.012em; margin:2rem 0 .75rem;
+}
+.datatable{ margin:1.4rem 0 1.6rem; overflow-x:auto; max-width:46em; }
+.datatable table{ width:100%; border-collapse:collapse; font-size:var(--fs-small); }
+.datatable th{
+  text-align:left; font-family:var(--mono); font-size:var(--fs-chip); font-weight:500;
+  text-transform:uppercase; letter-spacing:.12em; color:var(--muted);
+  padding:0 1rem .7rem 0; border-bottom:1px solid var(--hairline-mid); white-space:nowrap;
+}
+.datatable td{ padding:.72rem 1rem .72rem 0; border-bottom:1px solid var(--hairline); color:var(--text); vertical-align:top; }
+.datatable tr:last-child td{ border-bottom:0; }
+.datatable td b{ color:var(--ink); }
+.datatable .n{ text-align:right; font-family:var(--mono); font-size:.82rem; color:var(--ink); white-space:nowrap; padding-right:0; }
+.datatable th.n{ text-align:right; padding-right:0; }
 
 /* ============================================================
    BLOG INDEX
@@ -396,9 +607,7 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
 </style>
 </head>
 <body>
-
 <a class="skip" href="#main">Skip to content</a>
-
 <header class="site-head" id="top">
   <div class="container head-inner">
     <a class="wordmark" href="/" aria-label="Usama Arshad, home">Usama Arshad<span class="dot">.</span></a>
@@ -408,7 +617,6 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
     <a class="btn btn-ghost head-cta" href="/assets/Usama-Arshad-Resume.pdf" download>Résumé</a>
   </div>
 </header>
-
 <main id="main">
   <section class="hero" aria-labelledby="page-title">
     <div class="container">
@@ -416,7 +624,7 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
         <p class="masthead-meta">
           <span>Offensive security</span>
           <span>Writeups &amp; research</span>
-          <span class="live">Updated Nov 2026</span>
+          <span class="live">4 published</span>
         </p>
       </div>
       <div class="hero-deck">
@@ -428,7 +636,6 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
       </div>
     </div>
   </section>
-
   <section class="section" aria-labelledby="posts-title">
     <div class="container">
       <header class="sec-head" data-reveal>
@@ -443,7 +650,7 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
           <span class="post-no" aria-hidden="true">.01</span>
           <div class="post-main">
             <h2><a href="/blog/blackhat-mea-2026-quals/">Fifteen challenges, fourteen flags</a></h2>
-            <p class="post-dek">Every challenge from the BlackHat MEA 2026 CTF qualifiers, written up properly. An 8-query Prony attack on a secret modulus, an RSA oracle that leaks only popcount, a real io_uring double-free driven to root, licence-check shellcode decrypted inside the kernel by eBPF, a CSS selector oracle under a JS-free CSP, and an ffmpeg external-data-reference file read. Including the one that got away.</p>
+            <p class="post-dek">Full writeups for every challenge in the BlackHat MEA 2026 CTF qualifiers. An 8-query Prony attack on a secret modulus, an RSA oracle that leaks only popcount, a real io_uring double-free driven to root, licence-check shellcode decrypted inside the kernel by eBPF, a CSS selector oracle under a JS-free CSP, and an ffmpeg external-data-reference file read. Root cause, exploitation chain and PoC for each, including the one that got away.</p>
             <div class="post-tags"><span class="ptag">CTF</span><span class="ptag">Pwn</span><span class="ptag">Reversing</span><span class="ptag">Crypto</span><span class="ptag">Web</span><span class="ptag">Forensics</span></div>
           </div>
           <div class="post-side">
@@ -452,9 +659,48 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
             <span class="post-statlab">Flags captured</span>
           </div>
         </article>
+        <article class="post">
+          <span class="post-no" aria-hidden="true">.02</span>
+          <div class="post-main">
+            <h2><a href="/blog/59-cves-wordpress-permission-callback/">Fifty-nine CVEs in one year: what WordPress plugins keep getting wrong</a></h2>
+            <p class="post-dek">A year of coordinated disclosure through WPScan produced 59 assigned CVE IDs across 46 plugins. Lined up and counted, half of them are the same bug in three different costumes: a REST route with no permission callback, a nopriv AJAX handler nobody took back out, and a nonce mistaken for an authorisation check.</p>
+            <div class="post-tags"><span class="ptag">WordPress</span><span class="ptag">AppSec</span><span class="ptag">Vulnerability Research</span><span class="ptag">REST API</span></div>
+          </div>
+          <div class="post-side">
+            <span class="post-date">4 Nov 2026</span>
+            <span class="post-stat">51<span>/59</span></span>
+            <span class="post-statlab">Catalogued</span>
+          </div>
+        </article>
+        <article class="post">
+          <span class="post-no" aria-hidden="true">.03</span>
+          <div class="post-main">
+            <h2><a href="/blog/your-allowlist-is-inside-the-attacker-process/">Your allowlist is inside the attacker's process</a></h2>
+            <p class="post-dek">Loopback binds, IP allowlists and VPC boundaries all fail the same way: they check where a request came from, when the attacker is already there. From a headless-renderer CTF challenge to cloud metadata, CI runners and Kubernetes sidecars, with the fix that actually holds.</p>
+            <div class="post-tags"><span class="ptag">AppSec</span><span class="ptag">Cloud</span><span class="ptag">CI/CD</span><span class="ptag">SSRF</span></div>
+          </div>
+          <div class="post-side">
+            <span class="post-date">4 Nov 2026</span>
+            <span class="post-stat">127<span>.0.0.1</span></span>
+            <span class="post-statlab">Trusted by default</span>
+          </div>
+        </article>
+        <article class="post">
+          <span class="post-no" aria-hidden="true">.04</span>
+          <div class="post-main">
+            <h2><a href="/blog/the-ai-assistant-kept-a-diary/">The AI assistant kept a diary</a></h2>
+            <p class="post-dek">Local LLM tooling quietly created a new forensic artifact: a plaintext, timestamped, uncensored record of what someone was trying to build, and often the passphrase they picked. Where these files live, why they are the highest-signal thing on the disk, and why that cuts both ways.</p>
+            <div class="post-tags"><span class="ptag">DFIR</span><span class="ptag">LLM Security</span><span class="ptag">Insider Risk</span><span class="ptag">Forensics</span></div>
+          </div>
+          <div class="post-side">
+            <span class="post-date">4 Nov 2026</span>
+            <span class="post-stat">01<span>file</span></span>
+            <span class="post-statlab">Full confession</span>
+          </div>
+        </article>
       </div>
       <div class="empty-note" data-reveal style="--d:.14s">
-        <p>More in progress. The disclosure work lives on the <a href="/research/" style="color:var(--ink);border-bottom:1px solid var(--hairline-mid)">research page</a>, where 59 assigned CVE IDs are catalogued with their advisories, and reconnaissance tradecraft lives in the <a href="/dorks/" style="color:var(--ink);border-bottom:1px solid var(--hairline-mid)">dork library</a>.</p>
+        <p>The disclosure log lives on the <a href="/research/" style="color:var(--ink);border-bottom:1px solid var(--hairline-mid)">research page</a>, where 59 assigned CVE IDs are catalogued with their advisories. Reconnaissance tradecraft lives in the <a href="/dorks/" style="color:var(--ink);border-bottom:1px solid var(--hairline-mid)">dork library</a>. Subscribe via <a href="/feed.xml" style="color:var(--ink);border-bottom:1px solid var(--hairline-mid)">RSS</a>.</p>
       </div>
     </div>
   </section>
@@ -500,25 +746,73 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
   "use strict";
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var head = document.querySelector(".site-head");
-  function onScroll() { head.classList.toggle("scrolled", window.scrollY > 8); }
-  window.addEventListener("scroll", onScroll, { passive: true });
-  onScroll();
-  var revealEls = Array.prototype.slice.call(document.querySelectorAll("[data-reveal], [data-stagger]"));
+  function onScroll(){ head.classList.toggle("scrolled", window.scrollY > 8); }
+  window.addEventListener("scroll", onScroll, { passive:true }); onScroll();
+
+  var prog = document.getElementById("prog");
+  if (prog) {
+    var tick = function () {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      prog.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
+    };
+    window.addEventListener("scroll", tick, { passive:true });
+    window.addEventListener("resize", tick); tick();
+  }
+
+  var revealEls = Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
   if (reduceMotion || !("IntersectionObserver" in window)) {
     revealEls.forEach(function (el) { el.classList.add("in"); });
   } else {
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
-    }, { threshold: 0.1, rootMargin: "0px 0px -6% 0px" });
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold:0.08, rootMargin:"0px 0px -5% 0px" });
     revealEls.forEach(function (el) { io.observe(el); });
     var geo = function () {
       revealEls.forEach(function (el) {
-        if (!el.classList.contains("in") && el.getBoundingClientRect().top < window.innerHeight * 0.94) el.classList.add("in");
+        if (!el.classList.contains("in") && el.getBoundingClientRect().top < window.innerHeight*0.95) el.classList.add("in");
       });
     };
-    window.addEventListener("scroll", geo, { passive: true });
-    window.addEventListener("resize", geo);
-    geo();
+    window.addEventListener("scroll", geo, { passive:true });
+    window.addEventListener("resize", geo); geo();
+  }
+
+  document.querySelectorAll(".code-copy").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var pre = btn.closest(".code").querySelector("code");
+      var text = pre ? pre.textContent : "";
+      var done = function () {
+        btn.textContent = "Copied"; btn.classList.add("done");
+        setTimeout(function(){ btn.textContent = "Copy"; btn.classList.remove("done"); }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function(){});
+      else {
+        var ta=document.createElement("textarea"); ta.value=text; ta.style.position="absolute"; ta.style.left="-9999px";
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy"); done(); } catch(e){}
+        document.body.removeChild(ta);
+      }
+    });
+  });
+
+  document.querySelectorAll(".flagbox .reveal-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var box = btn.closest(".flagbox");
+      btn.textContent = box.classList.toggle("shown") ? "Hide" : "Reveal";
+    });
+  });
+
+  var rail = document.querySelector(".wu-rail");
+  if (rail && "IntersectionObserver" in window) {
+    var links = Array.prototype.slice.call(rail.querySelectorAll("a"));
+    var secs = links.map(function (a) { return document.querySelector(a.getAttribute("href")); }).filter(Boolean);
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        links.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id); });
+      });
+    }, { rootMargin:"-20% 0px -70% 0px" });
+    secs.forEach(function (s) { spy.observe(s); });
   }
 })();
 </script>

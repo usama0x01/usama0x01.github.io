@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Popcnt Oracle · BlackHat MEA 2026 writeup</title>
+<meta name="description" content="The service is an unrestricted RSA decryption oracle that leaks only popcount(x^d mod n); because 2y mod n is a pure left shift (identical.">
+<link rel="canonical" href="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/popcnt-oracle/">
+<link rel="alternate" type="application/rss+xml" title="Usama Arshad, Writing" href="/feed.xml">
+<link rel="icon" href="/assets/favicon.ico">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#131110">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Usama Arshad">
+<meta property="og:title" content="Popcnt Oracle · BlackHat MEA 2026 writeup">
+<meta property="og:description" content="The service is an unrestricted RSA decryption oracle that leaks only popcount(x^d mod n); because 2y mod n is a pure left shift (identical.">
+<meta property="og:url" content="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/popcnt-oracle/">
+<meta property="og:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@usama0x01">
+<meta name="twitter:title" content="Popcnt Oracle · BlackHat MEA 2026 writeup">
+<meta name="twitter:description" content="The service is an unrestricted RSA decryption oracle that leaks only popcount(x^d mod n); because 2y mod n is a pure left shift (identical.">
+<meta name="twitter:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Popcnt Oracle: BlackHat MEA 2026 CTF writeup",
+  "description": "The service is an unrestricted RSA decryption oracle that leaks only popcount(x^d mod n); because 2y mod n is a pure left shift (identical.",
+  "datePublished": "2026-11-04",
+  "author": {
+    "@type": "Person",
+    "name": "Usama Arshad",
+    "url": "https://www.usamaarshad.me/"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/popcnt-oracle/"
+  },
+  "articleSection": "Crypto",
+  "proficiencyLevel": "Expert",
+  "isPartOf": {
+    "@type": "Article",
+    "name": "BlackHat MEA 2026 CTF qualifiers",
+    "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/"
+  }
+}
+</script>
+<link rel="preload" href="/assets/fonts/fraunces-normal-340-640.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/inter-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/jetbrainsmono-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.classList.add("js");</script>
+<link rel="stylesheet" href="/assets/css/writeup.css">
+</head>
+<body>
+<div class="progress" id="prog" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head" id="top">
+  <div class="container head-inner">
+    <a class="wordmark" href="/" aria-label="Usama Arshad, home">Usama Arshad<span class="dot">.</span></a>
+    <nav aria-label="Breadcrumb">
+      <a class="back-link" href="/blog/blackhat-mea-2026-quals/"><span class="arr" aria-hidden="true">←</span><span class="txt">All 15 challenges</span></a>
+    </nav>
+    <a class="btn btn-ghost head-cta" href="/assets/Usama-Arshad-Resume.pdf" download>Résumé</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" aria-labelledby="pt">
+    <div class="container">
+      <div class="masthead" data-reveal>
+        <p class="masthead-meta">
+          <span>Challenge 2 of 15</span>
+          <span>Crypto</span>
+          <span class="live">Solved · 100 pts</span>
+        </p>
+      </div>
+      <div class="hero-deck">
+        <div class="deck-copy" data-reveal style="--d:.08s">
+          <p class="kicker">BlackHat MEA 2026 · Qualifiers</p>
+          <h1 class="hero-title" id="pt">Popcnt Oracle<span class="dot">.</span></h1>
+          <p class="deck">Poping Shower!</p>
+          <p class="wu-meta">
+            <span class="cat cat-crypto">Crypto</span><span class="sep">·</span>
+            <span>100 points</span><span class="sep">·</span>
+            <span>4 November 2026</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="wu-layout">
+        <article class="wu" data-reveal>
+          <div class="tldr"><p class="lab">TL;DR</p><p>The service is an unrestricted RSA decryption oracle that leaks only popcount(x^d mod n); because 2y mod n is a pure left shift (identical popcount) exactly when 2y &lt; n, a popcount change along a doubling chain proves a modular wrap, and for the chain seeded at m those wrap flags are literally the binary digits of m/n. Three chains (k = 1, 3, 5, 2051 queries each) driven through a beam search recovered all 2048 bits of the secret m in ~1020–1080 s, which was then submitted verbatim to get the flag.</p></div>
+          <div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{ecc3a2adc3ccb6a6120005fa8c5bfde3} (tcp.flagyard.com:23476)</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{304e06cf9e9d383613a7ad30ca8a667b} (tcp.flagyard.com:19546)</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><p class="flag-note">Instances are provisioned per run, so these are the values our instances returned.</p>
+          <section id="recon"><h2><span class="hn">01</span>Recon</h2><p>The archive contained a single 510-byte <code>prob.py</code> (local copy at <code>/home/kali/Desktop/CTF/Crpto/</code> popcnt_oracle.tar.gz/prob.py):</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">python</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>e = 65537
+while True:
+    p = getPrime(1024); q = getPrime(1024)
+    if gcd((p-1)*(q-1), e) == 1: break
+n = p * q
+d = pow(e, -1, (p-1)*(q-1))
+m = secrets.randbelow(n)
+c = pow(m, e, n)
+
+print(f"{e = }"); print(f"{n = }"); print(f"{c = }")
+while True:
+    x = int(input("x&gt; "))
+    if x == m:
+        print(flag)
+        break
+    print(pow(x, d, n).bit_count())</code></pre></figure>
+<p>Observations that shape the attack:</p>
+<ul class="bullets"><li>Unlimited, unpadded, unblinded decryption. No query cap, no rejection of malleated ciphertexts, no check that x!= c. The only defence is that the return value is a single small integer (0–2048) rather than the plaintext.</li><li>The flag check is x == m, not a decryption of the flag. So the target is recovering the plaintext m, factoring n is not required and no partial- d leak is needed.</li><li>Fresh key + fresh m per connection. p, q, m are generated at process start, so a dropped socket costs a complete re-query. This turned out to be the dominant operational constraint.</li><li>Server-side answer rate measured at ~5.9–6.25 answers/sec (≈0.16 s per 2048-bit pow(x, d, n), no CRT), vs. 6153 queries done in 97.5 s locally. Full remote run ≈ 17 min.</li><li>pwntools was not installed on the box (ModuleNotFoundError: No module named 'pwn'), so the exploit was written against raw socket with a writer thread and a regex answer scanner.</li></ul>
+<p>Banner shape confirmed against a live instance:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>e = 65537
+n = 13865772848690584914911522440805572816742770820957440571 ... [621 chars]
+
+c = 10642851944200752564572311993873177781358910079411299649 ... [621 chars]
+x&gt;</code></pre></figure></section><section id="the-bug"><h2><span class="hn">02</span>The bug</h2><p>Two composed flaws.</p>
+<ol class="steps"><li>Homomorphic oracle access. Sending x = c · k^e mod n makes the server compute x^d = (m^e · k^e)^d = k·m mod n, so the oracle is exactly</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>O(k) = popcount(k·m mod n)</code></pre></figure>
+<p>for any attacker-chosen k. Textbook RSA malleability, no padding check exists to stop it.</p>
+<p>**2. popcount is not invariant under modular reduction, and its failure is informative.** For y ∈ [0, n):</p>
+<ul class="bullets"><li>if 2y &lt; n, then 2y mod n == 2y, which is y shifted left one place → popcount identical;</li><li>if 2y ≥ n, the value becomes 2y − n and the popcount usually changes.</li></ul>
+<p>Contrapositive: a popcount change between consecutive elements of a doubling chain proves a wrap occurred. Formally, with v_j = k·2^j·m mod n,</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>wrap(v_j → v_{j+1})   ⟺   2·v_j ≥ n   ⟺   floor(k·2^(j+1)·m / n) is odd</code></pre></figure>
+<p>(with f_j = frac(k·2^j·m/n), f_{j+1} = 2f_j − [2f_j ≥ 1] and floor(k·2^(j+1)m/n) = 2·floor(k·2^j m/n) + floor(2 f_j), so the low bit is exactly [2·v_j ≥ n]). For k = 1 those bits are literally the binary expansion of m/n, so 2048 chained queries pin m to within one integer.</p>
+<p>The measurement is one-sided: observed change ⇒ true wrap, but a real wrap can coincidentally preserve popcount. Measured hidden-wrap rates: 18.6 % at ~13-bit n, 2.38 % at 512 bits, 1.85 % at 1024 bits, 0.84 % at 2048 bits, so ~9–17 of the ~1024 wraps per chain are silently missed. One-sidedness is what makes the correction sound: pruning any candidate that predicts a 0 where a chain measured a 1 can never discard the truth.</p>
+<p>Edge cases checked and clean: n = pq is odd so 2y == n is impossible (no boundary tie); y = 0 never wraps; m = 0 gives an all-zero chain and is still recovered; gcd(k, n) = 1 for k ∈ {3,5} against 1024-bit primes.</p><figure class="meme"><div class="meme-card"><p class="meme-cap top">POPCOUNT LEAKS ONE BIT PER QUERY</p><svg viewBox="0 0 560 170" role="img" xmlns="http://www.w3.org/2000/svg">
+<rect width="560" height="170" fill="#100e0d"/>
+<text x="280" y="42" fill="#6f6659" font-family="monospace" font-size="11" text-anchor="middle" letter-spacing="2">EXPLOIT RELIABILITY</text>
+<rect x="70" y="68" width="420" height="22" fill="none" stroke="#d6cfc3" stroke-width="1.5"/>
+<rect x="72" y="70" width="400" height="18" fill="#e5484d" opacity=".85"/>
+<rect x="472" y="70" width="18" height="18" fill="none"/>
+<text x="280" y="124" fill="#e5484d" font-family="monospace" font-size="22" text-anchor="middle" letter-spacing="3">99%</text>
+<text x="280" y="146" fill="#6f6659" font-family="monospace" font-size="10" text-anchor="middle" letter-spacing="2">LOCALLY. REMOTE IS A DIFFERENT STORY.</text>
+</svg><p class="meme-cap bot">2,051 QUERIES LATER, ALL 2,048 BITS OF IT</p></div></figure></section><section id="exploitation"><h2><span class="hn">03</span>Exploitation</h2><ol class="steps"><li>Parse the banner. Read three lines and pull e, n, c (int(line.split(b"=")[1])). n.<code>bit_length()</code> was 2047 or 2048 depending on the instance; chain length L = n.<code>bit_length()</code> + 3 (2050 or 2051).</li><li>Build each doubling chain non-adaptively. For a multiplier k, the queries are a geometric progression in ciphertext space, no round-trip dependency, so the whole batch is precomputed:</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">python</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>def chain_queries(c, e, n, k, L):
+    two_e, x, out = pow(2, e, n), c * pow(k, e, n) % n, []
+    for _ in range(L):
+        out.append(x)
+        x = x * two_e % n      # multiplies the plaintext by 2
+    return out</code></pre></figure>
+<p>Answer j is popcount(k·2^j·m mod n).</p>
+<ol class="steps" start="3"><li>Pipeline the batch. All L decimal integers are joined with \n, pushed by a daemon writer thread in 256 KB chunks while the main loop <code>recv()</code>s and scans with re.findall(rb"\d+", buf.replace(b"x&gt; ", b" ")), the x&gt; prompt is stripped before the digit scan so prompts are not mistaken for answers. Three chains k = 1, 3, 5 → 3 × 2051 = 6153 queries (or 3 × 2050 = 6150). ~3.8 MB sent, ~50 KB received.</li><li>Convert popcounts to wrap bits.</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>measured[j] = 1 if pc[j+1] != pc[j] else 0</code></pre></figure>
+<p>A 1 is proof of a wrap; a 0 is "no wrap" with ~0.84 % error, always in the direction of a missed 1.</p>
+<ol class="steps" start="5"><li>Beam search over A = floor(2^i · m / n). Chain k = 1 drives the branching: if measured[i] == 1, bit i+1 of m/n is forced to 1 (single child 2A+1); if 0, both children are kept, with +1 penalty on the 2A+1 child (that would mean a hidden wrap). Chains k = 3, 5 cross-check. For a candidate B at depth i+1, m/n ∈ [B/2^(i+1), (B+1)/2^(i+1)), so k·2^(j+1)·m/n ∈ [kB/2^s, (kB+k)/2^s) with s = s₀ = k.<code>bit_length()</code>+1 and j = i − s₀. The chain bit is determined iff the interval does not straddle a 2^s boundary:</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>determined   ⟺   (k*B &gt;&gt; s) == ((k*B + k - 1) &gt;&gt; s)
+pred         =    (k*B &gt;&gt; s) &amp; 1</code></pre></figure>
+<p>(upper endpoint kB+k−1, not kB+k, because [A, A+1) with integer A cannot straddle a 2^s boundary for s ≥ 1, this test is tight, not merely conservative). Then:</p>
+<ul class="bullets"><li>measured == 1 and pred == 0 → prune (sound: a change proves a wrap);</li><li>pred == 1 and measured == 0 → penalty += 1 (a plausible hidden wrap).</li></ul>
+<p>Survivors are sorted by penalty and kept if pen &lt;= best + 40, capped at beam_width = 600.</p>
+<ol class="steps" start="6"><li>Interval → integer. Each surviving A gives lo = ceil(A·n / 2^nbits); candidates lo−1 … hi are emitted and deduped. The correct m is the unique candidate satisfying pow(m, e, n) == c. Live runs emitted 876 and 1125 candidates at beam=600 gap=40 and hit m on the first beam pass.</li><li>Submit m on the same socket and regex the flag out of the reply (rb"[A-Za-z0-9_]\{[^}]\}").</li></ol>
+<p>Validation before touching the remote (offline, <code>ranktest.py</code>, RSA-2048, k = 1,3,5, beam 600): the true candidate never fell below rank 2 with a penalty gap ≤ 1–2, and the beam search itself ran in ~1.1 s. A 9-agent adversarial review confirmed the math: the shift invariant held over 1,165,890 exhaustive (y, n) pairs with 0 violations, and the wrap identity over 30,608,640 cases for k ∈ {1,3,5,7,9} with 0 mismatches. Under-provisioned configs were also measured: k = 1,3,5 at beam 150 → 3/3 (rank ≤ 6), but k = 1,3 at beam 2000 → 1/3.</p>
+<p>Run log.</p>
+<ul class="bullets"><li>Local end-to-end (--local against a spawned <code>prob.py</code>): m recovered, FLAG: BHFlagY{local_test}, 98.7 s total.</li><li>tcp.flagyard.com:23476, run 2 (<code>solve2.py</code>): chain k=1 350 s, k=3 721 s, k=5 1082 s; beam=600 gap=40</li><li>&gt; 876 candidates; BHFlagY{ecc3a2adc3ccb6a6120005fa8c5bfde3} in 1082 s.</li><li>tcp.flagyard.com:19546: beam=600 gap=40 -&gt; 1125 candidates; BHFlagY{304e06cf9e9d383613a7ad30ca8a667b} in 1021 s.</li></ul>
+<p>Stream-integrity check on the raw dump (chain k=1, 2047-bit n): 2050 entries as expected; popcounts min 954 / max 1117 / mean 1022.0 / sd 22.7 against the expected 1023.5 / 22.6; zero out-of- range values (a truncated read would surface as a tiny value like 10); proven wraps 990/2049 = 0.483 against the ~0.495 expected, the 0.012 shortfall is the hidden-wrap rate, matching the independently measured 0.84 %.</p>
+<p>Key code def chain_queries(c, e, n, k, L): """x_j = c * k^e * (2^e)^j -&gt; oracle answers popcount(k*2^j*m mod n).""" two_e, x, out = pow(2, e, n), c * pow(k, e, n) % n, [] for _ in range(L): out.append(x) x = x * two_e % n return out</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">python</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>def measured_bits(popcounts):
+    """popcounts[j] = popcount(k*2^j*m mod n) -&gt; measured wrap bits (one-sided)."""
+    return [1 if popcounts[j + 1] != popcounts[j] else 0
+            for j in range(len(popcounts) - 1)]
+
+def beam_search(n, mbits, beam_width=600, max_penalty_gap=40, progress=None):
+    """mbits: {k: [measured wrap bits]} for odd multipliers k (1 must be present)."""
+    nbits = n.bit_length()
+    checks = [(k, k.bit_length() + 1) for k in sorted(mbits) if k != 1]
+
+    drive = mbits[1]
+    cands = [(0, 0)]                       # (penalty, A) with A = floor(2^i*m/n)
+    for i in range(nbits):
+        nxt = []
+        mb = drive[i]                      # true bit i+1 of m/n, one-sided
+        for pen, A in cands:
+            kids = [(pen, 2 * A + 1)] if mb else [(pen, 2 * A), (pen + 1, 2 * A + 1)]
+            for p, B in kids:
+                 ok = True
+                 for k, s0 in checks:
+                     j = i - s0
+                     if j &lt; 0:
+                         continue
+                     s = s0
+                     u = k * B
+                     if (u &gt;&gt; s) != ((u + k - 1) &gt;&gt; s):
+                         continue          # not yet determined by this candidate
+                     pred = (u &gt;&gt; s) &amp; 1
+                     m_ = mbits[k][j]
+                     if m_ and not pred:
+                         ok = False        # sound prune: a change PROVES a wrap
+                         break
+                     if pred and not m_:
+                         p += 1            # plausible hidden wrap
+                 if ok:
+                     nxt.append((p, B))
+        nxt.sort(key=lambda t: t[0])
+        best = nxt[0][0]
+        cands = [t for t in nxt if t[0] &lt;= best + max_penalty_gap][:beam_width]
+
+    out, seen, res = [], set(), []
+    for pen, A in cands:
+        lo = (A * n + (1 &lt;&lt; nbits) - 1) &gt;&gt; nbits
+        hi = ((A + 1) * n + (1 &lt;&lt; nbits) - 1) &gt;&gt; nbits
+        for m in range(max(lo - 1, 0), hi + 1):
+            out.append((pen, m))
+    for pen, m in out:
+        if m not in seen:
+            seen.add(m); res.append(m)
+    return res     # caller keeps the one with pow(m, e, n) == c</code></pre></figure></section><section id="dead-ends"><h2><span class="hn">04</span>Dead ends</h2><ul class="bullets"><li>Self-inflicted kill on the first remote run. The exploit was launched under timeout 900; the output file's last write was at exactly 914 s after start, i.e. SIGTERM landed at ~5900/6153 answers, roughly 40 s from done. Because every connection draws a fresh m, this cost a complete re-run. Fixed by raising</li></ul>
+<p>the wrapper to timeout 3000 and dumping raw popcounts to <code>answers.json</code> after each chain so the analysis phase is reproducible offline (--replay). • A "stalled" run that wasn't. The exploit's stdout was piped through grep -v, which block-buffers; the output file sat at one line for 15 minutes. Misread as a hang until <code>/proc/</code>&lt;pid&gt;/io and ss -tni were checked: bytes_sent / bytes_acked = 3,798,645/3,798,646 (all queries delivered), bytes_received climbing, lastrcv 108 ms. The hardened runner writes unbuffered progress straight to stderr instead. • Instance TTL, not a per-connection cap. tcp.flagyard.com:13490 reset the connection at ~570 s mid-chain-3 (ConnectionResetError: [Errno 104]); a follow-up probe got ConnectionRefused, proving the container had expired rather than enforcing a session limit. Since the attack needs ~17 min of query time at ~6.1 answers/sec, a fresh instance was required and had to be attacked immediately on spawn. • The 2-chain shortcut does not exist. Tested against the real saved popcounts from a solved run: k=1,3 failed at beam 600, 5000 and 20000 (42,867 candidates, none satisfying m^e ≡ c); only k=1,5 at beam 5000 recovered, on a single sample, luck, not reliability. Consistent with the offline stress result of 1/3 for k=1,3 at beam 2000. The third chain is load-bearing; ~1 query per recovered bit per chain is essentially the information-theoretic floor for this oracle. • Defects found by the 9-agent adversarial review (all robustness/efficiency, none affecting soundness): best = nxt[0][0] is unguarded, so an emptied beam raises an opaque IndexError instead of a clean failure (reproduced with beam_width=1, max_penalty_gap=0 on a 64-bit modulus); each cross- check chain bit is tested at exactly one depth s₀ and discarded if undetermined there, throwing away 543,513 of 2,571,038 = 21.2 % of available cross-check information; the interval→integer step emits 3 candidates where m == lo always (0 counterexamples over 210,677 exhaustive pairs plus 20,000 random cases at 64/512/2048 bits), tripling the 2048-bit modexp verification cost; and structured m (n−1, n−2, n−4, (n−1)//2, n//3) inflate hidden wraps ~10× and push the true candidate to rank 10239, defeating the beam heuristic but never the pruning rule, irrelevant here since <code>prob.py</code> uses secrets.randbelow(n). The network reviewer separately flagged no socket timeout, a header parser assuming e/n/c are the first three lines, and a \d+ scan that can return a digit-truncated final answer at a <code>recv()</code> boundary (harmless here: it can only touch the last chain entry, which sits two indices past anything the beam search reads). • beam_search raises KeyError: 1 when the driving chain is absent, hit while sweeping a k=3,5 config. • zsh does not word-split unquoted expansions, so for cfg in "1,3 600 40"; do python3 <code>cfgtest.py</code> $cfg passed one argument; needed ${=cfg}.</p></section>
+          <nav class="pager" aria-label="Challenge navigation"><a href="/blog/blackhat-mea-2026-quals/hokan/"><span class="dir">← Previous</span><span class="t">Hokan</span></a><a class="nx" href="/blog/blackhat-mea-2026-quals/reduce-reuse-recycle/"><span class="dir">Next →</span><span class="t">Reduce, Reuse, Recycle</span></a></nav>
+        </article>
+        <aside class="wu-rail">
+          <h2>On this page</h2>
+          <ol><li><a href="#recon">Recon</a></li><li><a href="#the-bug">The bug</a></li><li><a href="#exploitation">Exploitation</a></li><li><a href="#dead-ends">Dead ends</a></li></ol>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="wordmark" href="/">Usama Arshad<span class="dot">.</span></a>
+        <p>Offensive Security Lead. Red team, AppSec, and cloud security for fintech at scale. Based in Riyadh, Saudi Arabia.</p>
+      </div>
+      <nav class="foot-col" aria-label="Site index">
+        <h2>Index</h2>
+        <ul>
+          <li><a href="/">Portfolio</a></li>
+          <li><a href="/blog/">Writing</a></li>
+          <li><a href="/research/">Research</a></li>
+          <li><a href="/dorks/">Dork library</a></li>
+          <li><a href="/#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="foot-col">
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://github.com/usama0x01" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">WPScan leaderboard</a></li>
+          <li><a href="https://medium.com/@usama0x01" target="_blank" rel="noopener">Medium</a></li>
+          <li><a href="mailto:gusama21@gmail.com">gusama21@gmail.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>© 2026 Usama Arshad · Riyadh, Saudi Arabia</span>
+      <span class="colophon">Set in Fraunces, Inter &amp; JetBrains Mono, self-hosted · No trackers, no cookies</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var head = document.querySelector(".site-head");
+  function onScroll(){ head.classList.toggle("scrolled", window.scrollY > 8); }
+  window.addEventListener("scroll", onScroll, { passive:true }); onScroll();
+
+  var prog = document.getElementById("prog");
+  if (prog) {
+    var tick = function () {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      prog.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
+    };
+    window.addEventListener("scroll", tick, { passive:true });
+    window.addEventListener("resize", tick); tick();
+  }
+
+  var revealEls = Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
+  if (reduceMotion || !("IntersectionObserver" in window)) {
+    revealEls.forEach(function (el) { el.classList.add("in"); });
+  } else {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold:0.08, rootMargin:"0px 0px -5% 0px" });
+    revealEls.forEach(function (el) { io.observe(el); });
+    var geo = function () {
+      revealEls.forEach(function (el) {
+        if (!el.classList.contains("in") && el.getBoundingClientRect().top < window.innerHeight*0.95) el.classList.add("in");
+      });
+    };
+    window.addEventListener("scroll", geo, { passive:true });
+    window.addEventListener("resize", geo); geo();
+  }
+
+  document.querySelectorAll(".code-copy").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var pre = btn.closest(".code").querySelector("code");
+      var text = pre ? pre.textContent : "";
+      var done = function () {
+        btn.textContent = "Copied"; btn.classList.add("done");
+        setTimeout(function(){ btn.textContent = "Copy"; btn.classList.remove("done"); }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function(){});
+      else {
+        var ta=document.createElement("textarea"); ta.value=text; ta.style.position="absolute"; ta.style.left="-9999px";
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy"); done(); } catch(e){}
+        document.body.removeChild(ta);
+      }
+    });
+  });
+
+  document.querySelectorAll(".flagbox .reveal-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var box = btn.closest(".flagbox");
+      btn.textContent = box.classList.toggle("shown") ? "Hide" : "Reveal";
+    });
+  });
+
+  var rail = document.querySelector(".wu-rail");
+  if (rail && "IntersectionObserver" in window) {
+    var links = Array.prototype.slice.call(rail.querySelectorAll("a"));
+    var secs = links.map(function (a) { return document.querySelector(a.getAttribute("href")); }).filter(Boolean);
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        links.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id); });
+      });
+    }, { rootMargin:"-20% 0px -70% 0px" });
+    secs.forEach(function (s) { spy.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>

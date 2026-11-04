@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Qfact · BlackHat MEA 2026 writeup</title>
+<meta name="description" content="Windows Defender quarantined the ransomware but the evidence set ships the quarantine store. Decrypt the quarantine with the static MsMpEng.">
+<link rel="canonical" href="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/qfact/">
+<link rel="alternate" type="application/rss+xml" title="Usama Arshad, Writing" href="/feed.xml">
+<link rel="icon" href="/assets/favicon.ico">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#131110">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Usama Arshad">
+<meta property="og:title" content="Qfact · BlackHat MEA 2026 writeup">
+<meta property="og:description" content="Windows Defender quarantined the ransomware but the evidence set ships the quarantine store. Decrypt the quarantine with the static MsMpEng.">
+<meta property="og:url" content="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/qfact/">
+<meta property="og:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@usama0x01">
+<meta name="twitter:title" content="Qfact · BlackHat MEA 2026 writeup">
+<meta name="twitter:description" content="Windows Defender quarantined the ransomware but the evidence set ships the quarantine store. Decrypt the quarantine with the static MsMpEng.">
+<meta name="twitter:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Qfact: BlackHat MEA 2026 CTF writeup",
+  "description": "Windows Defender quarantined the ransomware but the evidence set ships the quarantine store. Decrypt the quarantine with the static MsMpEng.",
+  "datePublished": "2026-11-04",
+  "author": {
+    "@type": "Person",
+    "name": "Usama Arshad",
+    "url": "https://www.usamaarshad.me/"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/qfact/"
+  },
+  "articleSection": "Forensics",
+  "proficiencyLevel": "Expert",
+  "isPartOf": {
+    "@type": "Article",
+    "name": "BlackHat MEA 2026 CTF qualifiers",
+    "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/"
+  }
+}
+</script>
+<link rel="preload" href="/assets/fonts/fraunces-normal-340-640.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/inter-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/jetbrainsmono-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.classList.add("js");</script>
+<link rel="stylesheet" href="/assets/css/writeup.css">
+</head>
+<body>
+<div class="progress" id="prog" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head" id="top">
+  <div class="container head-inner">
+    <a class="wordmark" href="/" aria-label="Usama Arshad, home">Usama Arshad<span class="dot">.</span></a>
+    <nav aria-label="Breadcrumb">
+      <a class="back-link" href="/blog/blackhat-mea-2026-quals/"><span class="arr" aria-hidden="true">←</span><span class="txt">All 15 challenges</span></a>
+    </nav>
+    <a class="btn btn-ghost head-cta" href="/assets/Usama-Arshad-Resume.pdf" download>Résumé</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" aria-labelledby="pt">
+    <div class="container">
+      <div class="masthead" data-reveal>
+        <p class="masthead-meta">
+          <span>Challenge 4 of 15</span>
+          <span>Forensics</span>
+          <span class="live">Solved · 100 pts</span>
+        </p>
+      </div>
+      <div class="hero-deck">
+        <div class="deck-copy" data-reveal style="--d:.08s">
+          <p class="kicker">BlackHat MEA 2026 · Qualifiers</p>
+          <h1 class="hero-title" id="pt">Qfact<span class="dot">.</span></h1>
+          <p class="deck">Windows host triage: encrypted user files, Defender quarantine, event logs, registry hives.</p>
+          <p class="wu-meta">
+            <span class="cat cat-forensics">Forensics</span><span class="sep">·</span>
+            <span>100 points</span><span class="sep">·</span>
+            <span>4 November 2026</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="wu-layout">
+        <article class="wu" data-reveal>
+          <div class="tldr"><p class="lab">TL;DR</p><p>Windows Defender quarantined the ransomware but the evidence set ships the quarantine store. Decrypt the quarantine with the static MsMpEng RC4 key, read the AES key out of the dropper, rebuild the IV from host identifiers found in the registry, and decrypt the victim files.</p></div>
+          <div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{d3f3nd3r_qu4r4nt1n3_r3c0v3ry_2026}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><p class="flag-note">Instances are provisioned per run, so these are the values our instances returned.</p>
+          <section id="recon"><h2><span class="hn">01</span>Recon</h2><p>The evidence archive is a classic Windows triage collection:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>EncryptedFiles/   9 x *.enc   (sizes all multiples of 16, no header, high entropy)
+EventLogs/        Security, System, Application, PowerShell-Operational,
+                  Defender-Operational, TerminalServices (.evtx)
+Prefetch/         *.pf + Ag*.db
+Registry/         SYSTEM, SOFTWARE, NTUSER.DAT
+Quarantine/       Entries/{8003AEBB-...}   Resources/36/367F08...   ResourceData/36/367F08...
+READ_ME.txt       the ransom note (UTF-16LE)</code></pre></figure>
+<p>The ransom note names the victim: Your Unique ID: LOCK-DESKTOP-KLPAT9O-JM-20260628-7F3A.</p>
+<p>The.enc files carry no magic bytes, no salt and no IV, every length is an exact multiple of 16. That rules out a self-describing container and means the key material has to come from somewhere else in the image. The Quarantine/ tree is that somewhere: Defender caught the dropper and kept a copy.</p></section><section id="the-bug"><h2><span class="hn">02</span>The bug</h2><p>Two design decisions in the ransomware make full recovery possible:</p>
+<ol class="steps"><li>The AES key is a hard-coded literal in the dropper, obfuscated only by Chr() concatenation, and the dropper itself survives in Defender's quarantine store.</li><li>The IV is derived from non-secret host identifiers, MD5(COMPUTERNAME + USERNAME), both of which are recoverable from the registry hives in the same evidence set (and the computer name is printed in the ransom note).</li></ol>
+<p>Defender's quarantine store is itself only obfuscated, not encrypted: every file is RC4 with a static, publicly documented 256-byte key compiled into MsMpEng.</p></section><section id="exploitation"><h2><span class="hn">03</span>Exploitation</h2><ol class="steps"><li>Decrypt the quarantine store. RC4 each of the three files with the static MsMpEng key. The ResourceData entry parses as:</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>dword magic1 = 3 ; dword magic2 = 2 ; dword sd_len = 0xAC    (security descriptor)
+payload starts at 0x28 + sd_len = 0xD4</code></pre></figure>
+<p>The payload is a 4,557-byte HTA, Q3 Financial Review - Loading, carrying a VBScript Window_OnLoad that builds and runs a PowerShell one-liner.</p>
+<ol class="steps" start="2"><li>Read the crypto out of the dropper.</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>k = Chr(70) &amp; Chr(120) &amp; Chr(55) &amp; Chr(109) &amp; Chr(75) &amp; Chr(57) &amp; Chr(118) &amp; Chr(76) _
+  &amp; Chr(50) &amp; Chr(110) &amp; Chr(81) &amp; Chr(52) &amp; Chr(119) &amp; Chr(80) &amp; Chr(122) &amp; Chr(33)</code></pre></figure>
+<p>which is Fx7mK9vL2nQ4wPz!. The PowerShell then does:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">php</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>$kb = [Text.Encoding]::UTF8.GetBytes($p.PadRight(32).Substring(0,32))    # key
+$ivSeed = $env:COMPUTERNAME + $env:USERNAME
+$iv = [Security.Cryptography.MD5]::Create().ComputeHash(
+          [Text.Encoding]::UTF8.GetBytes($ivSeed))                       # IV
+$a.Key = $kb; $a.IV = $iv; $a.Mode = 0; $a.Padding = 2</code></pre></figure>
+<p>So: AES-256, key = "Fx7mK9vL2nQ4wPz!" right-padded to 32 bytes with spaces. $a.Mode = 0 is not a valid CipherMode; the assignment throws and is swallowed by $ErrorActionPreference='SilentlyContinue', so the mode stays at.NET's default, CBC. Padding = 2 is PKCS#7.</p>
+<ol class="steps" start="3"><li>Rebuild the IV. COMPUTERNAME is DESKTOP-KLPAT9O (ransom note, confirmed in Registry/SYSTEM). For USERNAME, the note only gives the first two letters uppercased (JM); the profile path in the hives gives it exactly:</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">shell</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>$ strings -el Registry/SOFTWARE | grep -iE '^C:\\Users\\[^\\]+$'
+C:\Users\jmartin</code></pre></figure>
+<p>IV = MD5("DESKTOP-KLPAT9O" + "jmartin") = a31de3916e88f240c2bf08735b965aa9.</p>
+<ol class="steps" start="4"><li>Decrypt and read. All 9 files decrypt to clean UTF-8 with valid PKCS#7. The flag is in <code>Q3_auth_memo.txt</code>, base64-encoded "for secure internal transmission":</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>QkhGbGFnWXtkM2YzbmQzcl9xdTRyNG50MW4zX3IzYzB2M3J5XzIwMjZ9
+  -&gt; BHFlagY{d3f3nd3r_qu4r4nt1n3_r3c0v3ry_2026}</code></pre></figure>
+<p>Key code KEY = bytes([<code>0x1E</code>,<code>0x87</code>,<code>0x78</code>,<code>0x1B</code>,<code>0x8D</code>,<code>0xBA</code>,<code>0xA8</code>,<code>0x44</code>...]) # 256-byte static MsMpEng RC4 key</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">python</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>def rc4(data, key=KEY):
+    S = list(range(256)); j = 0
+    for i in range(256):
+        j = (j + S[i] + key[i % len(key)]) &amp; 0xff
+        S[i], S[j] = S[j], S[i]
+    out = bytearray(); i = j = 0
+    for c in data:
+        i = (i + 1) &amp; 0xff; j = (j + S[i]) &amp; 0xff
+        S[i], S[j] = S[j], S[i]
+        out.append(c ^ S[(S[i] + S[j]) &amp; 0xff])
+    return bytes(out)
+
+dec    = rc4(open(RESOURCE_DATA, 'rb').read())
+sd_len = struct.unpack('&lt;I', dec[8:12])[0]
+hta    = dec[0x28 + sd_len:]                        # the quarantined dropper
+
+key = "Fx7mK9vL2nQ4wPz!".ljust(32).encode()       # AES-256
+iv = hashlib.md5(b"DESKTOP-KLPAT9O" + b"jmartin").digest()
+pt = AES.new(key, AES.MODE_CBC, iv).decrypt(open(f,'rb').read())</code></pre></figure></section><section id="dead-ends"><h2><span class="hn">04</span>Dead ends</h2><ul class="bullets"><li>PKCS#7 validity does not confirm the IV. In CBC the final block depends only on the previous ciphertext block, so every IV candidate passes a padding check. Three candidate usernames all gave 9/9 valid padding; only inspecting the first plaintext block distinguishes them.</li><li>$a.Mode = 0 looks like ECB at a glance (in some libraries 0 means ECB). In.NET, CipherMode has no member 0; the property setter throws and SilentlyContinue hides it, so the effective mode is the default CBC. Decrypting as ECB produces garbage in every block.</li></ul>
+<ul class="bullets"><li>The Quarantine/Resources and Quarantine/Entries files unpack with a per-section RC4 stream rather than one continuous stream; only ResourceData is needed, so this never had to be resolved.</li></ul></section>
+          <nav class="pager" aria-label="Challenge navigation"><a href="/blog/blackhat-mea-2026-quals/reduce-reuse-recycle/"><span class="dir">← Previous</span><span class="t">Reduce, Reuse, Recycle</span></a><a class="nx" href="/blog/blackhat-mea-2026-quals/whisper/"><span class="dir">Next →</span><span class="t">Whisper</span></a></nav>
+        </article>
+        <aside class="wu-rail">
+          <h2>On this page</h2>
+          <ol><li><a href="#recon">Recon</a></li><li><a href="#the-bug">The bug</a></li><li><a href="#exploitation">Exploitation</a></li><li><a href="#dead-ends">Dead ends</a></li></ol>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="wordmark" href="/">Usama Arshad<span class="dot">.</span></a>
+        <p>Offensive Security Lead. Red team, AppSec, and cloud security for fintech at scale. Based in Riyadh, Saudi Arabia.</p>
+      </div>
+      <nav class="foot-col" aria-label="Site index">
+        <h2>Index</h2>
+        <ul>
+          <li><a href="/">Portfolio</a></li>
+          <li><a href="/blog/">Writing</a></li>
+          <li><a href="/research/">Research</a></li>
+          <li><a href="/dorks/">Dork library</a></li>
+          <li><a href="/#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="foot-col">
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://github.com/usama0x01" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">WPScan leaderboard</a></li>
+          <li><a href="https://medium.com/@usama0x01" target="_blank" rel="noopener">Medium</a></li>
+          <li><a href="mailto:gusama21@gmail.com">gusama21@gmail.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>© 2026 Usama Arshad · Riyadh, Saudi Arabia</span>
+      <span class="colophon">Set in Fraunces, Inter &amp; JetBrains Mono, self-hosted · No trackers, no cookies</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var head = document.querySelector(".site-head");
+  function onScroll(){ head.classList.toggle("scrolled", window.scrollY > 8); }
+  window.addEventListener("scroll", onScroll, { passive:true }); onScroll();
+
+  var prog = document.getElementById("prog");
+  if (prog) {
+    var tick = function () {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      prog.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
+    };
+    window.addEventListener("scroll", tick, { passive:true });
+    window.addEventListener("resize", tick); tick();
+  }
+
+  var revealEls = Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
+  if (reduceMotion || !("IntersectionObserver" in window)) {
+    revealEls.forEach(function (el) { el.classList.add("in"); });
+  } else {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold:0.08, rootMargin:"0px 0px -5% 0px" });
+    revealEls.forEach(function (el) { io.observe(el); });
+    var geo = function () {
+      revealEls.forEach(function (el) {
+        if (!el.classList.contains("in") && el.getBoundingClientRect().top < window.innerHeight*0.95) el.classList.add("in");
+      });
+    };
+    window.addEventListener("scroll", geo, { passive:true });
+    window.addEventListener("resize", geo); geo();
+  }
+
+  document.querySelectorAll(".code-copy").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var pre = btn.closest(".code").querySelector("code");
+      var text = pre ? pre.textContent : "";
+      var done = function () {
+        btn.textContent = "Copied"; btn.classList.add("done");
+        setTimeout(function(){ btn.textContent = "Copy"; btn.classList.remove("done"); }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function(){});
+      else {
+        var ta=document.createElement("textarea"); ta.value=text; ta.style.position="absolute"; ta.style.left="-9999px";
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy"); done(); } catch(e){}
+        document.body.removeChild(ta);
+      }
+    });
+  });
+
+  document.querySelectorAll(".flagbox .reveal-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var box = btn.closest(".flagbox");
+      btn.textContent = box.classList.toggle("shown") ? "Hide" : "Reveal";
+    });
+  });
+
+  var rail = document.querySelector(".wu-rail");
+  if (rail && "IntersectionObserver" in window) {
+    var links = Array.prototype.slice.call(rail.querySelectorAll("a"));
+    var secs = links.map(function (a) { return document.querySelector(a.getAttribute("href")); }).filter(Boolean);
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        links.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id); });
+      });
+    }, { rootMargin:"-20% 0px -70% 0px" });
+    secs.forEach(function (s) { spy.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>

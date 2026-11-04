@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Teto · BlackHat MEA 2026 writeup</title>
+<meta name="description" content="A Tetris implementation with an out-of-bounds cell write and a width field that can be corrupted into an arbitrary-length stack read. Both.">
+<link rel="canonical" href="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/teto/">
+<link rel="alternate" type="application/rss+xml" title="Usama Arshad, Writing" href="/feed.xml">
+<link rel="icon" href="/assets/favicon.ico">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#131110">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Usama Arshad">
+<meta property="og:title" content="Teto · BlackHat MEA 2026 writeup">
+<meta property="og:description" content="A Tetris implementation with an out-of-bounds cell write and a width field that can be corrupted into an arbitrary-length stack read. Both.">
+<meta property="og:url" content="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/teto/">
+<meta property="og:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@usama0x01">
+<meta name="twitter:title" content="Teto · BlackHat MEA 2026 writeup">
+<meta name="twitter:description" content="A Tetris implementation with an out-of-bounds cell write and a width field that can be corrupted into an arbitrary-length stack read. Both.">
+<meta name="twitter:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Teto: BlackHat MEA 2026 CTF writeup",
+  "description": "A Tetris implementation with an out-of-bounds cell write and a width field that can be corrupted into an arbitrary-length stack read. Both.",
+  "datePublished": "2026-11-04",
+  "author": {
+    "@type": "Person",
+    "name": "Usama Arshad",
+    "url": "https://www.usamaarshad.me/"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/teto/"
+  },
+  "articleSection": "Pwn",
+  "proficiencyLevel": "Expert",
+  "isPartOf": {
+    "@type": "Article",
+    "name": "BlackHat MEA 2026 CTF qualifiers",
+    "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/"
+  }
+}
+</script>
+<link rel="preload" href="/assets/fonts/fraunces-normal-340-640.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/inter-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/jetbrainsmono-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.classList.add("js");</script>
+<link rel="stylesheet" href="/assets/css/writeup.css">
+</head>
+<body>
+<div class="progress" id="prog" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head" id="top">
+  <div class="container head-inner">
+    <a class="wordmark" href="/" aria-label="Usama Arshad, home">Usama Arshad<span class="dot">.</span></a>
+    <nav aria-label="Breadcrumb">
+      <a class="back-link" href="/blog/blackhat-mea-2026-quals/"><span class="arr" aria-hidden="true">←</span><span class="txt">All 15 challenges</span></a>
+    </nav>
+    <a class="btn btn-ghost head-cta" href="/assets/Usama-Arshad-Resume.pdf" download>Résumé</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" aria-labelledby="pt">
+    <div class="container">
+      <div class="masthead" data-reveal>
+        <p class="masthead-meta">
+          <span>Challenge 7 of 15</span>
+          <span>Pwn</span>
+          <span class="live">Not captured</span>
+        </p>
+      </div>
+      <div class="hero-deck">
+        <div class="deck-copy" data-reveal style="--d:.08s">
+          <p class="kicker">BlackHat MEA 2026 · Qualifiers</p>
+          <h1 class="hero-title" id="pt">Teto<span class="dot">.</span></h1>
+          <p class="deck">How many tetris pwn have you seen in CTFs?</p>
+          <p class="wu-meta">
+            <span class="cat cat-pwn">Pwn</span><span class="sep">·</span>
+            <span>0 points</span><span class="sep">·</span>
+            <span>4 November 2026</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="wu-layout">
+        <article class="wu" data-reveal>
+          <div class="tldr"><p class="lab">TL;DR</p><p>A Tetris implementation with an out-of-bounds cell write and a width field that can be corrupted into an arbitrary-length stack read. Both primitives were verified against the real binary and a working stack leak runs on the live target; the exploit stalls on an arithmetic budget, not on a missing idea.</p></div>
+          <p class="flag-note">Not captured. The analysis finished; the exploit ran out of write budget.</p>
+          <section id="recon"><h2><span class="hn">01</span>Recon</h2><p><code>teto.c</code> (503 lines) inside pwn.red/jail, Ubuntu 24.04. Full RELRO, canary, NX, PIE. CET/SHSTK flags are present in the ELF but not enforced, overwriting a return gives a plain SIGSEGV, not a control- protection fault, so return hijack is on the table.</p>
+<p>No win function. The import list is printf puts malloc free memmove memset perror _exit clock_gettime select read fflush rand __stack_chk_fail, no system, no execve, no syscall gadget, so a libc one_gadget is required, which means a libc leak is required.</p>
+<p>The game state lives entirely on play_session_live's stack frame:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">c</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>struct Game { u32 score; u16 height; u16 width; u8 stage[40]; };    // 48 bytes
+// ROW_BYTES = 2, W = 10, H = 20</code></pre></figure>
+<p>Indexing everything by byte offset from Game.stage (stage sits at play_rbp-<code>0x38</code>):</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>idx -2,-1 = width (low, high)
+idx 0..39 = board. row r -&gt; idx 2r bits 0-7 = cols 0-7 ; idx 2r+1 bits 0-1 = cols 8,9
+             bits 2-7 of every ODD idx are unreachable by normal piece placement
+idx 40..47 = padding (unused locals)
+idx 48     = play_session_live canary      idx 56 = saved rbp
+idx 64     = play's return into main       = PIE + 0x2e69
+idx 80     = main's canary                 idx 88 = main's saved rbp
+idx 96     = main's return into __libc_start_call_main = libc + 0x2a1ca</code></pre></figure>
+<p>Determinism. There is no srand, so the <code>rand()</code>%7 piece order is fixed for seed 1: O Z T J O S S T O S T J L Z L I.... Gravity never ticks while input is buffered, so a keystroke burst is fully deterministic, which is what makes the whole thing scriptable and simulable.</p></section><section id="the-bug"><h2><span class="hn">02</span>The bug</h2><p>Two distinct bugs, both stemming from the same inconsistency: board logic uses a fixed ROW_BY TES = 2 while rendering and cell access use a stride derived from the mutable width field.</p>
+<p>Bug 1, out-of-bounds OR-write via y == -1. set_cell accepts y == -1, which computes idx = -2 + (x&gt;&gt;3). Taking an I-piece at spawn (y = -2), moving it to column X and pressing w makes entry_kick's first kick (0,-2) land it at y = -4, where every cell has y &lt; 0, so collides only checks x &gt;= width, and only the y == -1 cell survives the if (y &lt; -1) return; guard. The result is exactly one bit set at a caller-chosen index:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>idx = ((X+1) &gt;&gt; 3) - 2 ,     bit = (X+1) &amp; 7 ,   requires width &gt; 8*(idx+2)+3</code></pre></figure>
+<p>It adds no board cells at all. Confirmed on the real binary by writing into visible board cells.</p>
+<p>Bug 2, unbounded stack read via a corrupted width. width sits at idx -2, inside the OR-write's reach. draw_live / get_cell use the width-derived stride while board logic keeps ROW_BYTES = 2, so inflating width makes the renderer read far past the frame and print stack bytes as # /..</p>
+<p>Bug 3, clear_row as a bulk shift primitive. memmove(base+stride, base, y*stride); memset(base, 0, stride) with stride = (width+7)/8 shifts idx[0, y*S) up by S and zeroes idx[0,S). This is what moves attacker-written bytes onto the return address.</p></section><section id="exploitation"><h2><span class="hn">03</span>Exploitation</h2><p class="codelabel">What works, verified on the live target</p>
+<p>The leak is complete and reliable (exploit/leak3.py):</p>
+<ol class="steps"><li>Play normally to 60 occupied cells, this sets ceiling_pressure, which is sticky and never reset, and is the precondition for entry_kick.</li><li>The I-piece at sequence index 15 sets width bit 4; five harmless drops; the I at index 21 sets bit 6 → width 90.</li><li>Read one rendered frame and decode it.</li></ol>
+<p>Width 90 is the load-bearing choice: stride 12 with ncols = min(80, width) = 80 gives 10 full bytes per row at idx 12y.. 12y+9, so row 4 covers the canary at idx 48-55 and row 8 covers the libc return at idx 96-103.</p>
+<p>This yields, on every run against the live target: the canary (LSB <code>0x00</code>), the libc base (page-aligned), and the PIE base (page-aligned). PIE = idx64 - <code>0x2e69</code>; libc = idx96 - <code>0x2a1ca</code>.</p>
+<p class="codelabel">The exploit design (validated byte-exactly in simulation)</p>
+<p>Because a clear's memset always zeroes a prefix from index 0, no single clear can write idx 64 while preserving the canary at idx 48, so the canary must be rewritten from the leak. The design is a conveyor: bytes are written low, then shifted up by successive clears, landing on the canary and return slots.</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>Widths: 10 --bit5--&gt; 42 --bit6--&gt; 106 --bit7--&gt; 234        (stride 30, reach 27)
+W0 seed the gadget's invisible bits at idx 5,7,9    (zero real board cells)
+    burn (clear_row(y&gt;=6)) -&gt; carries idx 4..9 to idx 34..39, zeroes idx 40,41
+W1 paint canary rows 9-12 and gadget rows 17-19 with real pieces,
+    OR-write the unpaintable bits, trigger row 16 through a col-9 well
+    final clear -&gt; canary lands at idx 48, gadget at idx 64
+W2 recharge with clear_row(0) (memset covers only idx 0..29, payload survives),
+    bump width to 746 (stride 94, reach 91), OR-write the remainder directly
+top out -&gt; play returns -&gt; canary check passes -&gt; RIP = one_gadget</code></pre></figure>
+<p>The chain was verified byte-exactly in the simulator: seed 9 bits → burn → recharge (seed intact) → paint → final clear → canary exact at idx 48, gadget exact at idx 64, no extra full rows. Engine-verified sub- results: 400 consecutive burns (4.2 pieces/burn, idx 40,41 zero every time), 9 consecutive recharges with the payload intact each cycle, w0_plan solving 54/60 I-dense offsets.</p>
+<p class="codelabel">Gadget selection</p>
+<p>Register state at play's ret (verified): rax == 0 free from the canary-check sub; rsp &amp; 0xf == 0 free; rbx == argv; rbp = whatever the conveyor left at idx 56.</p>
+<p class="codelabel">ONE_GADGET VERDICT (2.39-0UBUNTU8.7)</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>0x583ec / 0x583f3             need rbx == NULL or (u16)[rbx] == 0 ; rbx = argv ⇒ dead
+
+                              need rbp-0x50 writable; rbp comes from board bytes ⇒ dead</code></pre></figure>
+<p class="codelabel"><code>0xef4ce</code> / <code>0xef527</code> / <code>0xef52b</code></p>
+<p><code>0x11195a</code> needs [rsp+<code>0x70</code>] == NULL and [rsp+<code>0x48</code>] == NULL = idx 184 and idx 144, both determined by burn history and fully simulable ⇒ the target</p>
+<p class="codelabel">Why it did not land</p>
+<p>The payload costs 55 actions (canary 28 bits + gadget 26 bits + 1 width bump), reduced by whatever can be painted with real pieces instead of OR-written. Twenty of those bits are an irreducible floor: stride is always even, so a conveyor shift never changes byte parity, and an odd target byte always sources from an odd byte, whose bits 2-7 are physically unpaintable (they are "columns 10-15", invisible to the game).</p>
+<p>Measured ceilings over 600,000 sequence offsets:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>WINDOW                  CAPACITY           MAX I-PIECES                OFFSETS ≥18           ≥20    ≥22
+
+pre-clear (W1)          80 cells           18 @ off 548,668            3                     —      —
+
+post-clear (W2)         160 cells          23 @ off 165,492            558                   97     10</code></pre></figure>
+<p>Best achieved seeds + painted + A = 35, leaving W2 needing ~20 OR-writes. P(W2 I-count &gt;= 20) ~ 97/600,000, about 1 offset in 6,200. W2 is positioned by repeating recharges of ~28 pieces each, so reaching a good offset needs hundreds of consecutive recharges, and recharge reliability is ~90% per cycle, the chain breaks long before it arrives.</p>
+<p>Two ways to close it, neither of which was completed: push painted + A from 26 to ~30 (the painter's ceiling looks like ~24 painted, so the gain must come from A), or make recharge_plan2 near-deterministic with a bigger beam and more aggressive row-0 OR patching. Either drops W2's requirement to ≤16 and/or lets the recharge chain survive long enough.</p></section><section id="dead-ends"><h2><span class="hn">04</span>Dead ends</h2><ul class="bullets"><li>Rigorously ruled out (documented so they are not re-derived): no single clear writes idx 64 while preserving idx 48; clear_lines does not compound, because the first clear_row shifts the board and the other rows stop being full; memmove only ever moves data up, so no libc pointer above the return can be moved down onto it; OR-only cannot convert idx 64's PIE value into libc, and turning libc+<code>0x2a1ca</code> into a one_gadget by pure OR requires a bit-subset relation that measured 0% over random bases; height / score are unreachable (set_cell's minimum index is -2); width bit 0 is unsettable; there is no heap or GOT reach.</li><li>The leak's silent truncation. Byte b of a row is only fully readable when 8b+7 &lt;= ncols-1. At width &lt; 80 the last byte of each row is partial, which silently truncated the canary MSB and produced implausible values (<code>0x00</code> / <code>0x01</code> / <code>0x02</code>). Width 90 fixes it.</li><li><code>0x2a1ca</code>, not <code>0x2a1cc</code>, the call rax at <code>0x2a1c8</code> is a 2-byte instruction. With the wrong offset the leaked libc base is not page-aligned.</li><li>An entry-kick lock calls lock_piece but not clear_lines. Completing a row purely with OR-writes therefore does not fire a clear; a normally-locked piece has to follow.</li><li>Running the leak locally reports "libc base MISALIGNED", correct and harmless, because the local libc is 2.43 and its call_main return offset differs from the target's 2.39.</li><li>An independent agent's window-alignment search (exploit/align.py) found 0 feasible offsets for the earlier 2-window design, which is what motivated the 3-window seeding + recharge decoupling redesign.</li><li>The baroqueness of the whole construction is itself evidence this is not the intended path. The most promising next move is to find the author's intended technique, most likely a second write primitive or a non-return control-flow target.</li></ul><figure class="meme"><div class="meme-card"><p class="meme-cap top">FOUR ROUTES. THREE DEAD ENDS.</p><svg viewBox="0 0 560 200" role="img" xmlns="http://www.w3.org/2000/svg">
+<rect width="560" height="200" fill="#100e0d"/>
+<path d="M280 180 L280 120" stroke="#d6cfc3" stroke-width="1.5"/>
+<path d="M280 120 L140 54" stroke="#6f6659" stroke-width="1.5" stroke-dasharray="5 5"/>
+<path d="M280 120 L280 46" stroke="#6f6659" stroke-width="1.5" stroke-dasharray="5 5"/>
+<path d="M280 120 L420 54" stroke="#e5484d" stroke-width="1.8"/>
+<circle cx="140" cy="50" r="5" fill="none" stroke="#6f6659" stroke-width="1.5"/>
+<path d="M136 46l8 8M144 46l-8 8" stroke="#6f6659" stroke-width="1.4"/>
+<circle cx="280" cy="42" r="5" fill="none" stroke="#6f6659" stroke-width="1.5"/>
+<path d="M276 38l8 8M284 38l-8 8" stroke="#6f6659" stroke-width="1.4"/>
+<circle cx="420" cy="50" r="5" fill="#e5484d"/>
+<text x="140" y="26" fill="#6f6659" font-family="monospace" font-size="9" text-anchor="middle" letter-spacing="2">6 HOURS</text>
+<text x="280" y="22" fill="#6f6659" font-family="monospace" font-size="9" text-anchor="middle" letter-spacing="2">4 HOURS</text>
+<text x="420" y="28" fill="#e5484d" font-family="monospace" font-size="9" text-anchor="middle" letter-spacing="2">THE ONE THAT WORKED</text>
+</svg><p class="meme-cap bot">AND THE FOURTH RAN OUT OF WRITE BUDGET</p></div></figure></section>
+          <nav class="pager" aria-label="Challenge navigation"><a href="/blog/blackhat-mea-2026-quals/baiby-pwn/"><span class="dir">← Previous</span><span class="t">baiby-pwn</span></a><a class="nx" href="/blog/blackhat-mea-2026-quals/bug-where/"><span class="dir">Next →</span><span class="t">Bug Where</span></a></nav>
+        </article>
+        <aside class="wu-rail">
+          <h2>On this page</h2>
+          <ol><li><a href="#recon">Recon</a></li><li><a href="#the-bug">The bug</a></li><li><a href="#exploitation">Exploitation</a></li><li><a href="#dead-ends">Dead ends</a></li></ol>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="wordmark" href="/">Usama Arshad<span class="dot">.</span></a>
+        <p>Offensive Security Lead. Red team, AppSec, and cloud security for fintech at scale. Based in Riyadh, Saudi Arabia.</p>
+      </div>
+      <nav class="foot-col" aria-label="Site index">
+        <h2>Index</h2>
+        <ul>
+          <li><a href="/">Portfolio</a></li>
+          <li><a href="/blog/">Writing</a></li>
+          <li><a href="/research/">Research</a></li>
+          <li><a href="/dorks/">Dork library</a></li>
+          <li><a href="/#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="foot-col">
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://github.com/usama0x01" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">WPScan leaderboard</a></li>
+          <li><a href="https://medium.com/@usama0x01" target="_blank" rel="noopener">Medium</a></li>
+          <li><a href="mailto:gusama21@gmail.com">gusama21@gmail.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>© 2026 Usama Arshad · Riyadh, Saudi Arabia</span>
+      <span class="colophon">Set in Fraunces, Inter &amp; JetBrains Mono, self-hosted · No trackers, no cookies</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var head = document.querySelector(".site-head");
+  function onScroll(){ head.classList.toggle("scrolled", window.scrollY > 8); }
+  window.addEventListener("scroll", onScroll, { passive:true }); onScroll();
+
+  var prog = document.getElementById("prog");
+  if (prog) {
+    var tick = function () {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      prog.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
+    };
+    window.addEventListener("scroll", tick, { passive:true });
+    window.addEventListener("resize", tick); tick();
+  }
+
+  var revealEls = Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
+  if (reduceMotion || !("IntersectionObserver" in window)) {
+    revealEls.forEach(function (el) { el.classList.add("in"); });
+  } else {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold:0.08, rootMargin:"0px 0px -5% 0px" });
+    revealEls.forEach(function (el) { io.observe(el); });
+    var geo = function () {
+      revealEls.forEach(function (el) {
+        if (!el.classList.contains("in") && el.getBoundingClientRect().top < window.innerHeight*0.95) el.classList.add("in");
+      });
+    };
+    window.addEventListener("scroll", geo, { passive:true });
+    window.addEventListener("resize", geo); geo();
+  }
+
+  document.querySelectorAll(".code-copy").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var pre = btn.closest(".code").querySelector("code");
+      var text = pre ? pre.textContent : "";
+      var done = function () {
+        btn.textContent = "Copied"; btn.classList.add("done");
+        setTimeout(function(){ btn.textContent = "Copy"; btn.classList.remove("done"); }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function(){});
+      else {
+        var ta=document.createElement("textarea"); ta.value=text; ta.style.position="absolute"; ta.style.left="-9999px";
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy"); done(); } catch(e){}
+        document.body.removeChild(ta);
+      }
+    });
+  });
+
+  document.querySelectorAll(".flagbox .reveal-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var box = btn.closest(".flagbox");
+      btn.textContent = box.classList.toggle("shown") ? "Hide" : "Reveal";
+    });
+  });
+
+  var rail = document.querySelector(".wu-rail");
+  if (rail && "IntersectionObserver" in window) {
+    var links = Array.prototype.slice.call(rail.querySelectorAll("a"));
+    var secs = links.map(function (a) { return document.querySelector(a.getAttribute("href")); }).filter(Boolean);
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        links.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id); });
+      });
+    }, { rootMargin:"-20% 0px -70% 0px" });
+    secs.forEach(function (s) { spy.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>

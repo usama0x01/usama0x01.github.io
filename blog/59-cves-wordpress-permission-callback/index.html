@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>59 CVEs: what WordPress plugins get wrong · Usama Arshad</title>
+<meta name="description" content="A data-backed study of 51 catalogued WordPress plugin CVEs: 53% unauthenticated, 49% data disclosure, and one recurring root cause behind.">
+<link rel="canonical" href="https://www.usamaarshad.me/blog/59-cves-wordpress-permission-callback/">
+<link rel="alternate" type="application/rss+xml" title="Usama Arshad, Writing" href="/feed.xml">
+<link rel="icon" href="/assets/favicon.ico">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#131110">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Usama Arshad">
+<meta property="og:title" content="Fifty-nine CVEs in one year: what WordPress plugins keep getting wrong">
+<meta property="og:description" content="A data-backed study of 51 catalogued WordPress plugin CVEs: 53% unauthenticated, 49% data disclosure, and one recurring root cause behind.">
+<meta property="og:url" content="https://www.usamaarshad.me/blog/59-cves-wordpress-permission-callback/">
+<meta property="og:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<meta property="article:published_time" content="2026-11-04">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@usama0x01">
+<meta name="twitter:title" content="Fifty-nine CVEs in one year: what WordPress plugins keep getting wrong">
+<meta name="twitter:description" content="A data-backed study of 51 catalogued WordPress plugin CVEs: 53% unauthenticated, 49% data disclosure, and one recurring root cause behind.">
+<meta name="twitter:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Fifty-nine CVEs in one year: what WordPress plugins keep getting wrong",
+  "description": "A data-backed study of 51 catalogued WordPress plugin CVEs: 53% unauthenticated, 49% data disclosure, and one recurring root cause behind.",
+  "datePublished": "2026-11-04",
+  "dateModified": "2026-11-04",
+  "author": {
+    "@type": "Person",
+    "name": "Usama Arshad",
+    "url": "https://www.usamaarshad.me/"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "Usama Arshad"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://www.usamaarshad.me/blog/59-cves-wordpress-permission-callback/"
+  },
+  "image": "https://www.usamaarshad.me/assets/og.jpg",
+  "keywords": "WordPress, AppSec, Vulnerability Research, REST API"
+}
+</script>
+<link rel="preload" href="/assets/fonts/fraunces-normal-340-640.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/inter-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/jetbrainsmono-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.classList.add("js");</script>
+<link rel="stylesheet" href="/assets/css/writeup.css">
+</head>
+<body>
+<div class="progress" id="prog" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head" id="top">
+  <div class="container head-inner">
+    <a class="wordmark" href="/" aria-label="Usama Arshad, home">Usama Arshad<span class="dot">.</span></a>
+    <nav aria-label="Breadcrumb">
+      <a class="back-link" href="/blog/"><span class="arr" aria-hidden="true">←</span><span class="txt">Writing</span></a>
+    </nav>
+    <a class="btn btn-ghost head-cta" href="/assets/Usama-Arshad-Resume.pdf" download>Résumé</a>
+  </div>
+</header>
+<main id="main">
+  <section class="hero" aria-labelledby="pt">
+    <div class="container">
+      <div class="masthead" data-reveal>
+        <p class="masthead-meta">
+          <span>WordPress</span>
+          <span>Long read</span>
+          <span class="live">4 November 2026</span>
+        </p>
+      </div>
+      <div class="hero-deck">
+        <div class="deck-copy" data-reveal style="--d:.08s">
+          <p class="kicker">Writing</p>
+          <h1 class="hero-title" id="pt">Fifty-nine CVEs in one year: what WordPress plugins keep getting wrong<span class="dot">.</span></h1>
+          <p class="deck">I spent a year reporting WordPress plugin vulnerabilities through WPScan. Fifty-nine CVE IDs later, the same mistake keeps showing up in three different costumes.</p>
+          <p class="wu-meta"><span class="cat">WordPress</span><span class="cat">AppSec</span><span class="cat">Vulnerability Research</span><span class="cat">REST API</span><span class="sep">·</span><span>4 November 2026</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <div class="wu-layout">
+        <article class="wu" data-reveal><section id="the-corpus"><h2><span class="hn">01</span>The corpus</h2>
+<p>Between late 2024 and November 2026 I reported WordPress plugin vulnerabilities through WPScan under coordinated disclosure. That run produced <strong>59 assigned CVE IDs</strong>, of which <strong>51 are catalogued publicly</strong> on my <a href="/research/">research page</a> and 55 advisories are live. It also put me <a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">9th on the WPScan researcher leaderboard</a>.</p>
+<p>That is a large enough sample to stop telling anecdotes and start counting. So I counted. Here is what 51 vulnerabilities across <strong>46 distinct plugins</strong> actually look like when you line them up.</p>
+<div class="tldr"><p class="lab">The short version</p><p>Half of these bugs are the same bug. A plugin exposes an endpoint, carefully verifies that the request is <em>well-formed</em> and that the user is <em>logged in</em>, and never checks whether that particular user is allowed to do that particular thing to that particular object.</p></div>
+</section><section id="what-the-numbers-say"><h2><span class="hn">02</span>What the numbers say</h2>
+<p>Breaking the 51 down by vulnerability class:</p>
+<figure class="datatable">
+<table>
+<thead><tr><th>Class</th><th class="n">Count</th><th class="n">Share</th></tr></thead>
+<tbody>
+<tr><td>Sensitive data disclosure</td><td class="n">25</td><td class="n">49%</td></tr>
+<tr><td>Broken access control</td><td class="n">13</td><td class="n">25%</td></tr>
+<tr><td>Authentication bypass</td><td class="n">4</td><td class="n">8%</td></tr>
+<tr><td>Cross-site scripting</td><td class="n">3</td><td class="n">6%</td></tr>
+<tr><td>Privilege escalation</td><td class="n">2</td><td class="n">4%</td></tr>
+<tr><td>CSRF</td><td class="n">2</td><td class="n">4%</td></tr>
+<tr><td>Open redirect / resource exhaustion</td><td class="n">2</td><td class="n">4%</td></tr>
+</tbody></table>
+</figure>
+<p>And by the access level an attacker needs:</p>
+<figure class="datatable">
+<table>
+<thead><tr><th>Required access</th><th class="n">Count</th></tr></thead>
+<tbody>
+<tr><td><b>Unauthenticated</b></td><td class="n">27</td></tr>
+<tr><td>Subscriber or above</td><td class="n">11</td></tr>
+<tr><td>Contributor or above</td><td class="n">5</td></tr>
+<tr><td>Author or above</td><td class="n">3</td></tr>
+<tr><td>Vendor / other</td><td class="n">5</td></tr>
+</tbody></table>
+</figure>
+<p><strong>53% need no account at all.</strong> Another 22% need only a Subscriber account, which on any site with open registration is the same thing as unauthenticated with one extra HTTP request. Put those together and roughly three quarters of these bugs are reachable by someone who walked in off the street.</p>
+<p>The severity distribution is the part people get wrong about this category of research. Most of these are not remote code execution. They are a booking system that returns other customers' bookings, a gift-card plugin that returns live card codes and buyer PII, a directory plugin that returns the users table. Individually unglamorous; collectively, a breach notification.</p>
+<figure class="meme"><div class="meme-card"><p class="meme-cap top">A PLUGIN SECURITY AUDIT, APPARENTLY</p><svg viewBox="0 0 560 210" role="img" xmlns="http://www.w3.org/2000/svg">
+<rect width="560" height="210" fill="#100e0d"/>
+<text x="90" y="40" fill="#6f6659" font-family="monospace" font-size="11" letter-spacing="2">THE PLUGIN CHECKED:</text>
+<g font-family="monospace" font-size="12">
+<text x="110" y="76" fill="#d6cfc3">is the nonce valid?</text>
+<text x="90" y="76" fill="#d6cfc3">[x]</text>
+<text x="110" y="104" fill="#d6cfc3">is the request well-formed?</text>
+<text x="90" y="104" fill="#d6cfc3">[x]</text>
+<text x="110" y="132" fill="#d6cfc3">is the user logged in?</text>
+<text x="90" y="132" fill="#d6cfc3">[x]</text>
+<text x="110" y="168" fill="#e5484d">is the user ALLOWED to do this?</text>
+<text x="90" y="168" fill="#e5484d">[ ]</text>
+</g>
+<path d="M84 150h400" stroke="#e5484d" stroke-width="1" opacity=".35"/>
+</svg><p class="meme-cap bot">THREE OUT OF FOUR IS NOT A PASSING GRADE</p></div></figure>
+</section><section id="one-mistake-three-costumes"><h2><span class="hn">03</span>One mistake, three costumes</h2>
+<p>Nearly every access-control finding in the corpus reduces to the same confusion: <strong>authentication is not authorisation, and a nonce is neither.</strong> It just wears a different outfit depending on which WordPress API the developer reached for.</p>
+
+<h3>Costume one: the REST route with no permission callback</h3>
+<p>Eight of the catalogued CVEs live on REST routes. <code>register_rest_route()</code> takes a <code>permission_callback</code>, and since WordPress 5.5 omitting it throws a notice. The notice is easy to silence in the worst possible way:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">php</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>// The bug, in the wild, more than once
+register_rest_route( 'myplugin/v1', '/export', array(
+    'methods'             => 'GET',
+    'callback'            => 'myplugin_export_everything',
+    'permission_callback' => '__return_true',   // notice silenced, door opened
+) );</code></pre></figure>
+<p>That is literally how an unauthenticated database export ships. <code>__return_true</code> is not a permission check; it is the absence of one, spelled in a way that passes code review because it looks like a decision.</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">php</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>// What it has to be
+'permission_callback' => function ( WP_REST_Request $req ) {
+    return current_user_can( 'export', (int) $req['id'] );
+},</code></pre></figure>
+
+<h3>Costume two: the nopriv AJAX handler</h3>
+<p>Ten of the findings sit on <code>admin-ajax.php</code> handlers. WordPress makes you register two hooks, and the second one is a loaded gun:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">php</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>add_action( 'wp_ajax_get_booking',        'plugin_get_booking' );  // logged in
+add_action( 'wp_ajax_nopriv_get_booking', 'plugin_get_booking' );  // ANYONE</code></pre></figure>
+<p>The <code>_nopriv_</code> variant exists for genuinely public actions, and it gets copy-pasted onto handlers that read private data because the developer was debugging a logged-out edge case and never took it back out. The handler itself is usually fine for its intended caller. It simply never imagined an unintended one.</p>
+
+<h3>Costume three: the nonce that was mistaken for a permission</h3>
+<p>This is the subtlest and the most common. The code looks defensive:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">php</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>function plugin_update_item() {
+    check_ajax_referer( 'plugin_nonce', 'security' );   // looks like a check!
+    $id = (int) $_POST['id'];
+    update_post_meta( $id, 'price', $_POST['price'] );  // ...of what, exactly?
+    wp_send_json_success();
+}</code></pre></figure>
+<p>A nonce proves the request came from a page your site rendered for this user. It says nothing about whether this user may touch item <code>$id</code>. Any logged-in Subscriber can load a page that mints a valid nonce, then point the request at somebody else's object. That is the entire mechanism behind the IDOR findings in this corpus, and it is why <code>check_ajax_referer</code> appearing in a function is not evidence that the function is safe. It is evidence that the developer thought about CSRF, which is a different attack.</p>
+<p>The fix is one line, and it is the line that is missing from 13 of these CVEs:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">php</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>if ( ! current_user_can( 'edit_post', $id ) ) {
+    wp_send_json_error( null, 403 );
+}</code></pre></figure>
+</section><section id="finding-them"><h2><span class="hn">04</span>Finding them</h2>
+<p>None of this requires exotic tooling. The workflow that produced the corpus is boring on purpose, which is why it scales:</p>
+<ol class="steps">
+<li><strong>Enumerate the surface.</strong> Grep the plugin for <code>register_rest_route</code>, <code>wp_ajax_nopriv_</code>, <code>add_action( 'admin_post_nopriv_</code>, and <code>add_shortcode</code>. That list is the attack surface, and it is usually under thirty entries.</li>
+<li><strong>For each entry, ask one question.</strong> Not "is this sanitised" but "which user is allowed to call this, and where is that enforced?" If the answer is a nonce check, you have probably found a bug.</li>
+<li><strong>Reproduce locally.</strong> A local WordPress with the plugin installed, two accounts (Subscriber and Administrator), and a logged-out browser. Call the endpoint as all three.</li>
+<li><strong>Deduplicate before reporting.</strong> Check NVD, the WPScan database and Patchstack for the plugin and version. Reporting a known bug burns your credibility and the triager's afternoon.</li>
+<li><strong>Report privately, publish nothing.</strong> WPScan handles vendor coordination and CVE assignment. Nothing goes public until a fix ships.</li>
+</ol>
+<p>Search-engine reconnaissance narrows step one considerably. I keep the queries I actually use in a <a href="/dorks/">public dork library</a>; the WordPress section at the top is the one that fed this research.</p>
+</section><section id="if-you-ship-a-plugin"><h2><span class="hn">05</span>If you ship a plugin</h2>
+<p>Four things, in descending order of how much grief they will save you:</p>
+<ul class="bullets">
+<li><strong>Every <code>permission_callback</code> gets a real capability check against a real object.</strong> If you wrote <code>__return_true</code>, you shipped a public endpoint; make sure you meant to.</li>
+<li><strong>Audit every <code>_nopriv_</code> hook you have.</strong> For each one, write down in a comment why an anonymous caller is acceptable. If you cannot finish the sentence, delete the hook.</li>
+<li><strong>Treat nonces and capabilities as unrelated.</strong> They defend against different attacks. You need both, and having one tells you nothing about the other.</li>
+<li><strong>Check the object, not just the verb.</strong> <code>current_user_can('edit_posts')</code> is a role test. <code>current_user_can('edit_post', $id)</code> is an authorisation decision. The second argument is where IDOR goes to die.</li>
+</ul>
+<p>Fifty-one vulnerabilities, 46 plugins, one missing line. The WordPress plugin ecosystem is not insecure because it is hard to secure. It is insecure because the API makes the unsafe thing shorter to type.</p>
+</section></article>
+        <aside class="wu-rail"><h2>On this page</h2><ol><li><a href="#the-corpus">The corpus</a></li><li><a href="#what-the-numbers-say">What the numbers say</a></li><li><a href="#one-mistake-three-costumes">One mistake, three costumes</a></li><li><a href="#finding-them">Finding them</a></li><li><a href="#if-you-ship-a-plugin">If you ship a plugin</a></li></ol></aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="wordmark" href="/">Usama Arshad<span class="dot">.</span></a>
+        <p>Offensive Security Lead. Red team, AppSec, and cloud security for fintech at scale. Based in Riyadh, Saudi Arabia.</p>
+      </div>
+      <nav class="foot-col" aria-label="Site index">
+        <h2>Index</h2>
+        <ul>
+          <li><a href="/">Portfolio</a></li>
+          <li><a href="/blog/">Writing</a></li>
+          <li><a href="/research/">Research</a></li>
+          <li><a href="/dorks/">Dork library</a></li>
+          <li><a href="/#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="foot-col">
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://github.com/usama0x01" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">WPScan leaderboard</a></li>
+          <li><a href="https://medium.com/@usama0x01" target="_blank" rel="noopener">Medium</a></li>
+          <li><a href="mailto:gusama21@gmail.com">gusama21@gmail.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>© 2026 Usama Arshad · Riyadh, Saudi Arabia</span>
+      <span class="colophon">Set in Fraunces, Inter &amp; JetBrains Mono, self-hosted · No trackers, no cookies</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var head = document.querySelector(".site-head");
+  function onScroll(){ head.classList.toggle("scrolled", window.scrollY > 8); }
+  window.addEventListener("scroll", onScroll, { passive:true }); onScroll();
+
+  var prog = document.getElementById("prog");
+  if (prog) {
+    var tick = function () {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      prog.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
+    };
+    window.addEventListener("scroll", tick, { passive:true });
+    window.addEventListener("resize", tick); tick();
+  }
+
+  var revealEls = Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
+  if (reduceMotion || !("IntersectionObserver" in window)) {
+    revealEls.forEach(function (el) { el.classList.add("in"); });
+  } else {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold:0.08, rootMargin:"0px 0px -5% 0px" });
+    revealEls.forEach(function (el) { io.observe(el); });
+    var geo = function () {
+      revealEls.forEach(function (el) {
+        if (!el.classList.contains("in") && el.getBoundingClientRect().top < window.innerHeight*0.95) el.classList.add("in");
+      });
+    };
+    window.addEventListener("scroll", geo, { passive:true });
+    window.addEventListener("resize", geo); geo();
+  }
+
+  document.querySelectorAll(".code-copy").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var pre = btn.closest(".code").querySelector("code");
+      var text = pre ? pre.textContent : "";
+      var done = function () {
+        btn.textContent = "Copied"; btn.classList.add("done");
+        setTimeout(function(){ btn.textContent = "Copy"; btn.classList.remove("done"); }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function(){});
+      else {
+        var ta=document.createElement("textarea"); ta.value=text; ta.style.position="absolute"; ta.style.left="-9999px";
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy"); done(); } catch(e){}
+        document.body.removeChild(ta);
+      }
+    });
+  });
+
+  document.querySelectorAll(".flagbox .reveal-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var box = btn.closest(".flagbox");
+      btn.textContent = box.classList.toggle("shown") ? "Hide" : "Reveal";
+    });
+  });
+
+  var rail = document.querySelector(".wu-rail");
+  if (rail && "IntersectionObserver" in window) {
+    var links = Array.prototype.slice.call(rail.querySelectorAll("a"));
+    var secs = links.map(function (a) { return document.querySelector(a.getAttribute("href")); }).filter(Boolean);
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        links.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id); });
+      });
+    }, { rootMargin:"-20% 0px -70% 0px" });
+    secs.forEach(function (s) { spy.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>

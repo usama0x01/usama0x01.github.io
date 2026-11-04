@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>DeckForge · BlackHat MEA 2026 writeup</title>
+<meta name="description" content="The preview renderer runs Chromium with --allow-file-access-from-files and --disable-web-security, so injected HTML gets an arbitrary local.">
+<link rel="canonical" href="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/deckforge/">
+<link rel="alternate" type="application/rss+xml" title="Usama Arshad, Writing" href="/feed.xml">
+<link rel="icon" href="/assets/favicon.ico">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#131110">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Usama Arshad">
+<meta property="og:title" content="DeckForge · BlackHat MEA 2026 writeup">
+<meta property="og:description" content="The preview renderer runs Chromium with --allow-file-access-from-files and --disable-web-security, so injected HTML gets an arbitrary local.">
+<meta property="og:url" content="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/deckforge/">
+<meta property="og:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@usama0x01">
+<meta name="twitter:title" content="DeckForge · BlackHat MEA 2026 writeup">
+<meta name="twitter:description" content="The preview renderer runs Chromium with --allow-file-access-from-files and --disable-web-security, so injected HTML gets an arbitrary local.">
+<meta name="twitter:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "DeckForge: BlackHat MEA 2026 CTF writeup",
+  "description": "The preview renderer runs Chromium with --allow-file-access-from-files and --disable-web-security, so injected HTML gets an arbitrary local.",
+  "datePublished": "2026-11-04",
+  "author": {
+    "@type": "Person",
+    "name": "Usama Arshad",
+    "url": "https://www.usamaarshad.me/"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/deckforge/"
+  },
+  "articleSection": "Web",
+  "proficiencyLevel": "Expert",
+  "isPartOf": {
+    "@type": "Article",
+    "name": "BlackHat MEA 2026 CTF qualifiers",
+    "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/"
+  }
+}
+</script>
+<link rel="preload" href="/assets/fonts/fraunces-normal-340-640.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/inter-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/jetbrainsmono-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.classList.add("js");</script>
+<link rel="stylesheet" href="/assets/css/writeup.css">
+</head>
+<body>
+<div class="progress" id="prog" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head" id="top">
+  <div class="container head-inner">
+    <a class="wordmark" href="/" aria-label="Usama Arshad, home">Usama Arshad<span class="dot">.</span></a>
+    <nav aria-label="Breadcrumb">
+      <a class="back-link" href="/blog/blackhat-mea-2026-quals/"><span class="arr" aria-hidden="true">←</span><span class="txt">All 15 challenges</span></a>
+    </nav>
+    <a class="btn btn-ghost head-cta" href="/assets/Usama-Arshad-Resume.pdf" download>Résumé</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" aria-labelledby="pt">
+    <div class="container">
+      <div class="masthead" data-reveal>
+        <p class="masthead-meta">
+          <span>Challenge 14 of 15</span>
+          <span>Web</span>
+          <span class="live">Solved · 100 pts</span>
+        </p>
+      </div>
+      <div class="hero-deck">
+        <div class="deck-copy" data-reveal style="--d:.08s">
+          <p class="kicker">BlackHat MEA 2026 · Qualifiers</p>
+          <h1 class="hero-title" id="pt">DeckForge<span class="dot">.</span></h1>
+          <p class="deck">DeckForge turns attacker-supplied HTML pages into preview images for a slide builder. The renderer runs a real browser with local resources enabled and keeps a nearby helper service for its preview pipeline. Recover the flag from the worker without uploading it.</p>
+          <p class="wu-meta">
+            <span class="cat cat-web">Web</span><span class="sep">·</span>
+            <span>100 points</span><span class="sep">·</span>
+            <span>4 November 2026</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="wu-layout">
+        <article class="wu" data-reveal>
+          <div class="tldr"><p class="lab">TL;DR</p><p>The preview renderer runs Chromium with &lt;code&gt;--allow-file-access-from-files&lt;/code&gt; and &lt;code&gt;--disable-web-security&lt;/code&gt;, so injected HTML gets an arbitrary local file read &lt;i&gt;and&lt;/i&gt; can drive a loopback chromedriver that runs as a different, privileged user.</p></div>
+          <div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{9461dcd097931631fa22e5aed1f9e680}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{a7e948eb88a30aefee0e5c6a3ba0b97d}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><p class="flag-note">Instances are provisioned per run, so these are the values our instances returned.</p>
+          <section id="recon"><h2><span class="hn">01</span>Recon</h2><p>The front page posts to a single endpoint:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">html</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>POST /html-to-image      {"pages": ["&lt;html&gt;", ...]}   -&gt;    ZIP of page_N.jpg</code></pre></figure>
+<p>Your markup is rendered by a real Chromium and handed back as JPEGs. Because local resources are allowed, an iframe pointing at file:// renders the file straight into the screenshot:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>&lt;iframe src="file:///etc/passwd" style="width:900px;height:600px"&gt;&lt;/iframe&gt;</code></pre></figure>
+<p>Two interesting accounts show up, app:1000 and runner:1001, and / contains an unusual bridge/ and runner/. <code>/app/</code> holds the whole application source.</p>
+<p>A file:// -origin page can also read files with a synchronous XMLHttpRequest, which is much nicer than iframes: it lets you slice a file and reformat it so long sources fit in a 1280x720 screenshot. That is how / app/local-run and <code>/app/html_to_image.py</code> were dumped.</p></section><section id="the-bug"><h2><span class="hn">02</span>The bug</h2><p>Three things compose into the bug:</p>
+<ol class="steps"><li>Attacker HTML is rendered with --allow-file-access-from-files, giving an arbitrary local file read from a file:// origin.</li><li>--disable-web-security removes the same-origin policy, so that page can issue arbitrary cross- origin requests to loopback and read the responses.</li><li>A privileged automation endpoint listens on loopback, a second chromedriver running as runner with --allowed-origins='*'. Its --allowed-ips=127.0.0.1 allowlist is worthless here, because the attacker's code is already executing on 127.0.0.1.</li></ol>
+<p><code>/app/local-run</code> shows why the file read alone is not enough:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>RAND=$(head -c 16 /dev/urandom | od -An -tx1 | tr -d ' \n' | cut -c1-10)
+HELPER_PORT=$((38560 + PORT_SEED % 8))
+FLAG_VALUE="BHFlagY{deckforge_${RAND}}"          # or $DYN_FLAG</code></pre></figure>
+<p>install -d -o runner -g runner -m 0700 /runner printf '%s' "$FLAG_VALUE" &gt; "/runner/flag_${RAND}.txt" chmod 0400 /runner/flag_*.txt</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>/usr/sbin/runuser -u runner -- ... /usr/bin/chromedriver --port="$HELPER_PORT" \</code></pre></figure>
+<ul class="bullets"><li>--allowed-ips=127.0.0.1 --allowed-origins='*' &amp; <code>/usr/sbin/runuser</code> -u app --... <code>/usr/bin/chromedriver</code> --port=40003... &amp;</li></ul>
+<p>The flag is 0400 inside a 0700 directory owned by runner, while our rendering browser runs as app, so file:///runner/ renders as an empty directory listing. The file read is real but points at the wrong user. Privilege separation is the intended control, and it is undone by leaving a runner -privileged WebDriver reachable from the sandboxed browser.</p><figure class="meme"><div class="meme-card"><p class="meme-cap top">--ALLOWED-IPS=127.0.0.1</p><svg viewBox="0 0 560 200" role="img" xmlns="http://www.w3.org/2000/svg">
+<rect width="560" height="200" fill="#100e0d"/>
+<text x="140" y="26" fill="#6f6659" font-family="monospace" font-size="11" text-anchor="middle" letter-spacing="2">WHAT THE BRIEF SAID</text>
+<text x="420" y="26" fill="#e5484d" font-family="monospace" font-size="11" text-anchor="middle" letter-spacing="2">WHAT WAS BEHIND IT</text>
+<rect x="118" y="108" width="44" height="62" fill="none" stroke="#d6cfc3" stroke-width="1.5"/>
+<circle cx="153" cy="140" r="2.5" fill="#d6cfc3"/>
+<rect x="330" y="48" width="180" height="122" fill="none" stroke="#e5484d" stroke-width="1.5"/>
+<circle cx="498" cy="112" r="3.5" fill="#e5484d"/>
+<path d="M350 70h140M350 86h120M350 102h140M350 118h100M350 134h130M350 150h90" stroke="#e5484d" stroke-width="1" opacity=".45"/>
+<path d="M60 178h440" stroke="#6f6659" stroke-width="1" opacity=".5"/>
+</svg><p class="meme-cap bot">OUR CODE WAS ALREADY ON 127.0.0.1</p></div></figure></section><section id="exploitation"><h2><span class="hn">03</span>Exploitation</h2><p>WebDriver is just JSON over HTTP, so from the injected page:</p>
+<ol class="steps"><li>POST /session, chromedriver forks a Chrome running as runner</li><li>POST /session/{id}/url → file:///runner/, recover the randomised filename</li><li>GET /session/{id}/source, the directory listing</li><li>navigate to file:///runner/flag_&lt;rand&gt;.txt, GET.../source, the flag</li></ol>
+<p>Then print it into the DOM so it is baked into the returned JPEG. Nothing is uploaded anywhere, which is what "without uploading it" asks for.</p>
+<p class="codelabel">Two things that must be right</p>
+<p>Capabilities, otherwise you brick the instance. Sending default capabilities makes chromedriver launch Chrome without the flags this container needs; Chrome never comes up and takes chromedriver with it (Timed out connecting to Chrome... Segmentation fault). The helper is started once, outside supervisord, so it is not restarted, the pivot is gone for the life of that instance. Mirror <code>html_to_image.py</code> instead; --single-process and --no-zygote are the load-bearing arguments. With these, session creation takes ~2.3 s and succeeds.</p>
+<p>The 5-second budget. driver.set_page_load_timeout(5) with no per-page error handling means one slow page fails the entire job. Synchronous XHR blocks the load event, so all blocking work on a page must finish inside 5 s. Session creation alone is ~2.3 s, so the work is split across pages of a single request:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>PAGE           DOES
+
+1              create the session, cache the id in localStorage
+
+2              navigate to file:///runner/ , dump the listing
+
+3              read the flag file, print it + emit a colour strip
+
+4              same as 3 (redundancy)</code></pre></figure>
+<p>All pages are written to file:///bridge/deckforge-&lt;id&gt;/page_N.html, so they share one file:// origin and the session id survives. Page 1 also tries GET /sessions first to adopt a session orphaned by an earlier timed-out attempt, so a run that times out still makes progress.</p>
+<p>Finding the helper port. It is 38560 + (random % 8), re-rolled per instance, do not hardcode it. The helper logs into the shared /bridge volume, which the file:// primitive can read:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>file:///bridge/chromedriver.log
+  -&gt; "ChromeDriver was started successfully on port 38560."</code></pre></figure>
+<p>Getting the flag back as text. The only response channel is a JPEG. To avoid an OCR dependency, the flag page also renders the flag as a strip of 24x24 colour blocks, one block per hex nibble from a 16- colour palette chosen for wide separation. Flat 24 px blocks survive JPEG quantisation cleanly, so <code>decode_strip()</code> samples each block's centre pixel and the round trip is exact.</p></section><section id="dead-ends"><h2><span class="hn">04</span>Dead ends</h2><ul class="bullets"><li>Never touch port 40003. That is the render chromedriver, and it is blocked inside driver.<code>get()</code> on our own page at the moment our JS runs. A request to it deadlocks until the 5 s page-load timeout fires and kills the job. Only the helper port (38560-38567) is safe.</li><li>Sending default WebDriver capabilities permanently bricks the helper for that instance. This cost two instances before /bridge/chromedriver.log was read and the cause understood.</li><li>The flag is per-instance (FLAG_VALUE="$DYN_FLAG"), so it must be recovered, not copied. Two verified runs produced two different flags from two different randomised filenames.</li><li>Fixes for the defender: drop --disable-web-security and --allow-file-access-from-files for untrusted markup, render in a container with no access to the helper's network namespace, and put authentication in front of the helper chromedriver rather than relying on an IP allowlist.</li></ul></section>
+          <nav class="pager" aria-label="Challenge navigation"><a href="/blog/blackhat-mea-2026-quals/lumen/"><span class="dir">← Previous</span><span class="t">Lumen</span></a><a class="nx" href="/blog/blackhat-mea-2026-quals/huddle/"><span class="dir">Next →</span><span class="t">Huddle</span></a></nav>
+        </article>
+        <aside class="wu-rail">
+          <h2>On this page</h2>
+          <ol><li><a href="#recon">Recon</a></li><li><a href="#the-bug">The bug</a></li><li><a href="#exploitation">Exploitation</a></li><li><a href="#dead-ends">Dead ends</a></li></ol>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="wordmark" href="/">Usama Arshad<span class="dot">.</span></a>
+        <p>Offensive Security Lead. Red team, AppSec, and cloud security for fintech at scale. Based in Riyadh, Saudi Arabia.</p>
+      </div>
+      <nav class="foot-col" aria-label="Site index">
+        <h2>Index</h2>
+        <ul>
+          <li><a href="/">Portfolio</a></li>
+          <li><a href="/blog/">Writing</a></li>
+          <li><a href="/research/">Research</a></li>
+          <li><a href="/dorks/">Dork library</a></li>
+          <li><a href="/#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="foot-col">
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://github.com/usama0x01" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">WPScan leaderboard</a></li>
+          <li><a href="https://medium.com/@usama0x01" target="_blank" rel="noopener">Medium</a></li>
+          <li><a href="mailto:gusama21@gmail.com">gusama21@gmail.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>© 2026 Usama Arshad · Riyadh, Saudi Arabia</span>
+      <span class="colophon">Set in Fraunces, Inter &amp; JetBrains Mono, self-hosted · No trackers, no cookies</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var head = document.querySelector(".site-head");
+  function onScroll(){ head.classList.toggle("scrolled", window.scrollY > 8); }
+  window.addEventListener("scroll", onScroll, { passive:true }); onScroll();
+
+  var prog = document.getElementById("prog");
+  if (prog) {
+    var tick = function () {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      prog.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
+    };
+    window.addEventListener("scroll", tick, { passive:true });
+    window.addEventListener("resize", tick); tick();
+  }
+
+  var revealEls = Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
+  if (reduceMotion || !("IntersectionObserver" in window)) {
+    revealEls.forEach(function (el) { el.classList.add("in"); });
+  } else {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold:0.08, rootMargin:"0px 0px -5% 0px" });
+    revealEls.forEach(function (el) { io.observe(el); });
+    var geo = function () {
+      revealEls.forEach(function (el) {
+        if (!el.classList.contains("in") && el.getBoundingClientRect().top < window.innerHeight*0.95) el.classList.add("in");
+      });
+    };
+    window.addEventListener("scroll", geo, { passive:true });
+    window.addEventListener("resize", geo); geo();
+  }
+
+  document.querySelectorAll(".code-copy").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var pre = btn.closest(".code").querySelector("code");
+      var text = pre ? pre.textContent : "";
+      var done = function () {
+        btn.textContent = "Copied"; btn.classList.add("done");
+        setTimeout(function(){ btn.textContent = "Copy"; btn.classList.remove("done"); }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function(){});
+      else {
+        var ta=document.createElement("textarea"); ta.value=text; ta.style.position="absolute"; ta.style.left="-9999px";
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy"); done(); } catch(e){}
+        document.body.removeChild(ta);
+      }
+    });
+  });
+
+  document.querySelectorAll(".flagbox .reveal-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var box = btn.closest(".flagbox");
+      btn.textContent = box.classList.toggle("shown") ? "Hide" : "Reveal";
+    });
+  });
+
+  var rail = document.querySelector(".wu-rail");
+  if (rail && "IntersectionObserver" in window) {
+    var links = Array.prototype.slice.call(rail.querySelectorAll("a"));
+    var secs = links.map(function (a) { return document.querySelector(a.getAttribute("href")); }).filter(Boolean);
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        links.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id); });
+      });
+    }, { rootMargin:"-20% 0px -70% 0px" });
+    secs.forEach(function (s) { spy.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>

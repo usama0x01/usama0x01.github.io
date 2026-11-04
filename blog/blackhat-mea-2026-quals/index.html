@@ -5,34 +5,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<title>Fifteen Challenges, Fourteen Flags · BlackHat MEA 2026 CTF Quals</title>
-<meta name="description" content="All 15 BlackHat MEA 2026 CTF qualifier challenges: an RSA popcount oracle, an io_uring kernel LPE, eBPF-decrypted shellcode and a CSS selector oracle.">
+<title>BlackHat MEA 2026 CTF Quals · 15 Full Writeups</title>
+<meta name="description" content="Complete writeups for all 15 BlackHat MEA 2026 CTF qualifier challenges: root cause, exploitation chain and PoC for each.">
 <link rel="canonical" href="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/">
 <link rel="alternate" type="application/rss+xml" title="Usama Arshad, Writing" href="/feed.xml">
 <link rel="icon" href="/assets/favicon.ico">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <meta name="theme-color" content="#131110">
-
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Usama Arshad">
-<meta property="og:title" content="Fifteen Challenges, Fourteen Flags · BlackHat MEA 2026 CTF Quals">
-<meta property="og:description" content="All 15 qualifier challenges, broken down: the bug, the chain, and the dead ends. Crypto, Forensics, Pwn, Reversing and Web.">
+<meta property="og:title" content="BlackHat MEA 2026 CTF Quals · 15 Full Writeups">
+<meta property="og:description" content="Root cause, exploitation chain and PoC for every challenge in the 2026 qualification round.">
 <meta property="og:url" content="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/">
 <meta property="og:image" content="https://www.usamaarshad.me/assets/og.jpg">
-<meta property="article:published_time" content="2026-11-04">
-<meta property="article:author" content="Usama Arshad">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:creator" content="@usama0x01">
-<meta name="twitter:title" content="Fifteen Challenges, Fourteen Flags · BlackHat MEA 2026 CTF Quals">
-<meta name="twitter:description" content="All 15 qualifier challenges, broken down: the bug, the chain, and the dead ends.">
+<meta name="twitter:title" content="BlackHat MEA 2026 CTF Quals · 15 Full Writeups">
+<meta name="twitter:description" content="Root cause, exploitation chain and PoC for every challenge.">
 <meta name="twitter:image" content="https://www.usamaarshad.me/assets/og.jpg">
-
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "Fifteen challenges, fourteen flags: BlackHat MEA 2026 CTF qualifiers",
-  "description": "A full technical writeup of all 15 challenges from the BlackHat MEA 2026 CTF qualification round, across Crypto, Forensics, Pwn, Reversing and Web.",
+  "@type": "Article",
+  "headline": "BlackHat MEA 2026 CTF qualifiers: 15 challenges, 14 flags, full writeups",
+  "description": "Complete technical writeups for every challenge in the BlackHat MEA 2026 CTF qualification round, with root cause, exploitation chain and proof of concept.",
   "datePublished": "2026-11-04",
   "dateModified": "2026-11-04",
   "author": {
@@ -40,481 +36,100 @@
     "name": "Usama Arshad",
     "url": "https://www.usamaarshad.me/"
   },
-  "publisher": {
-    "@type": "Person",
-    "name": "Usama Arshad"
-  },
   "mainEntityOfPage": {
     "@type": "WebPage",
     "@id": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/"
   },
   "image": "https://www.usamaarshad.me/assets/og.jpg",
-  "keywords": "CTF, BlackHat MEA, FlagYard, capture the flag, binary exploitation, io_uring, eBPF, RSA, AES-GCM, CSP bypass, XSS, kernel LPE, reverse engineering",
-  "articleSection": "Security research"
+  "hasPart": [
+    {
+      "@type": "TechArticle",
+      "headline": "Hokan",
+      "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/hokan/"
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "Popcnt Oracle",
+      "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/popcnt-oracle/"
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "Reduce, Reuse, Recycle",
+      "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/reduce-reuse-recycle/"
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "Qfact",
+      "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/qfact/"
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "Whisper",
+      "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/whisper/"
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "baiby-pwn",
+      "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/baiby-pwn/"
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "Teto",
+      "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/teto/"
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "Bug Where",
+      "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/bug-where/"
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "extended-license",
+      "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/extended-license/"
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "free-agentic-tool",
+      "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/free-agentic-tool/"
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "upyx",
+      "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/upyx/"
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "Dead Drop",
+      "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/dead-drop/"
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "Lumen",
+      "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/lumen/"
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "DeckForge",
+      "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/deckforge/"
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "Huddle",
+      "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/huddle/"
+    }
+  ]
 }
 </script>
-
 <link rel="preload" href="/assets/fonts/fraunces-normal-340-640.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/inter-normal-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/jetbrainsmono-normal-400.woff2" as="font" type="font/woff2" crossorigin>
-
 <script>document.documentElement.classList.add("js");</script>
-
-<style>/* ============================================================
-   EDITORIAL NOIR · design system (shared with the portfolio)
-   ============================================================ */
-/* self-hosted fonts (latin subsets) */
-@font-face{font-family:'Fraunces';font-style:normal;font-weight:340 640;font-display:swap;src:url(/assets/fonts/fraunces-normal-340-640.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
-@font-face{font-family:'Fraunces';font-style:italic;font-weight:340 640;font-display:swap;src:url(/assets/fonts/fraunces-italic-340-640.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
-@font-face{font-family:'Inter';font-style:normal;font-weight:400;font-display:swap;src:url(/assets/fonts/inter-normal-400.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
-@font-face{font-family:'Inter';font-style:normal;font-weight:500;font-display:swap;src:url(/assets/fonts/inter-normal-500.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
-@font-face{font-family:'Inter';font-style:normal;font-weight:600;font-display:swap;src:url(/assets/fonts/inter-normal-600.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
-@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:400;font-display:swap;src:url(/assets/fonts/jetbrainsmono-normal-400.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
-@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:500;font-display:swap;src:url(/assets/fonts/jetbrainsmono-normal-500.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
-:root{
-  /* palette */
-  --bg:            #131110;
-  --bg-elev:       #1a1714;
-  --bg-elev-2:     #211d19;
-  --ink:           #ede6da;   /* headlines */
-  --text:          #cfc7ba;   /* body */
-  --muted:         #9a9184;   /* meta */
-  --hairline:      rgba(237,230,218,.14);
-  --hairline-mid:  rgba(237,230,218,.28);
-  --hairline-hard: rgba(237,230,218,.55);
-  --accent:        #e5484d;
-  --accent-bright: #ee5c61;
-  --accent-ink:    #1a1112;   /* text on accent */
-  --accent-wash:   rgba(229,72,77,.09);
-
-  /* type */
-  --serif: "Fraunces", Georgia, "Times New Roman", serif;
-  --sans:  "Inter", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
-  --mono:  "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
-
-  --fs-hero:  clamp(3.7rem, 13vw, 10rem);
-  --fs-h2:    clamp(2.1rem, 4.2vw, 3.2rem);
-  --fs-h3:    clamp(1.25rem, 2vw, 1.55rem);
-  --fs-body:  1.0625rem;
-  --fs-small: .9rem;
-  --fs-meta:  .72rem;
-  --fs-chip:  .68rem;
-
-  /* spacing (8px base) */
-  --s-1: .25rem; --s-2: .5rem; --s-3: .75rem; --s-4: 1rem;
-  --s-5: 1.5rem; --s-6: 2rem;  --s-7: 3rem;   --s-8: 4rem;
-  --sec-pad: clamp(5rem, 10vw, 8.5rem);
-
-  /* misc */
-  --radius: 2px;
-  --ease: cubic-bezier(.33,.72,.3,1);
-  --t-fast: 220ms;
-  --container: 76rem;
-  --head-h: 4.25rem;
-}
-
-/* ---------- reset ---------- */
-*,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
-html{ overflow-x:clip; scroll-padding-top:calc(var(--head-h) + 1.5rem); }
-@media (prefers-reduced-motion: no-preference){ html{ scroll-behavior:smooth; } }
-body{
-  overflow-x:clip;
-  background:var(--bg);
-  color:var(--text);
-  font-family:var(--sans);
-  font-size:var(--fs-body);
-  line-height:1.7;
-  -webkit-font-smoothing:antialiased;
-  text-rendering:optimizeLegibility;
-}
-img{ max-width:100%; height:auto; display:block; }
-ul,ol{ list-style:none; }
-a{ color:inherit; text-decoration:none; }
-button{ font:inherit; color:inherit; background:none; border:0; cursor:pointer; }
-h1,h2,h3{ font-family:var(--serif); font-weight:560; color:var(--ink); line-height:1.15; text-wrap:balance; font-optical-sizing:auto; }
-::selection{ background:var(--accent); color:var(--accent-ink); }
-:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; border-radius:var(--radius); }
-
-/* film grain */
-body::after{
-  content:"";
-  position:fixed; inset:0;
-  z-index:999;
-  pointer-events:none;
-  opacity:.06;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-/* ---------- primitives ---------- */
-.container{ max-width:var(--container); margin-inline:auto; padding-inline:clamp(1.25rem, 5vw, 4rem); }
-.kicker{
-  font-family:var(--mono); font-size:var(--fs-meta); font-weight:500;
-  text-transform:uppercase; letter-spacing:.18em; color:var(--accent);
-}
-.dot{ color:var(--accent); }
-
-.skip{
-  position:absolute; left:1rem; top:-4rem; z-index:200;
-  background:var(--accent); color:var(--accent-ink);
-  font-family:var(--mono); font-size:var(--fs-meta); text-transform:uppercase; letter-spacing:.12em;
-  padding:.7rem 1.1rem; border-radius:var(--radius);
-  transition:top var(--t-fast) var(--ease);
-}
-.skip:focus-visible{ top:1rem; }
-
-.btn{
-  display:inline-flex; align-items:center; gap:.6rem;
-  font-family:var(--mono); font-size:var(--fs-meta); font-weight:500;
-  text-transform:uppercase; letter-spacing:.14em;
-  padding:.9rem 1.4rem; border-radius:var(--radius);
-  border:1px solid var(--hairline-mid);
-  transition:color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease),
-             background var(--t-fast) var(--ease), transform var(--t-fast) var(--ease);
-}
-.btn svg{ flex:none; }
-.btn-solid{ background:var(--accent); border-color:var(--accent); color:var(--accent-ink); }
-.btn-solid:hover{ background:var(--accent-bright); border-color:var(--accent-bright); transform:translateY(-2px); }
-.btn-ghost{ color:var(--ink); }
-.btn-ghost:hover{ border-color:var(--accent); color:var(--accent); transform:translateY(-2px); }
-
-/* ---------- reveal on scroll ---------- */
-@media (prefers-reduced-motion: no-preference){
-  .js [data-reveal],
-  .js [data-stagger] > *{
-    opacity:0; transform:translateY(16px);
-    transition:opacity .5s var(--ease), transform .5s var(--ease);
-    transition-delay:var(--d, 0s);
-  }
-  .js [data-reveal].in,
-  .js [data-stagger].in > *{ opacity:1; transform:none; }
-  .js [data-stagger] > *{ transition-delay:calc(var(--i, 0) * 70ms); }
-}
-
-/* ============================================================
-   HEADER / NAV
-   ============================================================ */
-.site-head{
-  position:sticky; top:0; z-index:60;
-  height:var(--head-h);
-  border-bottom:1px solid transparent;
-  transition:border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
-}
-.site-head.scrolled{
-  background:rgba(19,17,16,.86);
-  -webkit-backdrop-filter:blur(12px);
-  backdrop-filter:blur(12px);
-  border-bottom-color:var(--hairline);
-}
-.head-inner{
-  height:var(--head-h);
-  display:flex; align-items:center; gap:clamp(1rem, 4vw, 2rem);
-}
-.wordmark{
-  font-family:var(--serif); font-size:1.15rem; font-weight:600; color:var(--ink);
-  letter-spacing:-.01em; margin-right:auto; white-space:nowrap;
-  transition:color var(--t-fast) var(--ease);
-}
-.wordmark:hover{ color:var(--accent); }
-.back-link{
-  position:relative;
-  display:inline-flex; align-items:center; gap:.55rem;
-  font-family:var(--mono); font-size:var(--fs-meta); font-weight:500;
-  text-transform:uppercase; letter-spacing:.13em; color:var(--muted);
-  padding:.35rem 0; white-space:nowrap;
-  transition:color var(--t-fast) var(--ease);
-}
-.back-link .arr{ color:var(--accent); transition:transform var(--t-fast) var(--ease); }
-.back-link::after{
-  content:""; position:absolute; left:0; right:100%; bottom:0;
-  height:1px; background:var(--accent);
-  transition:right var(--t-fast) var(--ease);
-}
-.back-link:hover{ color:var(--ink); }
-.back-link:hover::after{ right:0; }
-.back-link:hover .arr{ transform:translateX(-3px); }
-.head-cta{ padding:.6rem 1.05rem; }
-@media (max-width: 480px){
-  .head-inner{ gap:.9rem; }
-  .wordmark{ font-size:1.02rem; }
-  .back-link .txt{ display:none; }
-  .head-cta{ padding:.55rem .85rem; }
-}
-
-
-/* ============================================================
-   SECTIONS
-   ============================================================ */
-.section{ padding-top:var(--sec-pad); }
-section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
-.sec-head{
-  display:flex; align-items:baseline; gap:clamp(1rem, 3vw, 2rem);
-  margin-bottom:clamp(2.5rem, 6vw, 4rem);
-}
-.sec-no{
-  font-family:var(--serif); font-weight:340;
-  font-size:clamp(3.6rem, 7.5vw, 6.75rem);
-  line-height:.8; letter-spacing:-.02em;
-  color:transparent;
-  -webkit-text-stroke:1px var(--hairline-mid);
-  user-select:none; flex:none;
-}
-.sec-title .kicker{ margin-bottom:.45rem; }
-.sec-title h2{ font-size:var(--fs-h2); letter-spacing:-.02em; }
-.sec-head::after{
-  content:""; flex:1; height:1px; min-width:2rem;
-  background:var(--hairline);
-  align-self:center; margin-top:1.5rem;
-}
-@media (max-width: 640px){ .sec-head::after{ display:none; } }
-
-
-/* ============================================================
-   FOOTER
-   ============================================================ */
-.site-foot{ border-top:1px solid var(--hairline); position:relative; margin-top:var(--sec-pad); }
-.site-foot::after{
-  content:""; position:absolute; top:4px; left:0; right:0; height:2px;
-  background:var(--hairline-mid); opacity:.5;
-}
-.foot-grid{
-  display:grid; grid-template-columns:1.5fr 1fr 1fr;
-  gap:clamp(2rem, 5vw, 4rem);
-  padding:clamp(2.75rem, 6vw, 4.5rem) 0 clamp(2.25rem, 5vw, 3.5rem);
-}
-.foot-brand .wordmark{ margin-right:0; }
-.foot-brand p{ margin-top:.9rem; font-size:var(--fs-small); color:var(--muted); max-width:24em; }
-.foot-col h2{
-  font-family:var(--mono); font-size:var(--fs-chip); font-weight:500;
-  text-transform:uppercase; letter-spacing:.18em; color:var(--muted);
-  margin-bottom:1.1rem;
-}
-.foot-col ul li + li{ margin-top:.55rem; }
-.foot-col a{
-  display:inline-flex; align-items:center; gap:.5rem;
-  font-size:var(--fs-small); color:var(--text);
-  transition:color var(--t-fast) var(--ease);
-}
-.foot-col a:hover{ color:var(--accent); }
-.foot-col a svg{ opacity:.55; }
-.foot-base{
-  display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.75rem 2rem;
-  border-top:1px solid var(--hairline);
-  padding:1.4rem 0 1.6rem;
-  font-family:var(--mono); font-size:var(--fs-chip);
-  text-transform:uppercase; letter-spacing:.13em; color:var(--muted);
-}
-.foot-base a{ color:var(--muted); transition:color var(--t-fast) var(--ease); }
-.foot-base a:hover{ color:var(--accent); }
-@media (max-width: 760px){ .foot-grid{ grid-template-columns:1fr; gap:2.25rem; } }
-
-/* ---------- reduced motion ---------- */
-@media (prefers-reduced-motion: reduce){
-  *,*::before,*::after{
-    animation-duration:.01ms !important;
-    animation-iteration-count:1 !important;
-    transition-duration:.01ms !important;
-  }
-}
-
-
-/* ============================================================
-   HERO
-   ============================================================ */
-.hero{ padding-top:clamp(1.5rem, 4vw, 3rem); padding-bottom:clamp(2.5rem, 6vw, 4rem); }
-.masthead{
-  border-top:2px solid var(--hairline-hard);
-  border-bottom:1px solid var(--hairline);
-  position:relative;
-  padding:.85rem 0 .8rem;
-}
-.masthead::before{
-  content:""; position:absolute; top:4px; left:0; right:0; height:1px;
-  background:var(--hairline-mid);
-}
-.masthead-meta{
-  display:flex; flex-wrap:wrap; justify-content:space-between; gap:.3rem 2rem;
-  font-family:var(--mono); font-size:var(--fs-meta); font-weight:500;
-  text-transform:uppercase; letter-spacing:.16em; color:var(--muted);
-}
-.masthead-meta .live{ color:var(--ink); }
-.masthead-meta .live::before{
-  content:""; display:inline-block; width:6px; height:6px; border-radius:50%;
-  background:var(--accent); margin-right:.55rem; vertical-align:2px;
-}
-.hero-title{
-  font-size:clamp(2.9rem, 8.5vw, 6.4rem);
-  font-weight:600; line-height:.98; letter-spacing:-.03em;
-  margin:clamp(1.75rem, 4vw, 2.75rem) 0 clamp(1.5rem, 3.5vw, 2.25rem);
-  max-width:14ch;
-}
-.hero-deck{ max-width:46em; }
-.deck-copy .kicker{ margin-bottom:1rem; }
-.deck{
-  font-size:clamp(1.1rem, 1.7vw, 1.3rem);
-  line-height:1.65; color:var(--text); max-width:44em;
-}
-.deck strong{ color:var(--ink); font-weight:600; }
-.deck a{
-  color:var(--ink); border-bottom:1px solid var(--hairline-mid);
-  transition:color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
-}
-.deck a:hover{ color:var(--accent); border-color:var(--accent); }
-
-/* ============================================================
-   WRITEUP
-   ============================================================ */
-.vh{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
-.post-meta{
-  display:flex; flex-wrap:wrap; gap:.4rem 1.4rem; margin-top:1.4rem;
-  font-family:var(--mono); font-size:var(--fs-meta); letter-spacing:.12em;
-  text-transform:uppercase; color:var(--muted);
-}
-.post-meta .sep{ color:var(--hairline-hard); }
-.scoreband{
-  display:grid; grid-template-columns:repeat(4,1fr);
-  gap:1px; background:var(--hairline); border-block:1px solid var(--hairline);
-  margin-top:clamp(2rem,5vw,3rem);
-}
-.sb{ background:var(--bg); padding:1.6rem 1.2rem; display:flex; flex-direction:column-reverse; gap:.5rem; }
-.sb dd{ font-family:var(--serif); font-size:clamp(2rem,3.6vw,2.9rem); font-weight:560; line-height:1; color:var(--ink); }
-.sb dd span{ color:var(--accent); }
-.sb dt{ font-family:var(--mono); font-size:var(--fs-chip); text-transform:uppercase; letter-spacing:.1em; color:var(--muted); line-height:1.5; }
-@media (max-width:700px){ .scoreband{ grid-template-columns:repeat(2,1fr); } }
-
-.prose p{ max-width:42em; margin-bottom:1.15rem; }
-.prose p:last-child{ margin-bottom:0; }
-.prose strong{ color:var(--ink); font-weight:600; }
-.prose a{ color:var(--ink); border-bottom:1px solid var(--hairline-mid); transition:color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease); }
-.prose a:hover{ color:var(--accent); border-color:var(--accent); }
-
-/* toolbar */
-.tools{ display:flex; flex-wrap:wrap; align-items:center; gap:.9rem 1.5rem; padding:0 0 1.5rem; }
-.tsearch{
-  display:inline-flex; align-items:center; gap:.6rem; flex:1 1 17rem; min-width:0;
-  border:1px solid var(--hairline-mid); border-radius:var(--radius);
-  padding:.72rem .95rem; color:var(--muted);
-  transition:border-color var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
-}
-.tsearch:focus-within{ border-color:var(--accent); color:var(--accent); }
-.tsearch svg{ flex:none; }
-.tsearch input{
-  flex:1 1 auto; min-width:0; background:none; border:0; outline:none; color:var(--ink);
-  font-family:var(--mono); font-size:var(--fs-meta); letter-spacing:.04em;
-}
-.tsearch input::placeholder{ color:var(--muted); }
-.tsearch input::-webkit-search-cancel-button{ -webkit-appearance:none; }
-.chips{ display:flex; flex-wrap:wrap; gap:.45rem; }
-.chip{
-  font-family:var(--mono); font-size:var(--fs-chip); font-weight:500;
-  text-transform:uppercase; letter-spacing:.1em; color:var(--muted);
-  border:1px solid var(--hairline); border-radius:var(--radius);
-  padding:.45rem .72rem; white-space:nowrap;
-  transition:color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
-}
-.chip i{ font-style:normal; color:var(--hairline-hard); margin-left:.3rem; }
-.chip:hover{ color:var(--ink); border-color:var(--hairline-mid); }
-.chip.is-on{ color:var(--accent-ink); background:var(--accent); border-color:var(--accent); }
-.chip.is-on i{ color:var(--accent-ink); opacity:.65; }
-.tcount{ font-family:var(--mono); font-size:var(--fs-chip); letter-spacing:.1em; text-transform:uppercase; color:var(--muted); padding-bottom:1rem; }
-
-/* challenge cards */
-.chals{ border-top:1px solid var(--hairline); }
-.chal{ border-bottom:1px solid var(--hairline); }
-.chal[hidden]{ display:none; }
-.chal > summary{
-  display:grid; grid-template-columns:3rem 1fr auto; align-items:center;
-  gap:1rem clamp(1rem,2.5vw,2rem);
-  padding:clamp(1.3rem,2.6vw,1.7rem) 0; cursor:pointer; list-style:none;
-  transition:background var(--t-fast) var(--ease);
-}
-.chal > summary::-webkit-details-marker{ display:none; }
-.chal > summary:hover{ background:rgba(237,230,218,.02); }
-.chal-no{ font-family:var(--mono); font-size:var(--fs-meta); color:var(--hairline-hard); letter-spacing:.1em; }
-.chal-main h2{ font-size:clamp(1.15rem,2vw,1.45rem); letter-spacing:-.012em; }
-.chal-method{
-  margin-top:.45rem; font-family:var(--mono); font-size:var(--fs-chip);
-  letter-spacing:.04em; color:var(--muted); line-height:1.55;
-}
-.chal-right{ display:flex; align-items:center; gap:.6rem; }
-.cat{
-  font-family:var(--mono); font-size:.58rem; font-weight:500; letter-spacing:.16em;
-  text-transform:uppercase; border:1px solid var(--hairline-mid); border-radius:var(--radius);
-  padding:.26rem .5rem; color:var(--muted); white-space:nowrap;
-}
-.cat-crypto{ color:#8ab4f8; border-color:rgba(138,180,248,.42); }
-.cat-forensics{ color:#9ad2a4; border-color:rgba(154,210,164,.42); }
-.cat-pwn{ color:var(--accent); border-color:rgba(229,72,77,.5); }
-.cat-reversing{ color:#e0b071; border-color:rgba(224,176,113,.45); }
-.cat-web{ color:#c49bdd; border-color:rgba(196,155,221,.45); }
-.pts{ font-family:var(--mono); font-size:var(--fs-chip); color:var(--ink); letter-spacing:.08em; white-space:nowrap; }
-.pts.zero{ color:var(--muted); }
-.twist{ color:var(--hairline-hard); transition:transform var(--t-fast) var(--ease); flex:none; }
-.chal[open] .twist{ transform:rotate(45deg); color:var(--accent); }
-
-.chal-body{ padding:0 0 clamp(2rem,4vw,2.75rem); }
-@media (min-width:861px){ .chal-body{ padding-left:4rem; } }
-.cb-block{ margin-bottom:1.6rem; }
-.cb-block:last-child{ margin-bottom:0; }
-.cb-label{
-  font-family:var(--mono); font-size:var(--fs-chip); font-weight:500;
-  text-transform:uppercase; letter-spacing:.16em; color:var(--accent); margin-bottom:.6rem;
-}
-.cb-block p{ max-width:44em; line-height:1.72; }
-.cb-block code{
-  font-family:var(--mono); font-size:.86em; color:var(--ink);
-  background:var(--bg-elev-2); padding:.12em .38em; border-radius:var(--radius);
-}
-
-/* flag spoiler */
-.flagbox{
-  display:flex; flex-wrap:wrap; align-items:center; gap:.75rem 1rem;
-  border:1px solid var(--hairline); border-left:2px solid var(--accent);
-  background:var(--bg-elev); padding:.9rem 1.1rem; border-radius:var(--radius);
-}
-.flagbox .lab{
-  font-family:var(--mono); font-size:var(--fs-chip); text-transform:uppercase;
-  letter-spacing:.16em; color:var(--muted); flex:none;
-}
-.flagval{
-  font-family:var(--mono); font-size:var(--fs-small); color:var(--ink);
-  word-break:break-all; flex:1 1 14rem; min-width:0;
-  filter:blur(6px); user-select:none;
-  transition:filter var(--t-fast) var(--ease);
-}
-.flagbox.shown .flagval{ filter:none; user-select:text; }
-.reveal-btn{
-  font-family:var(--mono); font-size:var(--fs-chip); text-transform:uppercase; letter-spacing:.12em;
-  border:1px solid var(--hairline-mid); border-radius:var(--radius); padding:.4rem .7rem;
-  color:var(--muted); flex:none;
-  transition:color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
-}
-.reveal-btn:hover{ color:var(--accent); border-color:var(--accent); }
-.flag-note{ font-family:var(--mono); font-size:var(--fs-chip); color:var(--muted); letter-spacing:.06em; margin-top:.55rem; }
-.nf{ font-family:var(--mono); font-size:var(--fs-chip); text-transform:uppercase; letter-spacing:.14em; color:var(--muted); }
-
-.chals-empty{ padding:3rem 0; text-align:center; color:var(--muted); font-family:var(--mono); font-size:var(--fs-small); }
-
-/* callout */
-.callout{
-  border:1px solid var(--hairline); border-left:2px solid var(--accent);
-  background:var(--bg-elev); padding:clamp(1.2rem,2.5vw,1.6rem) clamp(1.2rem,2.5vw,1.75rem);
-  border-radius:var(--radius);
-}
-.callout p{ max-width:44em; }
-.callout p + p{ margin-top:.9rem; }
-
-@media (max-width:860px){
-  .chal > summary{ grid-template-columns:1fr auto; }
-  .chal-no{ display:none; }
-  .chal-right{ grid-column:2; grid-row:1; align-items:flex-start; flex-direction:column; gap:.4rem; }
-  .chal-body{ padding-left:0; }
-}
-</style>
+<link rel="stylesheet" href="/assets/css/writeup.css">
+<link rel="stylesheet" href="/assets/css/quals-index.css">
 </head>
 <body>
-
+<div class="progress" id="prog" aria-hidden="true"></div>
 <a class="skip" href="#main">Skip to content</a>
-
 <header class="site-head" id="top">
   <div class="container head-inner">
     <a class="wordmark" href="/" aria-label="Usama Arshad, home">Usama Arshad<span class="dot">.</span></a>
@@ -526,30 +141,22 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
 </header>
 
 <main id="main">
-
-  <section class="hero" aria-labelledby="page-title">
+  <section class="hero" aria-labelledby="pt">
     <div class="container">
       <div class="masthead" data-reveal>
         <p class="masthead-meta">
           <span>BlackHat MEA 2026</span>
-          <span>Qualification round</span>
+          <span>Qualification round · 29 Aug 2026</span>
           <span class="live">FlagYard</span>
         </p>
       </div>
-
       <div class="hero-deck">
         <div class="deck-copy" data-reveal style="--d:.08s">
-          <p class="kicker">CTF Writeup</p>
-          <h1 class="hero-title" id="page-title">Fifteen challenges, fourteen flags<span class="dot">.</span></h1>
-          <p class="deck">Every challenge from the BlackHat MEA 2026 qualifiers, written up properly: what the challenge exposed, the precise root cause, and the chain that turned it into a flag. Including the one that got away.</p>
-          <p class="post-meta">
-            <span>4 November 2026</span><span class="sep">·</span>
-            <span>Crypto · Forensics · Pwn · Reversing · Web</span><span class="sep">·</span>
-            <span>Quals held 29 Aug 2026</span>
-          </p>
+          <p class="kicker">CTF Writeups</p>
+          <h1 class="hero-title" id="pt">Fifteen challenges, fourteen flags<span class="dot">.</span></h1>
+          <p class="deck">Full writeups for every challenge in the 2026 qualifiers. Each one gets the whole story: what the challenge exposed, the precise root cause, the exploitation chain with working code, and the routes that died on the way. Including the one that got away.</p>
         </div>
       </div>
-
       <dl class="scoreband" data-reveal style="--d:.14s">
         <div class="sb"><dt>Challenges</dt><dd>15</dd></div>
         <div class="sb"><dt>Flags captured</dt><dd>14</dd></div>
@@ -559,36 +166,46 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
     </div>
   </section>
 
-  <section class="section" aria-labelledby="intro-title">
+  <section class="section">
     <div class="container">
       <header class="sec-head" data-reveal>
         <span class="sec-no" aria-hidden="true">01</span>
         <div class="sec-title">
           <p class="kicker">Before the writeups</p>
-          <h2 id="intro-title">How to read this<span class="dot">.</span></h2>
+          <h2>How to read these<span class="dot">.</span></h2>
         </div>
       </header>
-      <div class="prose" data-reveal style="--d:.08s">
-        <p>Every section follows the same shape. <strong>What it was</strong> covers the surface the challenge exposed and what analysis showed. <strong>The bug</strong> is the precise root cause, not a hand-wave. Where it earns its place, the load-bearing code is quoted and the dead ends are named, because the dead ends are usually where the actual learning happened.</p>
-        <p>Fourteen of the fifteen yielded flags. <strong>Teto</strong> did not, and its section is here anyway: the reverse engineering finished, the primitives were validated in a byte-exact simulator, and the exploit design held up. It lost to an arithmetic budget, not to a misunderstanding. A writeup that only shows the wins is a sales deck, not a notebook.</p>
-        <p>Two of these, <strong>Qfact</strong> and <strong>Whisper</strong>, were solved fresh while writing this up, so those sections are first-hand rather than reconstructed from competition notes.</p>
-        <div class="callout">
-          <p><strong>On the flags.</strong> Challenge instances are provisioned per run, so the flag values below are the ones our instances returned, not reusable answers. They sit behind a click because several of these challenges get recycled into training platforms, and a search engine result that spoils someone else's lab helps nobody.</p>
+      <div class="wu" data-reveal style="--d:.08s">
+        <p>Every writeup follows the same shape. <strong>Recon</strong> is what the challenge handed over and what analysis showed. <strong>The bug</strong> is the precise root cause, quoted from source where the source is the point. <strong>Exploitation</strong> is the chain that turns it into a flag, step by step, with the load-bearing code. <strong>Dead ends</strong> is where the hours actually went.</p>
+        <p>Fourteen of the fifteen yielded flags. <strong>Teto</strong> did not, and it is written up in the same detail anyway: the reverse engineering finished, the primitives were validated in a byte-exact simulator, and the exploit design held. It lost to an arithmetic budget, not to a misunderstanding. A writeup that only shows the wins is a sales deck, not a notebook.</p>
+        <figure class="meme"><div class="meme-card"><p class="meme-cap top">WHAT THE 15 BRIEFS LOOKED LIKE</p><svg viewBox="0 0 560 200" role="img" xmlns="http://www.w3.org/2000/svg">
+<rect width="560" height="200" fill="#100e0d"/>
+<text x="140" y="26" fill="#6f6659" font-family="monospace" font-size="11" text-anchor="middle" letter-spacing="2">WHAT THE BRIEF SAID</text>
+<text x="420" y="26" fill="#e5484d" font-family="monospace" font-size="11" text-anchor="middle" letter-spacing="2">WHAT WAS BEHIND IT</text>
+<rect x="118" y="108" width="44" height="62" fill="none" stroke="#d6cfc3" stroke-width="1.5"/>
+<circle cx="153" cy="140" r="2.5" fill="#d6cfc3"/>
+<rect x="330" y="48" width="180" height="122" fill="none" stroke="#e5484d" stroke-width="1.5"/>
+<circle cx="498" cy="112" r="3.5" fill="#e5484d"/>
+<path d="M350 70h140M350 86h120M350 102h140M350 118h100M350 134h130M350 150h90" stroke="#e5484d" stroke-width="1" opacity=".45"/>
+<path d="M60 178h440" stroke="#6f6659" stroke-width="1" opacity=".5"/>
+</svg><p class="meme-cap bot">WHAT WAS ACTUALLY BEHIND THEM</p></div></figure>
+        <div class="tldr">
+          <p class="lab">On the flags</p>
+          <p>Challenge instances are provisioned per run, so the flag values are the ones our instances returned, not reusable answers. They sit behind a click because several of these get recycled into training platforms, and a search result that spoils someone else's lab helps nobody.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="section" id="writeups" aria-labelledby="wu-title">
+  <section class="section" id="writeups">
     <div class="container">
       <header class="sec-head" data-reveal>
         <span class="sec-no" aria-hidden="true">02</span>
         <div class="sec-title">
-          <p class="kicker">All fifteen</p>
-          <h2 id="wu-title">The writeups<span class="dot">.</span></h2>
+          <p class="kicker">All fifteen, full detail</p>
+          <h2>The writeups<span class="dot">.</span></h2>
         </div>
       </header>
-
       <div data-reveal style="--d:.06s">
         <div class="tools">
           <label class="tsearch">
@@ -596,516 +213,227 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
             <input type="search" id="chalSearch" placeholder="Search technique, bug class, challenge" autocomplete="off">
           </label>
-          <div class="chips" role="group" aria-label="Filter by category">
-            <button class="chip is-on" data-cat="all" aria-pressed="true">All <i>15</i></button><button class="chip" data-cat="crypto" aria-pressed="false">Crypto <i>3</i></button><button class="chip" data-cat="forensics" aria-pressed="false">Forensics <i>2</i></button><button class="chip" data-cat="pwn" aria-pressed="false">Pwn <i>3</i></button><button class="chip" data-cat="reversing" aria-pressed="false">Reversing <i>3</i></button><button class="chip" data-cat="web" aria-pressed="false">Web <i>4</i></button>
-          </div>
+          <div class="chips" role="group" aria-label="Filter by category"><button class="chip is-on" data-cat="all" aria-pressed="true">All <i>15</i></button><button class="chip" data-cat="crypto" aria-pressed="false">Crypto <i>3</i></button><button class="chip" data-cat="forensics" aria-pressed="false">Forensics <i>2</i></button><button class="chip" data-cat="pwn" aria-pressed="false">Pwn <i>3</i></button><button class="chip" data-cat="reversing" aria-pressed="false">Reversing <i>3</i></button><button class="chip" data-cat="web" aria-pressed="false">Web <i>4</i></button></div>
         </div>
         <p class="tcount" id="chalCount" role="status">Showing all 15 challenges</p>
       </div>
-
       <div class="chals" data-reveal style="--d:.1s">
-      <details class="chal" id="hokan" data-cat="crypto" data-search="hokan crypto prony / ben-or&amp;ndash;tiwari with a structured node set, then an lll knapsack rebuild a secret 11-variable, degree-11 polynomial over an unknown 256-bit prime field from only 8 evaluations. textbook prony interpolation needs 10 for a 5-term polynomial, so the attack has to be near information-optimal. the author assumed 8 evaluations sat safely under the interpolation threshold. they do not, provided you stop querying at random. if every query point is a scalar power-family of one weight vector, the integer left kernel of the evaluation matrix depends only on the multiset of exponent inner products: not on the coefficients, and not on p. that kernel is spanned by the locator polynomial&#x27;s coefficients, so a correct guess at the node set yields a relation that is an exact integer multiple of p. the unknown modulus stops being the obstacle and becomes the thing you extract.">
-        <summary>
+        <article class="chal" data-cat="crypto" data-search="hokan crypto prony / ben-or–tiwari with a structured node set, then an lll knapsack reconstruct a secret 11-variable degree-11 polynomial over an unknown 256-bit prime field from only 8 evaluations, two fewer than prony interpolation nominally requires, by choosing query points whose structure makes the integer kernel depend only on the exponents.">
           <span class="chal-no" aria-hidden="true">.01</span>
           <div class="chal-main">
-            <h2>Hokan</h2>
-            <p class="chal-method">Prony / Ben-Or&ndash;Tiwari with a structured node set, then an LLL knapsack</p>
+            <h3><a href="/blog/blackhat-mea-2026-quals/hokan/">Hokan<span class="arr" aria-hidden="true">↗</span></a></h3>
+            <p class="chal-method">Prony / Ben-Or–Tiwari with a structured node set, then an LLL knapsack</p>
+            <p class="chal-tldr">Reconstruct a secret 11-variable degree-11 polynomial over an unknown 256-bit prime field from only 8 evaluations, two fewer than Prony interpolation nominally requires, by choosing query points whose structure makes the integer kernel depend only on the exponents.</p>
+            <p class="chal-foot"><span>Full writeup</span><span class="sep">·</span><span>4 sections</span><span class="sep">·</span><span>17 blocks</span></p>
           </div>
           <div class="chal-right">
             <span class="cat cat-crypto">Crypto</span>
             <span class="pts">100 pts</span>
-            <svg class="twist" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
           </div>
-        </summary>
-        <div class="chal-body">
-          <div class="cb-block">
-            <p class="cb-label">What it was</p>
-            <p>Rebuild a secret 11-variable, degree-11 polynomial over an <em>unknown</em> 256-bit prime field from only 8 evaluations. Textbook Prony interpolation needs 10 for a 5-term polynomial, so the attack has to be near information-optimal.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">The bug</p>
-            <p>The author assumed 8 evaluations sat safely under the interpolation threshold. They do not, provided you stop querying at random. If every query point is a scalar power-family of one weight vector, the integer left kernel of the evaluation matrix depends only on the multiset of exponent inner products: not on the coefficients, and not on <code>p</code>. That kernel is spanned by the locator polynomial's coefficients, so a correct guess at the node set yields a relation that is an exact integer multiple of <code>p</code>. The unknown modulus stops being the obstacle and becomes the thing you extract.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">Flag</p>
-            <div class="flagbox">
-              <span class="lab">Captured</span>
-              <span class="flagval">BHFlagY{ea9380bc79fd02eefb1fbb538337a432}</span>
-              <button class="reveal-btn" type="button" aria-label="Reveal the flag for Hokan">Reveal</button>
-            </div>
-            <p class="flag-note">Instances are provisioned per run, so this value is ours, not a reusable answer.</p>
-          </div>
-        </div>
-      </details>
-      <details class="chal" id="popcnt-oracle" data-cat="crypto" data-search="popcnt oracle crypto rsa malleability plus popcount invariance under doubling, driven by beam search the service is an unrestricted rsa decryption oracle that leaks exactly one bit of information: popcount(x^d mod n). three doubling chains and roughly 2,051 queries each recovered all 2,048 bits of the secret in about 17 minutes. two flaws compose. first, sending x = c &amp;middot; k^e mod n makes the server compute k&amp;middot;m mod n, so the oracle answers for any attacker-chosen k. no padding check stops it. second, popcount is not invariant under modular reduction, and the way it fails is informative: if 2y &amp;lt; n the value is a pure left shift and the popcount is identical, but if 2y &amp;ge; n it wraps and the popcount usually changes. so a popcount change along a doubling chain proves a wrap, and for the chain seeded at m those wrap flags are literally the binary digits of m/n.">
-        <summary>
+        </article>
+        <article class="chal" data-cat="crypto" data-search="popcnt oracle crypto rsa malleability plus popcount invariance under doubling, driven by beam search the service is an unrestricted rsa decryption oracle that leaks only popcount(x^d mod n); because 2y mod n is a pure left shift (identical popcount) exactly when 2y &lt; n, a popcount change along a doubling chain proves a modular wrap, and for the chain seeded at m those wrap flags are literally the binary digits of m/n. three chains (k = 1, 3, 5, 2051 queries each) driven through a beam search recovered all 2048 bits of the secret m in ~1020–1080 s, which was then submitted verbatim to get the flag.">
           <span class="chal-no" aria-hidden="true">.02</span>
           <div class="chal-main">
-            <h2>Popcnt Oracle</h2>
+            <h3><a href="/blog/blackhat-mea-2026-quals/popcnt-oracle/">Popcnt Oracle<span class="arr" aria-hidden="true">↗</span></a></h3>
             <p class="chal-method">RSA malleability plus popcount invariance under doubling, driven by beam search</p>
+            <p class="chal-tldr">The service is an unrestricted RSA decryption oracle that leaks only popcount(x^d mod n); because 2y mod n is a pure left shift (identical popcount) exactly when 2y &lt; n, a popcount change along a doubling chain proves a modular wrap, and for the chain seeded at m those wrap flags are literally the binary digits of m/n. Three chains (k = 1, 3, 5, 2051 queries each) driven through a beam search recovered all 2048 bits of the secret m in ~1020–1080 s, which was then submitted verbatim to get the flag.</p>
+            <p class="chal-foot"><span>Full writeup</span><span class="sep">·</span><span>4 sections</span><span class="sep">·</span><span>37 blocks</span></p>
           </div>
           <div class="chal-right">
             <span class="cat cat-crypto">Crypto</span>
             <span class="pts">100 pts</span>
-            <svg class="twist" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
           </div>
-        </summary>
-        <div class="chal-body">
-          <div class="cb-block">
-            <p class="cb-label">What it was</p>
-            <p>The service is an unrestricted RSA decryption oracle that leaks exactly one bit of information: <code>popcount(x^d mod n)</code>. Three doubling chains and roughly 2,051 queries each recovered all 2,048 bits of the secret in about 17 minutes.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">The bug</p>
-            <p>Two flaws compose. First, sending <code>x = c &middot; k^e mod n</code> makes the server compute <code>k&middot;m mod n</code>, so the oracle answers for any attacker-chosen <code>k</code>. No padding check stops it. Second, popcount is not invariant under modular reduction, and the way it fails is informative: if <code>2y &lt; n</code> the value is a pure left shift and the popcount is identical, but if <code>2y &ge; n</code> it wraps and the popcount usually changes. So a popcount change along a doubling chain proves a wrap, and for the chain seeded at <code>m</code> those wrap flags are literally the binary digits of <code>m/n</code>.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">Flag</p>
-            <div class="flagbox">
-              <span class="lab">Captured</span>
-              <span class="flagval">BHFlagY{ecc3a2adc3ccb6a6120005fa8c5bfde3}</span>
-              <button class="reveal-btn" type="button" aria-label="Reveal the flag for Popcnt Oracle">Reveal</button>
-            </div>
-            <p class="flag-note">Instances are provisioned per run, so this value is ours, not a reusable answer.</p>
-          </div>
-        </div>
-      </details>
-      <details class="chal" id="reduce-reuse-recycle" data-cat="crypto" data-search="reduce, reuse, recycle crypto gcm forbidden attack, utf-8 length juggling, then a hex-alphabet collapse aes-gcm key and nonce are reused on every encryption, while the plaintext contains the key&#x27;s own hex. half of each tag recovers the ghash key h, multi-byte utf-8 slides the key hex across block boundaries, and a quirk of the hex alphabet collapses a 248 ambiguity down to 216. nonce reuse in gcm destroys authentication: with h and e(j0) fixed, xoring two tags from equal-length messages cancels e(j0) and leaves a known polynomial in h over gf(2128). that is the classic forbidden attack. the subtler half is that same-length queries leak nothing about the key, because the key hex sits at a fixed offset and contributes identically to every ghash, cancelling in every difference. only a length change slides it across ghash&#x27;s 16-byte boundaries and turns it into new linear equations, and multi-byte utf-8 is exactly the lever that changes length without changing the structure.">
-        <summary>
+        </article>
+        <article class="chal" data-cat="crypto" data-search="reduce, reuse, recycle crypto gcm forbidden attack, utf-8 length juggling, then a hex-alphabet collapse aes-gcm key and nonce are reused on every encryption while the plaintext contains the key&#x27;s own hex. half of each tag recovers the ghash key h; multi-byte utf-8 characters slide the key hex across ghash block boundaries; a hex-alphabet quirk collapses the residual 2^48 ambiguity to 2^16.">
           <span class="chal-no" aria-hidden="true">.03</span>
           <div class="chal-main">
-            <h2>Reduce, Reuse, Recycle</h2>
+            <h3><a href="/blog/blackhat-mea-2026-quals/reduce-reuse-recycle/">Reduce, Reuse, Recycle<span class="arr" aria-hidden="true">↗</span></a></h3>
             <p class="chal-method">GCM forbidden attack, UTF-8 length juggling, then a hex-alphabet collapse</p>
+            <p class="chal-tldr">AES-GCM key and nonce are reused on every encryption while the plaintext contains the key's own hex. Half of each tag recovers the GHASH key H; multi-byte UTF-8 characters slide the key hex across GHASH block boundaries; a hex-alphabet quirk collapses the residual 2^48 ambiguity to 2^16.</p>
+            <p class="chal-foot"><span>Full writeup</span><span class="sep">·</span><span>4 sections</span><span class="sep">·</span><span>17 blocks</span></p>
           </div>
           <div class="chal-right">
             <span class="cat cat-crypto">Crypto</span>
             <span class="pts">100 pts</span>
-            <svg class="twist" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
           </div>
-        </summary>
-        <div class="chal-body">
-          <div class="cb-block">
-            <p class="cb-label">What it was</p>
-            <p>AES-GCM key <em>and</em> nonce are reused on every encryption, while the plaintext contains the key's own hex. Half of each tag recovers the GHASH key H, multi-byte UTF-8 slides the key hex across block boundaries, and a quirk of the hex alphabet collapses a 2<sup>48</sup> ambiguity down to 2<sup>16</sup>.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">The bug</p>
-            <p>Nonce reuse in GCM destroys authentication: with H and <code>E(J0)</code> fixed, XORing two tags from equal-length messages cancels <code>E(J0)</code> and leaves a known polynomial in H over GF(2<sup>128</sup>). That is the classic forbidden attack. The subtler half is that same-length queries leak nothing about the key, because the key hex sits at a fixed offset and contributes identically to every GHASH, cancelling in every difference. Only a length change slides it across GHASH's 16-byte boundaries and turns it into new linear equations, and multi-byte UTF-8 is exactly the lever that changes length without changing the structure.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">Flag</p>
-            <div class="flagbox">
-              <span class="lab">Captured</span>
-              <span class="flagval">BHFlagY{584bc40e6b665f84224a4f932eef4ebf}</span>
-              <button class="reveal-btn" type="button" aria-label="Reveal the flag for Reduce, Reuse, Recycle">Reveal</button>
-            </div>
-            <p class="flag-note">Instances are provisioned per run, so this value is ours, not a reusable answer.</p>
-          </div>
-        </div>
-      </details>
-      <details class="chal" id="qfact" data-cat="forensics" data-search="qfact forensics defender quarantine rc4 recovery, then ransomware key and iv, then aes-cbc decrypt windows defender quarantined the ransomware, but the evidence set ships the quarantine store. decrypt the store with the static msmpeng rc4 key, read the aes key straight out of the dropper, rebuild the iv from host identifiers in the registry, and the victim&#x27;s files come back. two decisions in the ransomware make full recovery possible. the aes key is a hard-coded literal in the dropper, obfuscated only by chr() concatenation, and the dropper itself survives inside defender&#x27;s quarantine. the iv is derived from non-secret host identifiers, md5(computername + username), both recoverable from the registry hives in the same evidence set, with the computer name also printed in the ransom note. defender&#x27;s quarantine store is only obfuscated, not encrypted: every file is rc4 under a static, publicly documented 256-byte key compiled into msmpeng.">
-        <summary>
+        </article>
+        <article class="chal" data-cat="forensics" data-search="qfact forensics defender quarantine rc4 recovery, then ransomware key and iv, then aes-cbc decrypt windows defender quarantined the ransomware but the evidence set ships the quarantine store. decrypt the quarantine with the static msmpeng rc4 key, read the aes key out of the dropper, rebuild the iv from host identifiers found in the registry, and decrypt the victim files.">
           <span class="chal-no" aria-hidden="true">.04</span>
           <div class="chal-main">
-            <h2>Qfact</h2>
+            <h3><a href="/blog/blackhat-mea-2026-quals/qfact/">Qfact<span class="arr" aria-hidden="true">↗</span></a></h3>
             <p class="chal-method">Defender quarantine RC4 recovery, then ransomware key and IV, then AES-CBC decrypt</p>
+            <p class="chal-tldr">Windows Defender quarantined the ransomware but the evidence set ships the quarantine store. Decrypt the quarantine with the static MsMpEng RC4 key, read the AES key out of the dropper, rebuild the IV from host identifiers found in the registry, and decrypt the victim files.</p>
+            <p class="chal-foot"><span>Full writeup</span><span class="sep">·</span><span>4 sections</span><span class="sep">·</span><span>24 blocks</span></p>
           </div>
           <div class="chal-right">
             <span class="cat cat-forensics">Forensics</span>
             <span class="pts">100 pts</span>
-            <svg class="twist" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
           </div>
-        </summary>
-        <div class="chal-body">
-          <div class="cb-block">
-            <p class="cb-label">What it was</p>
-            <p>Windows Defender quarantined the ransomware, but the evidence set ships the quarantine store. Decrypt the store with the static MsMpEng RC4 key, read the AES key straight out of the dropper, rebuild the IV from host identifiers in the registry, and the victim's files come back.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">The bug</p>
-            <p>Two decisions in the ransomware make full recovery possible. The AES key is a hard-coded literal in the dropper, obfuscated only by <code>Chr()</code> concatenation, and the dropper itself survives inside Defender's quarantine. The IV is derived from non-secret host identifiers, <code>MD5(COMPUTERNAME + USERNAME)</code>, both recoverable from the registry hives in the same evidence set, with the computer name also printed in the ransom note. Defender's quarantine store is only obfuscated, not encrypted: every file is RC4 under a static, publicly documented 256-byte key compiled into MsMpEng.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">Flag</p>
-            <div class="flagbox">
-              <span class="lab">Captured</span>
-              <span class="flagval">BHFlagY{d3f3nd3r_qu4r4nt1n3_r3c0v3ry_2026}</span>
-              <button class="reveal-btn" type="button" aria-label="Reveal the flag for Qfact">Reveal</button>
-            </div>
-            <p class="flag-note">Instances are provisioned per run, so this value is ours, not a reusable answer.</p>
-          </div>
-        </div>
-      </details>
-      <details class="chal" id="whisper" data-cat="forensics" data-search="whisper forensics ollama prompt history, script recovered from trash, blake2b-derived aes-zip password an insider used a local llm to build an exfiltration tool. the prompt log is an uncensored record of them designing it, passphrase included, and the script survives in the gnome trash along with the key derivation and the staging path. this is not a software vulnerability, it is an artifact-retention failure, and the challenge is built on three of them. the local llm keeps a plaintext prompt log at ~/.ollama/history that is never cleared, and the passphrase was typed straight into it alongside a step-by-step statement of intent. &quot;delete the script after successful execution&quot; was implemented as a move to trash, so cache_mgr.py is intact with its deletion timestamp. and the archive was staged in a cache directory that nothing ever cleaned up.">
-        <summary>
+        </article>
+        <article class="chal" data-cat="forensics" data-search="whisper forensics ollama prompt history, script recovered from trash, blake2b-derived aes-zip password the local ollama prompt history is an uncensored record of the insider designing the exfil tool, including the passphrase. the script itself survives in the gnome trash, and it reveals both the key- derivation function and where the archive was staged.">
           <span class="chal-no" aria-hidden="true">.05</span>
           <div class="chal-main">
-            <h2>Whisper</h2>
+            <h3><a href="/blog/blackhat-mea-2026-quals/whisper/">Whisper<span class="arr" aria-hidden="true">↗</span></a></h3>
             <p class="chal-method">Ollama prompt history, script recovered from Trash, blake2b-derived AES-zip password</p>
+            <p class="chal-tldr">The local Ollama prompt history is an uncensored record of the insider designing the exfil tool, including the passphrase. The script itself survives in the GNOME Trash, and it reveals both the key- derivation function and where the archive was staged.</p>
+            <p class="chal-foot"><span>Full writeup</span><span class="sep">·</span><span>4 sections</span><span class="sep">·</span><span>22 blocks</span></p>
           </div>
           <div class="chal-right">
             <span class="cat cat-forensics">Forensics</span>
             <span class="pts">100 pts</span>
-            <svg class="twist" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
           </div>
-        </summary>
-        <div class="chal-body">
-          <div class="cb-block">
-            <p class="cb-label">What it was</p>
-            <p>An insider used a local LLM to build an exfiltration tool. The prompt log is an uncensored record of them designing it, passphrase included, and the script survives in the GNOME Trash along with the key derivation and the staging path.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">The bug</p>
-            <p>This is not a software vulnerability, it is an artifact-retention failure, and the challenge is built on three of them. The local LLM keeps a plaintext prompt log at <code>~/.ollama/history</code> that is never cleared, and the passphrase was typed straight into it alongside a step-by-step statement of intent. "Delete the script after successful execution" was implemented as a move to Trash, so <code>cache_mgr.py</code> is intact with its deletion timestamp. And the archive was staged in a cache directory that nothing ever cleaned up.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">Flag</p>
-            <div class="flagbox">
-              <span class="lab">Captured</span>
-              <span class="flagval">BHFlagY{l0c4l_0ll4m4_llm_f4r3n51c5_2026}</span>
-              <button class="reveal-btn" type="button" aria-label="Reveal the flag for Whisper">Reveal</button>
-            </div>
-            <p class="flag-note">Instances are provisioned per run, so this value is ours, not a reusable answer.</p>
-          </div>
-        </div>
-      </details>
-      <details class="chal" id="baiby-pwn" data-cat="pwn" data-search="baiby-pwn pwn unbounded array write to got overwrite to fsop leak to setcontext rop arr[i] = v with no bounds check, on a non-pie partial-relro binary, is an arbitrary aligned write across the whole writable page, got included. that turns into an fsop libc leak on fd 2, then full register control via setcontext, then a raw syscall chain that reads a randomly-named flag file without ever calling execve. case 1: arr[i] = v; performs a completely unchecked 8-byte store at 0x404080 + 8*i with attacker-controlled index and value. arr sits in .bss immediately above a writable got, so negative indices reach every plt slot and every r_x86_64_copy file* slot. the write looks weak on its own, since both operands are atol() of at most 7 characters, but the binary is non-pie, so every code address and every writable-page address is representable inside that budget. that is enough to redirect any library call.">
-        <summary>
+        </article>
+        <article class="chal" data-cat="pwn" data-search="baiby-pwn pwn unbounded array write to got overwrite to fsop leak to setcontext rop arr[i] = v with no bounds check on a non-pie partial-relro binary is an arbitrary aligned write over the whole writable page, including the got. repointing memset@got at main&#x27;s third setbuf call site and setbuf@got at the read setup inside getval converts the &quot;2&quot; command into read(0, *0x404060, 0x40), a 64-byte arbitrary write, which forges an fsop header in the real _io_2_1_stderr_ to leak libc on fd 2, then points setbuf@got at setcontext with the slot aimed at a fake ucontext for full register control, and finally chains open/getdents64/read/write(2,…) to read the randomly-named flag file without ever calling execve (which landlock restricts).">
           <span class="chal-no" aria-hidden="true">.06</span>
           <div class="chal-main">
-            <h2>baiby-pwn</h2>
+            <h3><a href="/blog/blackhat-mea-2026-quals/baiby-pwn/">baiby-pwn<span class="arr" aria-hidden="true">↗</span></a></h3>
             <p class="chal-method">Unbounded array write to GOT overwrite to FSOP leak to setcontext ROP</p>
+            <p class="chal-tldr">arr[i] = v with no bounds check on a non-PIE Partial-RELRO binary is an arbitrary aligned write over the whole writable page, including the GOT. Repointing memset@got at main's third setbuf call site and setbuf@got at the read setup inside getval converts the "2" command into read(0, *<code>0x404060</code>, <code>0x40</code>), a 64-byte arbitrary write, which forges an FSOP header in the real _IO_2_1_stderr_ to leak libc on fd 2, then points setbuf@got at setcontext with the slot aimed at a fake ucontext for full register control, and finally chains open/getdents64/read/write(2,…) to read the randomly-named flag file without ever calling execve (which Landlock restricts).</p>
+            <p class="chal-foot"><span>Full writeup</span><span class="sep">·</span><span>4 sections</span><span class="sep">·</span><span>31 blocks</span></p>
           </div>
           <div class="chal-right">
             <span class="cat cat-pwn">Pwn</span>
             <span class="pts">100 pts</span>
-            <svg class="twist" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
           </div>
-        </summary>
-        <div class="chal-body">
-          <div class="cb-block">
-            <p class="cb-label">What it was</p>
-            <p><code>arr[i] = v</code> with no bounds check, on a non-PIE Partial-RELRO binary, is an arbitrary aligned write across the whole writable page, GOT included. That turns into an FSOP libc leak on fd 2, then full register control via <code>setcontext</code>, then a raw syscall chain that reads a randomly-named flag file without ever calling <code>execve</code>.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">The bug</p>
-            <p><code>case 1: arr[i] = v;</code> performs a completely unchecked 8-byte store at <code>0x404080 + 8*i</code> with attacker-controlled index and value. <code>arr</code> sits in .bss immediately above a writable GOT, so negative indices reach every PLT slot and every <code>R_X86_64_COPY</code> FILE* slot. The write looks weak on its own, since both operands are <code>atol()</code> of at most 7 characters, but the binary is non-PIE, so every code address and every writable-page address is representable inside that budget. That is enough to redirect any library call.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">Flag</p>
-            <div class="flagbox">
-              <span class="lab">Captured</span>
-              <span class="flagval">BHFlagY{ac40504d9ee323d2995691bbe2825c43}</span>
-              <button class="reveal-btn" type="button" aria-label="Reveal the flag for baiby-pwn">Reveal</button>
-            </div>
-            <p class="flag-note">Instances are provisioned per run, so this value is ours, not a reusable answer.</p>
-          </div>
-        </div>
-      </details>
-      <details class="chal" id="teto" data-cat="pwn" data-search="teto pwn full reverse engineering and validated primitives, blocked on the or-write budget the only challenge that did not fall. the reversing is complete, the exploitation primitives were validated in a byte-exact simulator, and the exploit design was sound. it died on an arithmetic budget, not on understanding. included here because the analysis finished even though the flag did not. the writeup documents the full reverse-engineering result, the verified primitives, the simulator-validated design, and the precise budget shortfall that blocked it. several hours also went into a ret2dlresolve route that was clean on paper and never landed: setting the index through case 1 also performs an out-of-bounds store that faults, and the workaround conflicts with the got value the trigger itself requires.">
-        <summary>
+        </article>
+        <article class="chal" data-cat="pwn" data-search="teto pwn full reverse engineering and validated primitives, blocked on the or-write budget a tetris implementation with an out-of-bounds cell write and a width field that can be corrupted into an arbitrary-length stack read. both primitives were verified against the real binary and a working stack leak runs on the live target; the exploit stalls on an arithmetic budget, not on a missing idea.">
           <span class="chal-no" aria-hidden="true">.07</span>
           <div class="chal-main">
-            <h2>Teto</h2>
+            <h3><a href="/blog/blackhat-mea-2026-quals/teto/">Teto<span class="arr" aria-hidden="true">↗</span></a></h3>
             <p class="chal-method">Full reverse engineering and validated primitives, blocked on the OR-write budget</p>
+            <p class="chal-tldr">A Tetris implementation with an out-of-bounds cell write and a width field that can be corrupted into an arbitrary-length stack read. Both primitives were verified against the real binary and a working stack leak runs on the live target; the exploit stalls on an arithmetic budget, not on a missing idea.</p>
+            <p class="chal-foot"><span>Full writeup</span><span class="sep">·</span><span>4 sections</span><span class="sep">·</span><span>35 blocks</span></p>
           </div>
           <div class="chal-right">
             <span class="cat cat-pwn">Pwn</span>
-            <span class="pts zero">0 pts</span>
-            <svg class="twist" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+            <span class="pts zero">Not captured</span>
           </div>
-        </summary>
-        <div class="chal-body">
-          <div class="cb-block">
-            <p class="cb-label">What it was</p>
-            <p>The only challenge that did not fall. The reversing is complete, the exploitation primitives were validated in a byte-exact simulator, and the exploit design was sound. It died on an arithmetic budget, not on understanding.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">The bug</p>
-            <p>Included here because the analysis finished even though the flag did not. The writeup documents the full reverse-engineering result, the verified primitives, the simulator-validated design, and the precise budget shortfall that blocked it. Several hours also went into a <code>ret2dlresolve</code> route that was clean on paper and never landed: setting the index through case 1 also performs an out-of-bounds store that faults, and the workaround conflicts with the GOT value the trigger itself requires.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">Flag</p>
-            <p class="nf">Not captured. Analysis complete, exploit blocked on budget.</p>
-          </div>
-        </div>
-      </details>
-      <details class="chal" id="bug-where" data-cat="pwn" data-search="bug where pwn io_uring double-free of an iovec to pipe_buffer uaf to kernel lpe a real linux 7.2.0-rc3 io_uring bug. reclaim the freed chunk with a pipe_buffer[], issue a second bundled ioring_op_send, and you write attacker-chosen pointers over pipe_buffer[0].ops, so close() calls into userland and commit_creds(prepare_kernel_cred(&amp;amp;init_task)) gives root. io_ring_buffers_peek() calls kfree(arg-&amp;gt;iovs) on the array it just filled instead of on the array it replaced. the fix in 7.2 final guards it with if (arg-&amp;gt;iovs != org_iovs &amp;amp;&amp;amp; (arg-&amp;gt;mode &amp;amp; kbuf_mode_free)) and frees org_iovs instead. the caller compounds it: io_send_select_buffer() hands the cached vec back in and only writes it back when the pointer actually changed, so a dangling iovec pointer stays parked in ctx-&amp;gt;netmsg_cache.">
-        <summary>
+        </article>
+        <article class="chal" data-cat="pwn" data-search="bug where pwn io_uring double-free of an iovec to pipe_buffer uaf to kernel lpe linux 7.2.0-rc3 ships an io_uring/kbuf.c bug where io_ring_buffers_peek() does kfree(arg-&gt;iovs) on the array it just filled instead of on the replaced array, while io_uring/net.c only refreshes kmsg-&gt;vec.iovec when a realloc actually happened, leaving a dangling iovec pointer parked in ctx-&gt;netmsg_cache. reclaiming the freed chunk with a pipe_buffer[] and issuing a second bundled ioring_op_send writes attacker-chosen (iov_base, iov_len) pairs directly over pipe_buffer[0].ops, so close() calls a userland pipe_buf_operations-&gt;release → commit_creds(prepare_kernel_cred(&amp;init_task)) → root, then read the flag off /dev/sda.">
           <span class="chal-no" aria-hidden="true">.08</span>
           <div class="chal-main">
-            <h2>Bug Where</h2>
+            <h3><a href="/blog/blackhat-mea-2026-quals/bug-where/">Bug Where<span class="arr" aria-hidden="true">↗</span></a></h3>
             <p class="chal-method">io_uring double-free of an iovec to pipe_buffer UAF to kernel LPE</p>
+            <p class="chal-tldr">Linux 7.2.0-rc3 ships an io_uring/kbuf.c bug where <code>io_ring_buffers_peek()</code> does kfree(arg-&gt;iovs) on the array it just filled instead of on the replaced array, while io_uring/net.c only refreshes kmsg-&gt;vec.iovec when a realloc actually happened, leaving a dangling iovec pointer parked in ctx-&gt;netmsg_cache. Reclaiming the freed chunk with a pipe_buffer[] and issuing a second bundled IORING_OP_SEND writes attacker-chosen (iov_base, iov_len) pairs directly over pipe_buffer[0].ops, so <code>close()</code> calls a userland pipe_buf_operations-&gt;release → commit_creds(prepare_kernel_cred(&amp;init_task)) → root, then read the flag off <code>/dev/sda.</code></p>
+            <p class="chal-foot"><span>Full writeup</span><span class="sep">·</span><span>5 sections</span><span class="sep">·</span><span>58 blocks</span></p>
           </div>
           <div class="chal-right">
             <span class="cat cat-pwn">Pwn</span>
             <span class="pts">100 pts</span>
-            <svg class="twist" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
           </div>
-        </summary>
-        <div class="chal-body">
-          <div class="cb-block">
-            <p class="cb-label">What it was</p>
-            <p>A real Linux 7.2.0-rc3 io_uring bug. Reclaim the freed chunk with a <code>pipe_buffer[]</code>, issue a second bundled <code>IORING_OP_SEND</code>, and you write attacker-chosen pointers over <code>pipe_buffer[0].ops</code>, so <code>close()</code> calls into userland and <code>commit_creds(prepare_kernel_cred(&amp;init_task))</code> gives root.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">The bug</p>
-            <p><code>io_ring_buffers_peek()</code> calls <code>kfree(arg-&gt;iovs)</code> on the array it just filled instead of on the array it replaced. The fix in 7.2 final guards it with <code>if (arg-&gt;iovs != org_iovs &amp;&amp; (arg-&gt;mode &amp; KBUF_MODE_FREE))</code> and frees <code>org_iovs</code> instead. The caller compounds it: <code>io_send_select_buffer()</code> hands the cached vec back in and only writes it back when the pointer actually changed, so a dangling iovec pointer stays parked in <code>ctx-&gt;netmsg_cache</code>.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">Flag</p>
-            <div class="flagbox">
-              <span class="lab">Captured</span>
-              <span class="flagval">BHFlagY{16cb5f9913feed7e2b3f4883f774d103}</span>
-              <button class="reveal-btn" type="button" aria-label="Reveal the flag for Bug Where">Reveal</button>
-            </div>
-            <p class="flag-note">Instances are provisioned per run, so this value is ours, not a reusable answer.</p>
-          </div>
-        </div>
-      </details>
-      <details class="chal" id="extended-license" data-cat="reversing" data-search="extended-license reversing ebpf-decrypted sigtrap shellcode, feistel inversion, z3 username solve a 34 mb stripped pie hides its license check in 40 encrypted x86 shellcode chunks, decrypted inside the kernel by an embedded ebpf tracepoint program and dispatched through int3/sigtrap. the solve ends at a unique username, xorionxarcheryxseedx. three root causes chain together, and the first is the funniest: the bit-comparison oracle leaks the expected value in its own arguments. the final check compares the feistel-transformed payload against a hard-coded 512-bit constant one bit at a time via syscall(0x1337, actual_bit, mode), reading the seccomp seccomp_ret_errno return as the result. but the seccomp program has four parity arms selected by args[1], and the shellcode picks the arm according to the expected bit. the mode argument is the answer. scraping 512 strace lines and reading args[1] off each one hands you the target directly.">
-        <summary>
+        </article>
+        <article class="chal" data-cat="reversing" data-search="extended-license reversing ebpf-decrypted sigtrap shellcode, feistel inversion, z3 username solve a 34 mb stripped pie hides its license check in 40 encrypted x86 shellcode chunks that are decrypted inside the kernel by an embedded ebpf tracepoint program (bpf_probe_write_user on syscalls:sys_enter_openat with dirfd 0x1337) and dispatched via int3/sigtrap. dumping the chunks in a privileged container, reconstructing the 8×4-round feistel/prng license transform, scraping the expected 512-bit target out of the seccomp errno oracle&#x27;s own argument stream, and z3- solving the 14 hidden username byte-checksums plus crc32(user)==0xbf2b0fa2 yields the unique username xorionxarcheryxseedx, whose derived 72-byte license.dat makes the untouched binary print the flag.">
           <span class="chal-no" aria-hidden="true">.09</span>
           <div class="chal-main">
-            <h2>extended-license</h2>
+            <h3><a href="/blog/blackhat-mea-2026-quals/extended-license/">extended-license<span class="arr" aria-hidden="true">↗</span></a></h3>
             <p class="chal-method">eBPF-decrypted SIGTRAP shellcode, Feistel inversion, z3 username solve</p>
+            <p class="chal-tldr">A 34 MB stripped PIE hides its license check in 40 encrypted x86 shellcode chunks that are decrypted inside the kernel by an embedded eBPF tracepoint program (bpf_probe_write_user on syscalls:sys_enter_openat with dirfd <code>0x1337</code>) and dispatched via int3/SIGTRAP. Dumping the chunks in a privileged container, reconstructing the 8×4-round Feistel/PRNG license transform, scraping the expected 512-bit target out of the seccomp ERRNO oracle's own argument stream, and z3- solving the 14 hidden username byte-checksums plus crc32(user)==<code>0xbf2b0fa2</code> yields the unique username xorionxarcheryxseedx, whose derived 72-byte license.dat makes the untouched binary print the flag.</p>
+            <p class="chal-foot"><span>Full writeup</span><span class="sep">·</span><span>4 sections</span><span class="sep">·</span><span>64 blocks</span></p>
           </div>
           <div class="chal-right">
             <span class="cat cat-reversing">Reversing</span>
             <span class="pts">100 pts</span>
-            <svg class="twist" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
           </div>
-        </summary>
-        <div class="chal-body">
-          <div class="cb-block">
-            <p class="cb-label">What it was</p>
-            <p>A 34 MB stripped PIE hides its license check in 40 encrypted x86 shellcode chunks, decrypted <em>inside the kernel</em> by an embedded eBPF tracepoint program and dispatched through <code>int3</code>/SIGTRAP. The solve ends at a unique username, <code>xorionxarcheryxseedx</code>.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">The bug</p>
-            <p>Three root causes chain together, and the first is the funniest: the bit-comparison oracle leaks the expected value in its own arguments. The final check compares the Feistel-transformed payload against a hard-coded 512-bit constant one bit at a time via <code>syscall(0x1337, actual_bit, mode)</code>, reading the seccomp <code>SECCOMP_RET_ERRNO</code> return as the result. But the seccomp program has four parity arms selected by <code>args[1]</code>, and the shellcode picks the arm according to the <em>expected</em> bit. The mode argument is the answer. Scraping 512 strace lines and reading <code>args[1]</code> off each one hands you the target directly.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">Flag</p>
-            <div class="flagbox">
-              <span class="lab">Captured</span>
-              <span class="flagval">BHFlagY{BPF_c4n_b3_b4d_Bu7_I_d0n&#x27;7_Th1nK_7thIs_()ne_1s_B4D?_6b117fca1597}</span>
-              <button class="reveal-btn" type="button" aria-label="Reveal the flag for extended-license">Reveal</button>
-            </div>
-            <p class="flag-note">Instances are provisioned per run, so this value is ours, not a reusable answer.</p>
-          </div>
-        </div>
-      </details>
-      <details class="chal" id="free-agentic-tool" data-cat="reversing" data-search="free-agentic-tool reversing go dropper to reflective pe stage 2 to deterministic x25519 key to pcap decryption a &quot;free&quot; ai agent cli, a session debug bundle, and a packet capture. the distributed binary is a dropper whose real payload is a reflectively-loaded second go executable speaking grpc to a c2, and that stage derives its x25519 private key instead of generating one, so the whole captured session decrypts from the pcap alone. two bugs, one hiding the other. the loader is disguised as archive/zip: the binary&#x27;s zip package contains seven functions that do not exist in the go standard library, all claiming to come from archive/zip/writer.go:666+, and together they form a reflective pe loader triggered by a planted sync.once. the ui prints a fake http 401 as cover. the second bug is the fatal one: stage two derives its x25519 private key as sha256(username + &quot;_&quot; + computername), both of which the debug bundle hands you.">
-        <summary>
+        </article>
+        <article class="chal" data-cat="reversing" data-search="free-agentic-tool reversing go dropper to reflective pe stage 2 to deterministic x25519 key to pcap decryption the distributed binary is a dropper. its real payload is a reflectively-loaded second go executable that speaks grpc to a c2, and that stage derives its x25519 private key from sha256(username + &quot;_&quot; + computername) instead of generating one, so the whole captured session decrypts from the pcap alone.">
           <span class="chal-no" aria-hidden="true">.10</span>
           <div class="chal-main">
-            <h2>free-agentic-tool</h2>
+            <h3><a href="/blog/blackhat-mea-2026-quals/free-agentic-tool/">free-agentic-tool<span class="arr" aria-hidden="true">↗</span></a></h3>
             <p class="chal-method">Go dropper to reflective PE stage 2 to deterministic X25519 key to pcap decryption</p>
+            <p class="chal-tldr">The distributed binary is a dropper. Its real payload is a reflectively-loaded second Go executable that speaks gRPC to a C2, and that stage derives its X25519 private key from sha256(USERNAME + "_" + COMPUTERNAME) instead of generating one, so the whole captured session decrypts from the pcap alone.</p>
+            <p class="chal-foot"><span>Full writeup</span><span class="sep">·</span><span>4 sections</span><span class="sep">·</span><span>30 blocks</span></p>
           </div>
           <div class="chal-right">
             <span class="cat cat-reversing">Reversing</span>
             <span class="pts">100 pts</span>
-            <svg class="twist" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
           </div>
-        </summary>
-        <div class="chal-body">
-          <div class="cb-block">
-            <p class="cb-label">What it was</p>
-            <p>A "free" AI agent CLI, a session debug bundle, and a packet capture. The distributed binary is a dropper whose real payload is a reflectively-loaded second Go executable speaking gRPC to a C2, and that stage derives its X25519 private key instead of generating one, so the whole captured session decrypts from the pcap alone.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">The bug</p>
-            <p>Two bugs, one hiding the other. The loader is disguised as <code>archive/zip</code>: the binary's zip package contains seven functions that do not exist in the Go standard library, all claiming to come from <code>archive/zip/writer.go:666+</code>, and together they form a reflective PE loader triggered by a planted <code>sync.Once</code>. The UI prints a fake HTTP 401 as cover. The second bug is the fatal one: stage two derives its X25519 private key as <code>sha256(USERNAME + "_" + COMPUTERNAME)</code>, both of which the debug bundle hands you.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">Flag</p>
-            <div class="flagbox">
-              <span class="lab">Captured</span>
-              <span class="flagval">BHFlagY{wh4t_y0u_5Ee_15n&#x27;t_wh4t_y0u_G3t_8cc56ad688964fd5f72f3c414971b1d6}</span>
-              <button class="reveal-btn" type="button" aria-label="Reveal the flag for free-agentic-tool">Reveal</button>
-            </div>
-            <p class="flag-note">Instances are provisioned per run, so this value is ours, not a reusable answer.</p>
-          </div>
-        </div>
-      </details>
-      <details class="chal" id="upyx" data-cat="reversing" data-search="upyx reversing upx to pyinstaller to 100 marshal layers to a cython rpc client to a veh-packed c verifier an 11.8 mb pe wrapped in upx over pyinstaller over 100 nested marshal layers over a cython gui over a custom veh packer. the final gate is a 960-byte keyed comparison that inverts cleanly, and the last hop hides in the upx stub tail that upx -d throws away. the hint is the key derivation, and it is sharper than it looks. check.pyd walks peb to processparameters to commandline, takes the characters after the last dot, keeps alphanumerics, lowercases, and fnv-1a hashes them with a non-standard basis of 0xb5f6f899 rather than 0x811c9dc5. so k = fnv1a(&quot;exe&quot;). rename the file and k changes and nothing validates, which is exactly what &quot;don&#x27;t rename this file&quot; was telling you.">
-        <summary>
+        </article>
+        <article class="chal" data-cat="reversing" data-search="upyx reversing upx to pyinstaller to 100 marshal layers to a cython rpc client to a veh-packed c verifier an 11.8 mb pe that is upx over pyinstaller over 100 nested marshal layers over a cython gui over a custom veh packer. the final gate is a 960-byte keyed comparison that inverts cleanly, and the last hop is a named-pipe service hidden in the upx stub tail that upx -d throws away.">
           <span class="chal-no" aria-hidden="true">.11</span>
           <div class="chal-main">
-            <h2>upyx</h2>
+            <h3><a href="/blog/blackhat-mea-2026-quals/upyx/">upyx<span class="arr" aria-hidden="true">↗</span></a></h3>
             <p class="chal-method">UPX to PyInstaller to 100 marshal layers to a Cython RPC client to a VEH-packed C verifier</p>
+            <p class="chal-tldr">An 11.8 MB PE that is UPX over PyInstaller over 100 nested marshal layers over a Cython GUI over a custom VEH packer. The final gate is a 960-byte keyed comparison that inverts cleanly, and the last hop is a named-pipe service hidden in the UPX stub tail that upx -d throws away.</p>
+            <p class="chal-foot"><span>Full writeup</span><span class="sep">·</span><span>4 sections</span><span class="sep">·</span><span>17 blocks</span></p>
           </div>
           <div class="chal-right">
             <span class="cat cat-reversing">Reversing</span>
             <span class="pts">100 pts</span>
-            <svg class="twist" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
           </div>
-        </summary>
-        <div class="chal-body">
-          <div class="cb-block">
-            <p class="cb-label">What it was</p>
-            <p>An 11.8 MB PE wrapped in UPX over PyInstaller over 100 nested marshal layers over a Cython GUI over a custom VEH packer. The final gate is a 960-byte keyed comparison that inverts cleanly, and the last hop hides in the UPX stub tail that <code>upx -d</code> throws away.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">The bug</p>
-            <p>The hint is the key derivation, and it is sharper than it looks. <code>check.pyd</code> walks PEB to ProcessParameters to CommandLine, takes the characters after the last dot, keeps alphanumerics, lowercases, and FNV-1a hashes them with a non-standard basis of <code>0xB5F6F899</code> rather than <code>0x811C9DC5</code>. So <code>K = fnv1a("exe")</code>. Rename the file and K changes and nothing validates, which is exactly what "don't rename this file" was telling you.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">Flag</p>
-            <p class="nf">Solved on the day. Value not recorded in the report.</p>
-          </div>
-        </div>
-      </details>
-      <details class="chal" id="dead-drop" data-cat="web" data-search="dead drop web css-allowlist escape via &amp;lt;/style&amp;gt;, then a css selector oracle against the bot an anonymous dead-drop board validates a per-drop &quot;envelope cipher&quot; css field with a real css parser and a property allowlist, then echoes the accepted css verbatim into a &amp;lt;style&amp;gt; block. under a js-free csp, a css selector oracle still drags the flag out one character at a time. the validated css is reflected verbatim into &amp;lt;style&amp;gt;, and the validator has no notion of html context. the parser treats a css string literal as an opaque value, so anything inside quotes passes, including a{font-family:&quot;&amp;lt;/style&amp;gt;&amp;lt;img&amp;gt;&quot;}. during html parsing that inner &amp;lt;/style&amp;gt; terminates the style element, because raw-text elements end at the first matching end tag and quotes mean nothing to the html tokenizer. from there, html:has(input[value^=&#x27;...&#x27;]) rules plus the same-origin pickup beacon turn the headless-chrome courier into a character-by-character oracle.">
-        <summary>
+        </article>
+        <article class="chal" data-cat="web" data-search="dead drop web css-allowlist escape via &amp;lt;/style&amp;gt;, then a css selector oracle against the bot the per-drop &quot;envelope cipher&quot; css field is validated by a real css parser with a property/ value allowlist, but the accepted css is echoed verbatim into a block, and a css string literal may contain , giving arbitrary html injection (including a second that never sees the validator). under a js-free csp (default-src &#x27;none&#x27;; style-src &#x27;unsafe-inline&#x27;; img- src &#x27;self&#x27;), the same-origin pickup beacon /px/:id logs the full request url including query string into an owner-readable log, so html:has(input[value^=&#x27;…&#x27;]) #qn{background:url(/px/ collector?p=n)} rules turn the headless-chrome courier bot into a css-selector oracle that leaks the courier-only hidden one character at a time.">
           <span class="chal-no" aria-hidden="true">.12</span>
           <div class="chal-main">
-            <h2>Dead Drop</h2>
+            <h3><a href="/blog/blackhat-mea-2026-quals/dead-drop/">Dead Drop<span class="arr" aria-hidden="true">↗</span></a></h3>
             <p class="chal-method">CSS-allowlist escape via &lt;/style&gt;, then a CSS selector oracle against the bot</p>
+            <p class="chal-tldr">The per-drop "envelope cipher" CSS field is validated by a real CSS parser with a property/ value allowlist, but the accepted CSS is echoed verbatim into a block, and a CSS string literal may contain , giving arbitrary HTML injection (including a second that never sees the validator). Under a JS-free CSP (default-src 'none'; style-src 'unsafe-inline'; img- src 'self'), the same-origin pickup beacon /px/:id logs the full request URL including query string into an owner-readable log, so html:has(input[value^='…']) #qN{background:url(/px/ COLLECTOR?p=N)} rules turn the headless-Chrome courier bot into a CSS-selector oracle that leaks the courier-only hidden one character at a time.</p>
+            <p class="chal-foot"><span>Full writeup</span><span class="sep">·</span><span>4 sections</span><span class="sep">·</span><span>38 blocks</span></p>
           </div>
           <div class="chal-right">
             <span class="cat cat-web">Web</span>
             <span class="pts">100 pts</span>
-            <svg class="twist" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
           </div>
-        </summary>
-        <div class="chal-body">
-          <div class="cb-block">
-            <p class="cb-label">What it was</p>
-            <p>An anonymous dead-drop board validates a per-drop "envelope cipher" CSS field with a real CSS parser and a property allowlist, then echoes the accepted CSS verbatim into a <code>&lt;style&gt;</code> block. Under a JS-free CSP, a CSS selector oracle still drags the flag out one character at a time.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">The bug</p>
-            <p>The validated CSS is reflected verbatim into <code>&lt;style&gt;</code>, and the validator has no notion of HTML context. The parser treats a CSS string literal as an opaque value, so anything inside quotes passes, including <code>a{font-family:"&lt;/style&gt;&lt;img&gt;"}</code>. During HTML parsing that inner <code>&lt;/style&gt;</code> terminates the style element, because raw-text elements end at the first matching end tag and quotes mean nothing to the HTML tokenizer. From there, <code>html:has(input[value^='...'])</code> rules plus the same-origin pickup beacon turn the headless-Chrome courier into a character-by-character oracle.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">Flag</p>
-            <p class="nf">Solved on the day. Value not recorded in the report.</p>
-          </div>
-        </div>
-      </details>
-      <details class="chal" id="lumen" data-cat="web" data-search="lumen web cross-parameter urldecode xss plus max_input_vars csp removal a read-only document relay with a strict per-request nonce csp on every page. smuggle a &amp;lt; across a parameter boundary, then delete the csp header entirely by making php emit a startup warning before the script runs. three distinct bugs, all required. clean() blocklists only the literal string %3c and then htmlspecialchars(), but index.php calls urldecode() on the concatenation after each half was sanitised separately. so %3e, %22, %27 and %26 are resurrected into real characters, and because dir and file are cleaned separately but concatenated before decoding, a dir ending in % joins with a file starting in 3c. then sending more than 1,000 query parameters makes php print a max_input_vars warning at request startup, so the later header(&quot;content-security-policy: ...&quot;) fails with &quot;headers already sent&quot; and the csp simply never ships.">
-        <summary>
+        </article>
+        <article class="chal" data-cat="web" data-search="lumen web cross-parameter urldecode xss plus max_input_vars csp removal a 1000 query parameters, which makes php print a max_input_vars request-startup warning before the script runs, so header(&quot;content-security-policy: ...&quot;) fails with &quot;headers already sent&quot;. the resulting unrestricted onerror handler reads the operator bot&#x27;s localstorage.flag and posts it to the app&#x27;s own ?p=trace note store, which the attacker reads back.">
           <span class="chal-no" aria-hidden="true">.13</span>
           <div class="chal-main">
-            <h2>Lumen</h2>
+            <h3><a href="/blog/blackhat-mea-2026-quals/lumen/">Lumen<span class="arr" aria-hidden="true">↗</span></a></h3>
             <p class="chal-method">Cross-parameter urldecode XSS plus max_input_vars CSP removal</p>
+            <p class="chal-tldr">A 1000 query parameters, which makes PHP print a max_input_vars request-startup warning before the script runs, so header("Content-Security-Policy: ...") fails with "headers already sent". The resulting unrestricted onerror handler reads the operator bot's localStorage.flag and posts it to the app's own ?p=trace note store, which the attacker reads back.</p>
+            <p class="chal-foot"><span>Full writeup</span><span class="sep">·</span><span>4 sections</span><span class="sep">·</span><span>47 blocks</span></p>
           </div>
           <div class="chal-right">
             <span class="cat cat-web">Web</span>
             <span class="pts">100 pts</span>
-            <svg class="twist" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
           </div>
-        </summary>
-        <div class="chal-body">
-          <div class="cb-block">
-            <p class="cb-label">What it was</p>
-            <p>A read-only document relay with a strict per-request nonce CSP on every page. Smuggle a <code>&lt;</code> across a parameter boundary, then delete the CSP header entirely by making PHP emit a startup warning before the script runs.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">The bug</p>
-            <p>Three distinct bugs, all required. <code>clean()</code> blocklists only the literal string <code>%3c</code> and then <code>htmlspecialchars()</code>, but <code>index.php</code> calls <code>urldecode()</code> on the concatenation <em>after</em> each half was sanitised separately. So <code>%3e</code>, <code>%22</code>, <code>%27</code> and <code>%26</code> are resurrected into real characters, and because <code>dir</code> and <code>file</code> are cleaned separately but concatenated before decoding, a <code>dir</code> ending in <code>%</code> joins with a <code>file</code> starting in <code>3c</code>. Then sending more than 1,000 query parameters makes PHP print a <code>max_input_vars</code> warning at request startup, so the later <code>header("Content-Security-Policy: ...")</code> fails with "headers already sent" and the CSP simply never ships.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">Flag</p>
-            <div class="flagbox">
-              <span class="lab">Captured</span>
-              <span class="flagval">BHFlagY{406d825cc9c3e881efbaa597ad7591c2}</span>
-              <button class="reveal-btn" type="button" aria-label="Reveal the flag for Lumen">Reveal</button>
-            </div>
-            <p class="flag-note">Instances are provisioned per run, so this value is ours, not a reusable answer.</p>
-          </div>
-        </div>
-      </details>
-      <details class="chal" id="deckforge" data-cat="web" data-search="deckforge web file:// read, then an sop-disabled cross-origin pivot to a privileged chromedriver deckforge turns attacker-supplied html into preview images. the renderer runs chromium with --allow-file-access-from-files and --disable-web-security, which is an arbitrary local file read and a licence to drive a loopback chromedriver running as a different, more privileged user. three things compose. the attacker&#x27;s html renders with --allow-file-access-from-files, giving an arbitrary local file read from a file:// origin. --disable-web-security removes the same-origin policy, so that page can issue arbitrary cross-origin requests to loopback and read the responses. and a second chromedriver listens on loopback as the runner user with --allowed-origins=&#x27;*&#x27;. its --allowed-ips=127.0.0.1 allowlist is worthless, because the attacker&#x27;s code is already executing on 127.0.0.1.">
-        <summary>
+        </article>
+        <article class="chal" data-cat="web" data-search="deckforge web file:// read, then an sop-disabled cross-origin pivot to a privileged chromedriver the preview renderer runs chromium with --allow-file-access-from-files and --disable-web-security, so injected html gets an arbitrary local file read and can drive a loopback chromedriver that runs as a different, privileged user.">
           <span class="chal-no" aria-hidden="true">.14</span>
           <div class="chal-main">
-            <h2>DeckForge</h2>
+            <h3><a href="/blog/blackhat-mea-2026-quals/deckforge/">DeckForge<span class="arr" aria-hidden="true">↗</span></a></h3>
             <p class="chal-method">file:// read, then an SOP-disabled cross-origin pivot to a privileged chromedriver</p>
+            <p class="chal-tldr">The preview renderer runs Chromium with --allow-file-access-from-files and --disable-web-security, so injected HTML gets an arbitrary local file read and can drive a loopback chromedriver that runs as a different, privileged user.</p>
+            <p class="chal-foot"><span>Full writeup</span><span class="sep">·</span><span>4 sections</span><span class="sep">·</span><span>26 blocks</span></p>
           </div>
           <div class="chal-right">
             <span class="cat cat-web">Web</span>
             <span class="pts">100 pts</span>
-            <svg class="twist" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
           </div>
-        </summary>
-        <div class="chal-body">
-          <div class="cb-block">
-            <p class="cb-label">What it was</p>
-            <p>DeckForge turns attacker-supplied HTML into preview images. The renderer runs Chromium with <code>--allow-file-access-from-files</code> and <code>--disable-web-security</code>, which is an arbitrary local file read and a licence to drive a loopback chromedriver running as a different, more privileged user.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">The bug</p>
-            <p>Three things compose. The attacker's HTML renders with <code>--allow-file-access-from-files</code>, giving an arbitrary local file read from a <code>file://</code> origin. <code>--disable-web-security</code> removes the same-origin policy, so that page can issue arbitrary cross-origin requests to loopback and read the responses. And a second chromedriver listens on loopback as the <code>runner</code> user with <code>--allowed-origins='*'</code>. Its <code>--allowed-ips=127.0.0.1</code> allowlist is worthless, because the attacker's code is already executing on 127.0.0.1.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">Flag</p>
-            <div class="flagbox">
-              <span class="lab">Captured</span>
-              <span class="flagval">BHFlagY{9461dcd097931631fa22e5aed1f9e680}</span>
-              <button class="reveal-btn" type="button" aria-label="Reveal the flag for DeckForge">Reveal</button>
-            </div>
-            <p class="flag-note">Instances are provisioned per run, so this value is ours, not a reusable answer.</p>
-          </div>
-        </div>
-      </details>
-      <details class="chal" id="huddle" data-cat="web" data-search="huddle web sha-256 length extension to owner, then ffmpeg dref arbitrary file read a small team chat workspace. length-extend the invite token to promote yourself to workspace owner, which unlocks the video thumbnailer, which shells out to ffmpeg with external data references enabled. eight requests rebuild /flag.txt byte-exact. the invite token is signed with a raw sha-256 prefix mac, sha256(secret &amp;#8214; &quot;team=main&amp;amp;email=...&amp;amp;role=member&quot;), not hmac, so it is length-extendable. the parser makes it exploitable in exactly one direction: it is a hand-rolled split(&#x27;&amp;amp;&#x27;) where the last duplicate key wins, so appending &amp;amp;role=owner overrides the original role. owner unlocks a thumbnailer that runs ffmpeg -enable_drefs 1 -use_absolute_path 1, and a hand-built mp4 carrying a mac-alias external data reference plus a custom 256-entry pal8 colour table turns each thumbnail into one jpeg-lossless bit-plane of an arbitrary server file.">
-        <summary>
+        </article>
+        <article class="chal" data-cat="web" data-search="huddle web sha-256 length extension to owner, then ffmpeg dref arbitrary file read huddle signs invite tokens with sha256(secret ‖ &quot;team=main&amp;email=…&amp;role=member&quot;) and parses them with a hand-rolled last-duplicate-key-wins splitter, so a sha-256 length-extension appending &amp;role=owner promotes any member to workspace owner. owner unlocks the video- message thumbnailer, which shells out to ffmpeg -enable_drefs 1 -use_absolute_path 1; a hand- built mp4 with a mac-alias (alis) external data reference plus a custom 256-entry pal8 colour table turns each thumbnail into one jpeg-lossless bit-plane of an arbitrary server file, and 8 requests reconstruct /flag.txt byte-exact.">
           <span class="chal-no" aria-hidden="true">.15</span>
           <div class="chal-main">
-            <h2>Huddle</h2>
+            <h3><a href="/blog/blackhat-mea-2026-quals/huddle/">Huddle<span class="arr" aria-hidden="true">↗</span></a></h3>
             <p class="chal-method">SHA-256 length extension to owner, then ffmpeg dref arbitrary file read</p>
+            <p class="chal-tldr">Huddle signs invite tokens with sha256(secret ‖ "team=main&amp;email=…&amp;role=member") and parses them with a hand-rolled last-duplicate-key-wins splitter, so a SHA-256 length-extension appending &amp;role=owner promotes any member to workspace owner. Owner unlocks the video- message thumbnailer, which shells out to ffmpeg -enable_drefs 1 -use_absolute_path 1; a hand- built MP4 with a Mac-alias (alis) external data reference plus a custom 256-entry pal8 colour table turns each thumbnail into one JPEG-lossless bit-plane of an arbitrary server file, and 8 requests reconstruct <code>/flag.txt</code> byte-exact.</p>
+            <p class="chal-foot"><span>Full writeup</span><span class="sep">·</span><span>4 sections</span><span class="sep">·</span><span>69 blocks</span></p>
           </div>
           <div class="chal-right">
             <span class="cat cat-web">Web</span>
             <span class="pts">100 pts</span>
-            <svg class="twist" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
           </div>
-        </summary>
-        <div class="chal-body">
-          <div class="cb-block">
-            <p class="cb-label">What it was</p>
-            <p>A small team chat workspace. Length-extend the invite token to promote yourself to workspace owner, which unlocks the video thumbnailer, which shells out to <code>ffmpeg</code> with external data references enabled. Eight requests rebuild <code>/flag.txt</code> byte-exact.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">The bug</p>
-            <p>The invite token is signed with a raw SHA-256 prefix MAC, <code>sha256(SECRET &#8214; "team=main&amp;email=...&amp;role=member")</code>, not HMAC, so it is length-extendable. The parser makes it exploitable in exactly one direction: it is a hand-rolled <code>split('&amp;')</code> where the last duplicate key wins, so appending <code>&amp;role=owner</code> overrides the original role. Owner unlocks a thumbnailer that runs <code>ffmpeg -enable_drefs 1 -use_absolute_path 1</code>, and a hand-built MP4 carrying a Mac-alias external data reference plus a custom 256-entry pal8 colour table turns each thumbnail into one JPEG-lossless bit-plane of an arbitrary server file.</p>
-          </div>
-          <div class="cb-block">
-            <p class="cb-label">Flag</p>
-            <div class="flagbox">
-              <span class="lab">Captured</span>
-              <span class="flagval">BHFlagY{91c5fde3a1ef9948fac9a90a2a4545a3}</span>
-              <button class="reveal-btn" type="button" aria-label="Reveal the flag for Huddle">Reveal</button>
-            </div>
-            <p class="flag-note">Instances are provisioned per run, so this value is ours, not a reusable answer.</p>
-          </div>
-        </div>
-      </details>
+        </article>
       </div>
     </div>
   </section>
 
-  <section class="section" id="takeaways" aria-labelledby="tk-title">
+  <section class="section">
     <div class="container">
       <header class="sec-head" data-reveal>
         <span class="sec-no" aria-hidden="true">03</span>
         <div class="sec-title">
           <p class="kicker">Afterwards</p>
-          <h2 id="tk-title">What the set rewarded<span class="dot">.</span></h2>
+          <h2>What the set rewarded<span class="dot">.</span></h2>
         </div>
       </header>
-      <div class="prose" data-reveal style="--d:.08s">
-        <p>Three of these were not really about the primitive at all. Hokan, Popcnt Oracle and Reduce, Reuse, Recycle each present a budget that looks one query, one bit or one block too small, and each one opens the moment you stop querying at random and start querying with structure. The lesson transfers directly to real work: an oracle that leaks one bit is still an oracle, and the interesting question is what you choose to ask it.</p>
+      <div class="wu" data-reveal style="--d:.08s">
+        <p>Three of these were not really about the primitive. Hokan, Popcnt Oracle and Reduce, Reuse, Recycle each present a budget that looks one query, one bit or one block too small, and each opens the moment you stop querying at random and start querying with structure. That transfers straight to real work: an oracle that leaks one bit is still an oracle, and the interesting question is what you choose to ask it.</p>
         <p>The web set punished trust in the wrong layer. Dead Drop validated CSS with a real CSS parser and still lost, because the parser has no idea it is writing into HTML. Lumen sanitised both halves of a path and then decoded the concatenation. DeckForge put an IP allowlist in front of a service the attacker was already executing inside. In all three the control was real and the boundary was imaginary.</p>
-        <p>Bug Where was the one that felt least like a puzzle. It is a genuine Linux 7.2.0-rc3 io_uring bug with a one-line fix in the final release, and the gap between <q cite="https://git.kernel.org/">frees the array it just filled</q> and a root shell is a reminder of how little slack there is in kernel memory management.</p>
-        <p>And then Teto, which I still think was winnable. The analysis was right and the exploit design was validated in simulation. It ran out of write budget, which is a more annoying way to lose than being wrong.</p>
+        <p>Bug Where felt least like a puzzle. It is a genuine Linux 7.2.0-rc3 io_uring bug with a one-line fix in the final release, and the distance between freeing the wrong array and a root shell is a reminder of how little slack there is in kernel memory management.</p>
+        <p>And then Teto, which I still think was winnable.</p>
       </div>
     </div>
   </section>
-
 </main>
 
 <footer class="site-foot">
@@ -1147,97 +475,54 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
 (function () {
   "use strict";
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
   var head = document.querySelector(".site-head");
-  function onScroll() { head.classList.toggle("scrolled", window.scrollY > 8); }
-  window.addEventListener("scroll", onScroll, { passive: true });
-  onScroll();
+  function onScroll(){ head.classList.toggle("scrolled", window.scrollY > 8); }
+  window.addEventListener("scroll", onScroll, {passive:true}); onScroll();
 
-  var revealEls = Array.prototype.slice.call(document.querySelectorAll("[data-reveal], [data-stagger]"));
-  document.querySelectorAll("[data-stagger]").forEach(function (group) {
-    Array.prototype.forEach.call(group.children, function (child, i) { child.style.setProperty("--i", i); });
-  });
-  if (reduceMotion || !("IntersectionObserver" in window)) {
-    revealEls.forEach(function (el) { el.classList.add("in"); });
-  } else {
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) { entry.target.classList.add("in"); io.unobserve(entry.target); }
-      });
-    }, { threshold: 0.1, rootMargin: "0px 0px -6% 0px" });
-    revealEls.forEach(function (el) { io.observe(el); });
-    var geo = function () {
-      for (var i = 0; i < revealEls.length; i++) {
-        var el = revealEls[i];
-        if (el.classList.contains("in")) continue;
-        if (el.getBoundingClientRect().top < window.innerHeight * 0.94) el.classList.add("in");
-      }
-    };
-    window.addEventListener("scroll", geo, { passive: true });
-    window.addEventListener("resize", geo);
-    geo();
+  var prog=document.getElementById("prog");
+  if(prog){ var tick=function(){ var h=document.documentElement,m=h.scrollHeight-h.clientHeight;
+    prog.style.width=(m>0?(h.scrollTop/m)*100:0)+"%"; };
+    window.addEventListener("scroll",tick,{passive:true}); window.addEventListener("resize",tick); tick(); }
+
+  var revealEls=Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
+  if(reduceMotion||!("IntersectionObserver" in window)) revealEls.forEach(function(el){el.classList.add("in");});
+  else {
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target);}});},
+      {threshold:0.08,rootMargin:"0px 0px -5% 0px"});
+    revealEls.forEach(function(el){io.observe(el);});
+    var geo=function(){revealEls.forEach(function(el){if(!el.classList.contains("in")&&el.getBoundingClientRect().top<window.innerHeight*0.95)el.classList.add("in");});};
+    window.addEventListener("scroll",geo,{passive:true}); window.addEventListener("resize",geo); geo();
   }
 
-  /* flag spoilers */
-  document.querySelectorAll(".flagbox .reveal-btn").forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      var box = btn.closest(".flagbox");
-      var shown = box.classList.toggle("shown");
-      btn.textContent = shown ? "Hide" : "Reveal";
-    });
-  });
-
-  /* search + category filter */
-  var wrap = document.querySelector(".chals");
-  if (wrap) {
-    var chals = Array.prototype.slice.call(wrap.querySelectorAll(".chal"));
-    var chips = Array.prototype.slice.call(document.querySelectorAll(".chip"));
-    var search = document.getElementById("chalSearch");
-    var counter = document.getElementById("chalCount");
-    var empty = document.createElement("p");
-    empty.className = "chals-empty";
-    empty.hidden = true;
-    empty.textContent = "No challenge matches that filter.";
+  var wrap=document.querySelector(".chals");
+  if(wrap){
+    var chals=Array.prototype.slice.call(wrap.querySelectorAll(".chal"));
+    var chips=Array.prototype.slice.call(document.querySelectorAll(".chip"));
+    var search=document.getElementById("chalSearch");
+    var counter=document.getElementById("chalCount");
+    var empty=document.createElement("p");
+    empty.className="chals-empty"; empty.hidden=true; empty.textContent="No challenge matches that filter.";
     wrap.appendChild(empty);
-    var active = "all";
-
-    function apply() {
-      var q = (search.value || "").trim().toLowerCase();
-      var shown = 0;
-      chals.forEach(function (el) {
-        var okCat = active === "all" || el.getAttribute("data-cat") === active;
-        var okTxt = !q || el.getAttribute("data-search").indexOf(q) !== -1;
-        var show = okCat && okTxt;
-        el.hidden = !show;
-        if (show) shown++;
+    var active="all";
+    function apply(){
+      var q=(search.value||"").trim().toLowerCase(), shown=0;
+      chals.forEach(function(el){
+        var ok=(active==="all"||el.getAttribute("data-cat")===active) &&
+               (!q||el.getAttribute("data-search").indexOf(q)!==-1);
+        el.hidden=!ok; if(ok) shown++;
       });
-      empty.hidden = shown !== 0;
-      counter.textContent = shown === chals.length
-        ? "Showing all " + chals.length + " challenges"
-        : "Showing " + shown + " of " + chals.length + " challenges";
+      empty.hidden=shown!==0;
+      counter.textContent = shown===chals.length ? "Showing all "+chals.length+" challenges"
+                                                 : "Showing "+shown+" of "+chals.length+" challenges";
     }
-
-    chips.forEach(function (chip) {
-      chip.addEventListener("click", function () {
-        active = chip.getAttribute("data-cat");
-        chips.forEach(function (c) {
-          var on = c === chip;
-          c.classList.toggle("is-on", on);
-          c.setAttribute("aria-pressed", on ? "true" : "false");
-        });
-        apply();
-      });
-    });
-    search.addEventListener("input", apply);
-
-    /* deep link: open and scroll to a challenge by hash */
-    if (location.hash.length > 1) {
-      var target = wrap.querySelector(location.hash.replace(/[^#\w-]/g, ""));
-      if (target && target.tagName === "DETAILS") target.open = true;
-    }
+    chips.forEach(function(chip){ chip.addEventListener("click",function(){
+      active=chip.getAttribute("data-cat");
+      chips.forEach(function(c){var on=c===chip;c.classList.toggle("is-on",on);c.setAttribute("aria-pressed",on?"true":"false");});
+      apply();
+    });});
+    search.addEventListener("input",apply);
   }
 })();
 </script>
-
 </body>
 </html>

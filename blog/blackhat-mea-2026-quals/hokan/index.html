@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Hokan · BlackHat MEA 2026 writeup</title>
+<meta name="description" content="Reconstruct a secret 11-variable degree-11 polynomial over an unknown 256-bit prime field from only 8 evaluations, two fewer than Prony.">
+<link rel="canonical" href="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/hokan/">
+<link rel="alternate" type="application/rss+xml" title="Usama Arshad, Writing" href="/feed.xml">
+<link rel="icon" href="/assets/favicon.ico">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#131110">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Usama Arshad">
+<meta property="og:title" content="Hokan · BlackHat MEA 2026 writeup">
+<meta property="og:description" content="Reconstruct a secret 11-variable degree-11 polynomial over an unknown 256-bit prime field from only 8 evaluations, two fewer than Prony.">
+<meta property="og:url" content="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/hokan/">
+<meta property="og:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@usama0x01">
+<meta name="twitter:title" content="Hokan · BlackHat MEA 2026 writeup">
+<meta name="twitter:description" content="Reconstruct a secret 11-variable degree-11 polynomial over an unknown 256-bit prime field from only 8 evaluations, two fewer than Prony.">
+<meta name="twitter:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Hokan: BlackHat MEA 2026 CTF writeup",
+  "description": "Reconstruct a secret 11-variable degree-11 polynomial over an unknown 256-bit prime field from only 8 evaluations, two fewer than Prony.",
+  "datePublished": "2026-11-04",
+  "author": {
+    "@type": "Person",
+    "name": "Usama Arshad",
+    "url": "https://www.usamaarshad.me/"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/hokan/"
+  },
+  "articleSection": "Crypto",
+  "proficiencyLevel": "Expert",
+  "isPartOf": {
+    "@type": "Article",
+    "name": "BlackHat MEA 2026 CTF qualifiers",
+    "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/"
+  }
+}
+</script>
+<link rel="preload" href="/assets/fonts/fraunces-normal-340-640.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/inter-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/jetbrainsmono-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.classList.add("js");</script>
+<link rel="stylesheet" href="/assets/css/writeup.css">
+</head>
+<body>
+<div class="progress" id="prog" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head" id="top">
+  <div class="container head-inner">
+    <a class="wordmark" href="/" aria-label="Usama Arshad, home">Usama Arshad<span class="dot">.</span></a>
+    <nav aria-label="Breadcrumb">
+      <a class="back-link" href="/blog/blackhat-mea-2026-quals/"><span class="arr" aria-hidden="true">←</span><span class="txt">All 15 challenges</span></a>
+    </nav>
+    <a class="btn btn-ghost head-cta" href="/assets/Usama-Arshad-Resume.pdf" download>Résumé</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" aria-labelledby="pt">
+    <div class="container">
+      <div class="masthead" data-reveal>
+        <p class="masthead-meta">
+          <span>Challenge 1 of 15</span>
+          <span>Crypto</span>
+          <span class="live">Solved · 100 pts</span>
+        </p>
+      </div>
+      <div class="hero-deck">
+        <div class="deck-copy" data-reveal style="--d:.08s">
+          <p class="kicker">BlackHat MEA 2026 · Qualifiers</p>
+          <h1 class="hero-title" id="pt">Hokan<span class="dot">.</span></h1>
+          <p class="deck">...Wait, 8 queries?</p>
+          <p class="wu-meta">
+            <span class="cat cat-crypto">Crypto</span><span class="sep">·</span>
+            <span>100 points</span><span class="sep">·</span>
+            <span>4 November 2026</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="wu-layout">
+        <article class="wu" data-reveal>
+          <div class="tldr"><p class="lab">TL;DR</p><p>Reconstruct a secret 11-variable degree-11 polynomial over an unknown 256-bit prime field from only 8 evaluations, two fewer than Prony interpolation nominally requires, by choosing query points whose structure makes the integer kernel depend only on the exponents.</p></div>
+          <div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{ea9380bc79fd02eefb1fbb538337a432}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{f4e3c8951a06dad601af1687cf8fd74d}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><p class="flag-note">Instances are provisioned per run, so these are the values our instances returned.</p>
+          <section id="recon"><h2><span class="hn">01</span>Recon</h2><p>The whole service is five lines of Sage:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">python</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>R = PolynomialRing(Zmod(random_prime(2^256)), 11, "x")
+f = R.random_element(degree=11)
+for _ in range(8):
+    v = list(map(int, input("&gt; ").split(",")))
+    print(f(*v))
+if str(f) == input("&gt; "):
+    print(flag)</code></pre></figure>
+<p>You must print str(f) exactly, Sage's degrevlex string form, coefficients and all, after only 8 evaluations, and the modulus p is never revealed.</p>
+<p>MPolynomialRing_base.random_element(degree=11) with terms=None sets terms = 5. Because 5 &lt; total/2 it draws exactly 5 distinct exponent tuples uniformly from the C(22,11) = 705,432 monomials of total degree at most 11 in 11 variables, each with a uniform coefficient in [0,p).</p>
+<p>Counting unknowns: p (256 bits) + 5 monomials (~87 bits) + 5 coefficients (1280 bits) ≈ 1633 bits, against 8 x 256 = 2048 bits of oracle output. Information-theoretically feasible, but the textbook Prony / Ben-Or–Tiwari route needs 2T = 10 queries for T = 5 terms, so it does not fit. The attack has to be near information-optimal.</p></section><section id="the-bug"><h2><span class="hn">02</span>The bug</h2><p>The bug is a budget bug rather than a memory bug: the author assumed 8 evaluations of a 5-term polynomial over a secret modulus is under the interpolation threshold. It is not, provided the query points are chosen with structure instead of at random.</p>
+<p>The structural fact that breaks it: if every query point is a scalar power-family of one weight vector, the integer left kernel of the evaluation matrix depends only on the multiset of exponent inner products, not on the coefficients and not on p. That kernel is spanned by the coefficient vectors of the locator polynomial, so a correct guess at the node set produces a relation that is an exact integer multiple of p. The unknown modulus stops being an obstacle and becomes the thing you extract.</p></section><section id="exploitation"><h2><span class="hn">03</span>Exploitation</h2><ol class="steps"><li>Queries 1–7, a Prony family with a small node set. Send v_k = (2^(k*w_1)..., 2^(k*w_11)) for k = 0..6, with w = (1,2...,11). Then</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>f(v_k) = SUM_i c_i * X_i^k   (mod p),   X_i = 2^(E_i),    E_i = &lt;a_i, w&gt; in [0,121]</code></pre></figure>
+<ol class="steps" start="2"><li>Extract p. For the true node multiset, the locator L(z) = PROD (z - X_i) and z*L(z) both annihilate the responses over the integers modulo p:</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>SUM_k L_k * r_k = 0,  SUM_k L_k * r_{k+1} = 0       (mod p)
+     =&gt; gcd(., .) = small * p</code></pre></figure>
+<p>E_i lives in [0,121], so enumerate all C(122,5) = 2.2e8 node sets (<code>enum.c</code>, GMP + OpenMP, ~20 s windowed / ~100 s full on 8 cores). The correct set yields a ~256-bit gcd; every wrong set yields a tiny one. No false positives were observed.</p>
+<ol class="steps" start="3"><li>Recover the individual coefficients. With p and the nodes known, a Vandermonde solve on the same 7 responses gives each c_i separately. This is the step that makes the last query affordable, and it is why the weight vector must separate the monomials.</li><li>Query 8, one prime point gives the exponent vectors. Send v = (2,3,5,7,11,13,17,19,23,29,31):</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>r_8 = SUM_i c_i * m_i     (mod p),   m_i = PROD_j q_j^(a_ij)</code></pre></figure>
+<p>Each m_i &lt; 31^11 ~ 2^54.5 and is typically ~2^36, so SUM log2(m_i) ~ 180 &lt;&lt; 256. With c_i and p already known this is a low-density modular knapsack, solved by LLL in dimension 7. Factor each recovered m_i over the 11 primes and the entire exponent vector falls out at once.</p>
+<ol class="steps" start="5"><li>Cross-check and format. Validate against &lt;a_i, w&gt; = E_i, total degree ≤ 11, and a replay of all 8 responses; then rebuild str(f) in Sage's degrevlex order (<code>fmt.py</code>, validated byte-for-byte against 300 real Sage polynomials) and send it.</li></ol></section><section id="dead-ends"><h2><span class="hn">04</span>Dead ends</h2><ul class="bullets"><li>The single failure mode is an exponent collision: two monomials sharing the same &lt;a, w&gt;. Exact probability 16.9% by dynamic programming over the monomial set. It is detected cleanly, a collision makes every 5-subset containing the 4 true nodes annihilate, so you get many gcd hits and a zero coefficient, so the correct response is simply to reconnect.</li><li>Wider weight vectors cut collisions to ~6% but cost 200x more enumeration, so w = (1..11) minimises total expected work.</li><li>Measured success: 91/100 against the simulator, 4/4 first-shot against real Sage.</li></ul><figure class="meme"><div class="meme-card"><p class="meme-cap top">THE AUTHOR BUDGETED 8 QUERIES FOR A 10-QUERY ATTACK</p><svg viewBox="0 0 560 200" role="img" xmlns="http://www.w3.org/2000/svg">
+<rect width="560" height="200" fill="#100e0d"/>
+<path d="M280 180 L280 120" stroke="#d6cfc3" stroke-width="1.5"/>
+<path d="M280 120 L140 54" stroke="#6f6659" stroke-width="1.5" stroke-dasharray="5 5"/>
+<path d="M280 120 L280 46" stroke="#6f6659" stroke-width="1.5" stroke-dasharray="5 5"/>
+<path d="M280 120 L420 54" stroke="#e5484d" stroke-width="1.8"/>
+<circle cx="140" cy="50" r="5" fill="none" stroke="#6f6659" stroke-width="1.5"/>
+<path d="M136 46l8 8M144 46l-8 8" stroke="#6f6659" stroke-width="1.4"/>
+<circle cx="280" cy="42" r="5" fill="none" stroke="#6f6659" stroke-width="1.5"/>
+<path d="M276 38l8 8M284 38l-8 8" stroke="#6f6659" stroke-width="1.4"/>
+<circle cx="420" cy="50" r="5" fill="#e5484d"/>
+<text x="140" y="26" fill="#6f6659" font-family="monospace" font-size="9" text-anchor="middle" letter-spacing="2">6 HOURS</text>
+<text x="280" y="22" fill="#6f6659" font-family="monospace" font-size="9" text-anchor="middle" letter-spacing="2">4 HOURS</text>
+<text x="420" y="28" fill="#e5484d" font-family="monospace" font-size="9" text-anchor="middle" letter-spacing="2">THE ONE THAT WORKED</text>
+</svg><p class="meme-cap bot">SO WE STOPPED QUERYING AT RANDOM</p></div></figure></section>
+          <nav class="pager" aria-label="Challenge navigation"><span class="empty"></span><a class="nx" href="/blog/blackhat-mea-2026-quals/popcnt-oracle/"><span class="dir">Next →</span><span class="t">Popcnt Oracle</span></a></nav>
+        </article>
+        <aside class="wu-rail">
+          <h2>On this page</h2>
+          <ol><li><a href="#recon">Recon</a></li><li><a href="#the-bug">The bug</a></li><li><a href="#exploitation">Exploitation</a></li><li><a href="#dead-ends">Dead ends</a></li></ol>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="wordmark" href="/">Usama Arshad<span class="dot">.</span></a>
+        <p>Offensive Security Lead. Red team, AppSec, and cloud security for fintech at scale. Based in Riyadh, Saudi Arabia.</p>
+      </div>
+      <nav class="foot-col" aria-label="Site index">
+        <h2>Index</h2>
+        <ul>
+          <li><a href="/">Portfolio</a></li>
+          <li><a href="/blog/">Writing</a></li>
+          <li><a href="/research/">Research</a></li>
+          <li><a href="/dorks/">Dork library</a></li>
+          <li><a href="/#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="foot-col">
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://github.com/usama0x01" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">WPScan leaderboard</a></li>
+          <li><a href="https://medium.com/@usama0x01" target="_blank" rel="noopener">Medium</a></li>
+          <li><a href="mailto:gusama21@gmail.com">gusama21@gmail.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>© 2026 Usama Arshad · Riyadh, Saudi Arabia</span>
+      <span class="colophon">Set in Fraunces, Inter &amp; JetBrains Mono, self-hosted · No trackers, no cookies</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var head = document.querySelector(".site-head");
+  function onScroll(){ head.classList.toggle("scrolled", window.scrollY > 8); }
+  window.addEventListener("scroll", onScroll, { passive:true }); onScroll();
+
+  var prog = document.getElementById("prog");
+  if (prog) {
+    var tick = function () {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      prog.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
+    };
+    window.addEventListener("scroll", tick, { passive:true });
+    window.addEventListener("resize", tick); tick();
+  }
+
+  var revealEls = Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
+  if (reduceMotion || !("IntersectionObserver" in window)) {
+    revealEls.forEach(function (el) { el.classList.add("in"); });
+  } else {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold:0.08, rootMargin:"0px 0px -5% 0px" });
+    revealEls.forEach(function (el) { io.observe(el); });
+    var geo = function () {
+      revealEls.forEach(function (el) {
+        if (!el.classList.contains("in") && el.getBoundingClientRect().top < window.innerHeight*0.95) el.classList.add("in");
+      });
+    };
+    window.addEventListener("scroll", geo, { passive:true });
+    window.addEventListener("resize", geo); geo();
+  }
+
+  document.querySelectorAll(".code-copy").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var pre = btn.closest(".code").querySelector("code");
+      var text = pre ? pre.textContent : "";
+      var done = function () {
+        btn.textContent = "Copied"; btn.classList.add("done");
+        setTimeout(function(){ btn.textContent = "Copy"; btn.classList.remove("done"); }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function(){});
+      else {
+        var ta=document.createElement("textarea"); ta.value=text; ta.style.position="absolute"; ta.style.left="-9999px";
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy"); done(); } catch(e){}
+        document.body.removeChild(ta);
+      }
+    });
+  });
+
+  document.querySelectorAll(".flagbox .reveal-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var box = btn.closest(".flagbox");
+      btn.textContent = box.classList.toggle("shown") ? "Hide" : "Reveal";
+    });
+  });
+
+  var rail = document.querySelector(".wu-rail");
+  if (rail && "IntersectionObserver" in window) {
+    var links = Array.prototype.slice.call(rail.querySelectorAll("a"));
+    var secs = links.map(function (a) { return document.querySelector(a.getAttribute("href")); }).filter(Boolean);
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        links.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id); });
+      });
+    }, { rootMargin:"-20% 0px -70% 0px" });
+    secs.forEach(function (s) { spy.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>

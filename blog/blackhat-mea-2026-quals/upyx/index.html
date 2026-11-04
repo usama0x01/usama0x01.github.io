@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>upyx · BlackHat MEA 2026 writeup</title>
+<meta name="description" content="An 11.8 MB PE that is UPX over PyInstaller over 100 nested marshal layers over a Cython GUI over a custom VEH packer. The final gate is a.">
+<link rel="canonical" href="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/upyx/">
+<link rel="alternate" type="application/rss+xml" title="Usama Arshad, Writing" href="/feed.xml">
+<link rel="icon" href="/assets/favicon.ico">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#131110">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Usama Arshad">
+<meta property="og:title" content="upyx · BlackHat MEA 2026 writeup">
+<meta property="og:description" content="An 11.8 MB PE that is UPX over PyInstaller over 100 nested marshal layers over a Cython GUI over a custom VEH packer. The final gate is a.">
+<meta property="og:url" content="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/upyx/">
+<meta property="og:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@usama0x01">
+<meta name="twitter:title" content="upyx · BlackHat MEA 2026 writeup">
+<meta name="twitter:description" content="An 11.8 MB PE that is UPX over PyInstaller over 100 nested marshal layers over a Cython GUI over a custom VEH packer. The final gate is a.">
+<meta name="twitter:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "upyx: BlackHat MEA 2026 CTF writeup",
+  "description": "An 11.8 MB PE that is UPX over PyInstaller over 100 nested marshal layers over a Cython GUI over a custom VEH packer. The final gate is a.",
+  "datePublished": "2026-11-04",
+  "author": {
+    "@type": "Person",
+    "name": "Usama Arshad",
+    "url": "https://www.usamaarshad.me/"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/upyx/"
+  },
+  "articleSection": "Reversing",
+  "proficiencyLevel": "Expert",
+  "isPartOf": {
+    "@type": "Article",
+    "name": "BlackHat MEA 2026 CTF qualifiers",
+    "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/"
+  }
+}
+</script>
+<link rel="preload" href="/assets/fonts/fraunces-normal-340-640.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/inter-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/jetbrainsmono-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.classList.add("js");</script>
+<link rel="stylesheet" href="/assets/css/writeup.css">
+</head>
+<body>
+<div class="progress" id="prog" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head" id="top">
+  <div class="container head-inner">
+    <a class="wordmark" href="/" aria-label="Usama Arshad, home">Usama Arshad<span class="dot">.</span></a>
+    <nav aria-label="Breadcrumb">
+      <a class="back-link" href="/blog/blackhat-mea-2026-quals/"><span class="arr" aria-hidden="true">←</span><span class="txt">All 15 challenges</span></a>
+    </nav>
+    <a class="btn btn-ghost head-cta" href="/assets/Usama-Arshad-Resume.pdf" download>Résumé</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" aria-labelledby="pt">
+    <div class="container">
+      <div class="masthead" data-reveal>
+        <p class="masthead-meta">
+          <span>Challenge 11 of 15</span>
+          <span>Reversing</span>
+          <span class="live">Solved · 100 pts</span>
+        </p>
+      </div>
+      <div class="hero-deck">
+        <div class="deck-copy" data-reveal style="--d:.08s">
+          <p class="kicker">BlackHat MEA 2026 · Qualifiers</p>
+          <h1 class="hero-title" id="pt">upyx<span class="dot">.</span></h1>
+          <p class="deck">Are you familiar with python? If not, follow my friend’s advice, "don’t rename this file."</p>
+          <p class="wu-meta">
+            <span class="cat cat-reversing">Reversing</span><span class="sep">·</span>
+            <span>100 points</span><span class="sep">·</span>
+            <span>4 November 2026</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="wu-layout">
+        <article class="wu" data-reveal>
+          <div class="tldr"><p class="lab">TL;DR</p><p>An 11.8 MB PE that is UPX over PyInstaller over 100 nested marshal layers over a Cython GUI over a custom VEH packer. The final gate is a 960-byte keyed comparison that inverts cleanly, and the last hop is a named-pipe service hidden in the UPX stub tail that &lt;code&gt;upx -d&lt;/code&gt; throws away.</p></div>
+          <p class="flag-note">Solved on the day; the value was not recorded in the report.</p>
+          <section id="recon"><h2><span class="hn">01</span>Recon</h2><p>Sample: <code>Challenge.exe</code>, 11,818,598 bytes, PE32+ x86-64.</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">python</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>Challenge.exe
+ |- UPX                            upx -d
+     |- PyInstaller 6.16.0 onefile    overlay @0x6aa00, cookie @0xb4560e, 997 TOC entries
+         |- main.pyc                  100 nested b85decode -&gt; zlib -&gt; marshal -&gt; exec layers
+         |                            innermost: import enhanced; enhanced._c605a4bf()
+         |- enhanced.cp313-win_amd64.pyd   Cython GUI + RPC client
+         |- check.cp313-win_amd64.pyd      hand-written C behind the "UPYX" VEH packer</code></pre></figure>
+<p><code>enhanced.pyd</code> is Cython built with CYTHON_COMPRESS_STRINGS plus a hand-rolled obfuscation layer: every arithmetic operator is a module-level lambda (so the decompilation contains no raw ^ &amp; | * + - &lt;&lt; &gt;&gt; %), every string literal is XOR-obfuscated with the fixed 17-byte keystream a69cf2432ece2c576eb85e17f8cd9bb8af, and every call goes through a dispatcher that resolves globals by a ror13 name hash, making the call graph invisible statically. All 45 obfuscated constants were decoded: GUI strings, kernel32 API names, and both pipe names \\.\pipe\supyxsvc and \\.\pipe\upyxsvc. No flag material.</p><figure class="meme"><div class="meme-card"><p class="meme-cap top">“DON’T RENAME THIS FILE”</p><svg viewBox="0 0 560 230" role="img" xmlns="http://www.w3.org/2000/svg">
+<rect width="560" height="230" fill="#100e0d"/>
+<path d="M280 28 L330 92 L230 92 Z" fill="none" stroke="#d6cfc3" stroke-width="1.5"/>
+<path d="M60 100h440" stroke="#6f6659" stroke-width="1" stroke-dasharray="4 4"/>
+<text x="508" y="96" fill="#6f6659" font-family="monospace" font-size="9" text-anchor="end" letter-spacing="2">THE BRIEF</text>
+<path d="M230 100 L330 100 L420 180 L360 214 L190 214 L132 172 Z" fill="none" stroke="#e5484d" stroke-width="1.5"/>
+<text x="276" y="140" fill="#e5484d" font-family="monospace" font-size="10" text-anchor="middle" letter-spacing="2">100 MARSHAL LAYERS</text>
+<text x="276" y="160" fill="#e5484d" font-family="monospace" font-size="10" text-anchor="middle" letter-spacing="2" opacity=".8">A CYTHON RPC CLIENT</text>
+<text x="276" y="180" fill="#e5484d" font-family="monospace" font-size="10" text-anchor="middle" letter-spacing="2" opacity=".6">A VEH PACKER</text>
+<text x="276" y="200" fill="#e5484d" font-family="monospace" font-size="10" text-anchor="middle" letter-spacing="2" opacity=".4">AND A NAMED PIPE</text>
+</svg><p class="meme-cap bot">THE FILENAME WAS THE DECRYPTION KEY</p></div></figure></section><section id="the-bug"><h2><span class="hn">02</span>The bug</h2><p>The hint is the key derivation. <code>check.pyd</code> walks PEB -&gt; ProcessParameters -&gt; CommandLine (gs:<code>0x60</code> → [PEB+<code>0x20</code>] → Length at +<code>0x70</code>, Buffer at +<code>0x78</code>, CommandLine, not ImagePathName), takes the characters after the last., keeps alphanumerics, lowercases, and FNV-1a hashes them with a non- standard basis:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">python</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>def fnv1a(s, basis=0xB5F6F899, prime=0x01000193):   # basis is NOT 0x811C9DC5
+    h = basis
+    for c in s.encode(): h = ((h ^ c) * prime) &amp; 0xFFFFFFFF
+    return h
+
+K = fnv1a("exe") == 0x6716CD53 == 1729547603</code></pre></figure>
+<p>Rename <code>Challenge.exe</code> and K changes and nothing validates, "don't rename this file." The hint is in fact sharper than that: the key is whatever follows the last. on the command line, so running the module under <code>python.exe</code> -u <code>script.py</code> makes the extension "py".</p>
+<p>The exploitable structure is in the verifier. check.<code>check()</code> writes {<code>0x11</code>} to a handle and reads 960 bytes, then runs a per-byte comparison whose transform is a bijection in the input byte for fixed context, and whose context uses only earlier bytes. That makes the required 960 bytes unique and invertible position by position.</p></section><section id="exploitation"><h2><span class="hn">03</span>Exploitation</h2><ol class="steps"><li>Unwrap. upx -d, carve the PyInstaller CArchive (997 TOC entries), peel main.pyc's 100 nested exec(marshal.loads(zlib.decompress(base64.b85decode(BLOB)))) layers down to import enhanced; enhanced.<code>_c605a4bf()</code>.</li><li>Decrypt <code>check.pyd</code>. It is packed with a custom UPYX VEH packer, four encrypted regions decrypted on demand through a vectored exception handler. All four were decrypted statically.</li><li>Model the verifier.</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>FUN_18000e99e(buf960, const960, EXTKEY):
+  for i in 0..959:
+      prev = buf[i-1] if i &gt;= 1 else 0x42
+      lag17 = buf[i-17] if i &gt;= 17 else 0x99
+      lag73 = buf[i-73] if i &gt;= 73 else 0xE7
+      if F(buf[i], prev, lag17, lag73, i, EXTKEY) != const[i]: return 0
+  return 1</code></pre></figure>
+<p class="codelabel">with const960 at.rdata VA <code>0x1800191f0</code> and</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>TAB = [3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59]
+blk, pos = i &gt;&gt; 4, i &amp; 15
+k16 = (lag17 &lt;&lt; 8) | prev
+m16 = (lag73 &lt;&lt; 8) | ((29*blk + 47*pos + 3*i) &amp; 0xFF)
+rot = (popcount(k16) + ctz(m16 | 0x8000) + blk + pos) &amp; 0xF
+v   = rotl16(k16 ^ m16 ^ 0xA5C3, rot)
+t   = (PEXT(v,0x6DB6) &lt;&lt; 1) ^ PEXT(v,0xB6D3) ^ popcount(v) ^ ctz(k16 | 0x100)
+      ^ ((13*i + 0x5A) &amp; 0xFF) ^ ((EXTKEY &gt;&gt; (8*(i &amp; 3))) &amp; 0xFF)
+y   = rotl8((x*TAB[pos] + ((11*blk + 17*pos + 0x71) &amp; 0xFF)) &amp; 0xFF, (blk+pos+i) &amp; 7)
+return y ^ (t &amp; 0xFF)</code></pre></figure>
+<p>Every TAB[pos] is odd, so F is a bijection in x, invert it position by position.</p>
+<ol class="steps" start="4"><li>Invert. <code>required_960.bin</code>, md5 0858d44140df33712e1cb7fb52f0c61c, unique, and verified four independent ways: analytic inversion; Unicorn emulation of the prologue with a synthetic PEB; executing the real binary (check.<code>check()</code> accepts any path, so a 961-byte file substitutes for the pipe, WriteFile overwrites byte 0 with <code>0x11</code> and ReadFile returns the 960 candidate bytes); and a model-free guard-page oracle, placing the buffer against PAGE_NOACCESS makes the correct byte the one that faults, since the loop only reads buf[i+1] if buf[i] matched.</li><li>The client model. The 960 bytes are 60 blocks of 16, one per typed character. Per keypress:</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>t = xorshift32((T[ord(ch)] * K + n) &amp; 0xFFFFFFFF)    # n = number of chars so far
+r = rpc(b'\x01' + t.to_bytes(4,'little'), 16)       # -&gt; \\.\pipe\supyxsvc
+if r is None or len(r) != 16: return
+_6c1fa932.append(r)                                 # appended VERBATIM</code></pre></figure>
+<p>So the flag is exactly 60 characters, and block_n = g(t_n) where g is whatever the pipe service answers.</p>
+<ol class="steps" start="6"><li>Find the service. This is the part every static pass missed. The pipe names appear in the packed file only, upx -d discards them. In the tail of UPX1 sits an inserted native stub (~250 KB of obfuscated code, the two pipe names, a 480-byte blob at <code>0x5af20</code>, then a jmp to the original entry point). Running <code>Challenge.exe</code> under wine + Xvfb and enumerating named pipes shows both pipes open, the service was inside the executable all along.</li><li>Query it. A small mingw bridge (CreateFileA/WriteFile/ReadFile/CloseHandle) turns the pipe into a scriptable oracle. It confirms <code>0x00</code> → seed, and that <code>0x01</code> + t is a pure function of t (identical replies on repeat). <code>recover_flag.py</code> then needs at most 60 x 65 = 3900 queries: for each position, try each on-screen character and keep the one whose 16-byte reply matches <code>required_960.bin</code>[16n:16n+16].</li></ol></section><section id="dead-ends"><h2><span class="hn">04</span>Dead ends</h2><ul class="bullets"><li>EXTKEY is a hash, not a length. An earlier pass read the third argument of FUN_18000e99e as the length of the extension (3). It is EBX, the FNV-1a hash of the lowercased extension. This changed the required buffer from md5 a1778c... to 0858d4...; the superseded file is kept as <code>required_960_extlen3_WRONG.bin</code>.</li><li><code>tableT.json</code> is a harness artifact, not the real S-box. It is _f0f17306(1), produced when an instrumentation stub replaced _aeb8ff4e with lambda: True. Every search was redone in an S-box- independent form (loop X over 0..255) as a result.</li><li>A reported 32-byte "hard-coded sentinel" in the validate routine was contamination, it was the value the instrumentation stub had itself fed in.</li><li>Two ctypes function pointers were misidentified; resolved by address against the live export tables: _10cb7a81 = kernel32!FlsGetValue, _6db9f204 = ntdll!RtlGetCurrentPeb.</li><li>FlsGetValue is declared restype=c_void_p, so a NULL slot yields None and the GUI aborts with "Something Wrong!", an anti-emulation gate, since under wine every FLS slot is NULL.</li><li>Before the stub was found, an enormous search space was ruled out against the corrected 960 bytes: every hashlib algorithm over ~25 encodings of t; HMAC and keyed blake2 with every embedded constant; AES-128/192/256 in ECB/CBC/CTR both directions; ChaCha20, Salsa20, RC4, TEA, XTEA; 16 bytes from MT19937, xorshift32/64/128, splitmix, PCG and four LCGs; the UPYX packer's own keystream in 18 variants; a full 2^32 seed sweep over 16 PRNG families; 3,930 enumerated "small program" transforms; and 294 H(char, index) combinations. Zero hits, which was the correct signal that the transform was held by a service, not computable offline.</li><li>Driving the real GUI: the button handler applies the Capslock flag to the button label, so with Capslock off the key labelled Q emits q. Feed the character, not the label.</li></ul></section>
+          <nav class="pager" aria-label="Challenge navigation"><a href="/blog/blackhat-mea-2026-quals/free-agentic-tool/"><span class="dir">← Previous</span><span class="t">free-agentic-tool</span></a><a class="nx" href="/blog/blackhat-mea-2026-quals/dead-drop/"><span class="dir">Next →</span><span class="t">Dead Drop</span></a></nav>
+        </article>
+        <aside class="wu-rail">
+          <h2>On this page</h2>
+          <ol><li><a href="#recon">Recon</a></li><li><a href="#the-bug">The bug</a></li><li><a href="#exploitation">Exploitation</a></li><li><a href="#dead-ends">Dead ends</a></li></ol>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="wordmark" href="/">Usama Arshad<span class="dot">.</span></a>
+        <p>Offensive Security Lead. Red team, AppSec, and cloud security for fintech at scale. Based in Riyadh, Saudi Arabia.</p>
+      </div>
+      <nav class="foot-col" aria-label="Site index">
+        <h2>Index</h2>
+        <ul>
+          <li><a href="/">Portfolio</a></li>
+          <li><a href="/blog/">Writing</a></li>
+          <li><a href="/research/">Research</a></li>
+          <li><a href="/dorks/">Dork library</a></li>
+          <li><a href="/#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="foot-col">
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://github.com/usama0x01" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">WPScan leaderboard</a></li>
+          <li><a href="https://medium.com/@usama0x01" target="_blank" rel="noopener">Medium</a></li>
+          <li><a href="mailto:gusama21@gmail.com">gusama21@gmail.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>© 2026 Usama Arshad · Riyadh, Saudi Arabia</span>
+      <span class="colophon">Set in Fraunces, Inter &amp; JetBrains Mono, self-hosted · No trackers, no cookies</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var head = document.querySelector(".site-head");
+  function onScroll(){ head.classList.toggle("scrolled", window.scrollY > 8); }
+  window.addEventListener("scroll", onScroll, { passive:true }); onScroll();
+
+  var prog = document.getElementById("prog");
+  if (prog) {
+    var tick = function () {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      prog.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
+    };
+    window.addEventListener("scroll", tick, { passive:true });
+    window.addEventListener("resize", tick); tick();
+  }
+
+  var revealEls = Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
+  if (reduceMotion || !("IntersectionObserver" in window)) {
+    revealEls.forEach(function (el) { el.classList.add("in"); });
+  } else {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold:0.08, rootMargin:"0px 0px -5% 0px" });
+    revealEls.forEach(function (el) { io.observe(el); });
+    var geo = function () {
+      revealEls.forEach(function (el) {
+        if (!el.classList.contains("in") && el.getBoundingClientRect().top < window.innerHeight*0.95) el.classList.add("in");
+      });
+    };
+    window.addEventListener("scroll", geo, { passive:true });
+    window.addEventListener("resize", geo); geo();
+  }
+
+  document.querySelectorAll(".code-copy").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var pre = btn.closest(".code").querySelector("code");
+      var text = pre ? pre.textContent : "";
+      var done = function () {
+        btn.textContent = "Copied"; btn.classList.add("done");
+        setTimeout(function(){ btn.textContent = "Copy"; btn.classList.remove("done"); }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function(){});
+      else {
+        var ta=document.createElement("textarea"); ta.value=text; ta.style.position="absolute"; ta.style.left="-9999px";
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy"); done(); } catch(e){}
+        document.body.removeChild(ta);
+      }
+    });
+  });
+
+  document.querySelectorAll(".flagbox .reveal-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var box = btn.closest(".flagbox");
+      btn.textContent = box.classList.toggle("shown") ? "Hide" : "Reveal";
+    });
+  });
+
+  var rail = document.querySelector(".wu-rail");
+  if (rail && "IntersectionObserver" in window) {
+    var links = Array.prototype.slice.call(rail.querySelectorAll("a"));
+    var secs = links.map(function (a) { return document.querySelector(a.getAttribute("href")); }).filter(Boolean);
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        links.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id); });
+      });
+    }, { rootMargin:"-20% 0px -70% 0px" });
+    secs.forEach(function (s) { spy.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>

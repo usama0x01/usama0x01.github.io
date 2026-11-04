@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Usama Arshad — Writing</title>
+    <title>Usama Arshad, Writing</title>
     <link>https://www.usamaarshad.me/blog/</link>
     <description>Offensive security writing: CTF writeups, vulnerability research, and exploitation technique.</description>
     <language>en</language>
@@ -12,9 +12,36 @@
       <link>https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/</link>
       <guid isPermaLink="true">https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/</guid>
       <pubDate>Tue, 04 Nov 2026 00:00:00 +0300</pubDate>
-      <description>A full technical writeup of all 15 BlackHat MEA 2026 CTF qualifier challenges: an 8-query Prony attack on a secret modulus, an RSA oracle leaking only popcount, a real io_uring double-free driven to root, licence-check shellcode decrypted inside the kernel by eBPF, a CSS selector oracle under a JS-free CSP, and an ffmpeg external-data-reference file read.</description>
+      <description>Full writeups for all 15 qualifier challenges: an 8-query Prony attack on a secret modulus, an RSA oracle leaking only popcount, a real io_uring double-free driven to root, eBPF-decrypted licence shellcode, a CSS selector oracle under a JS-free CSP, and an ffmpeg external-data-reference file read.</description>
       <category>CTF</category>
       <category>Security research</category>
+    </item>
+    <item>
+      <title>Fifty-nine CVEs in one year: what WordPress plugins keep getting wrong</title>
+      <link>https://www.usamaarshad.me/blog/59-cves-wordpress-permission-callback/</link>
+      <guid isPermaLink="true">https://www.usamaarshad.me/blog/59-cves-wordpress-permission-callback/</guid>
+      <pubDate>Tue, 04 Nov 2026 00:00:00 +0300</pubDate>
+      <description>A data-backed study of 51 catalogued WordPress plugin CVEs across 46 plugins: 53% unauthenticated, 49% data disclosure, and one recurring root cause behind nearly all of it.</description>
+      <category>WordPress</category>
+      <category>AppSec</category>
+    </item>
+    <item>
+      <title>Your allowlist is inside the attacker&#x27;s process</title>
+      <link>https://www.usamaarshad.me/blog/your-allowlist-is-inside-the-attacker-process/</link>
+      <guid isPermaLink="true">https://www.usamaarshad.me/blog/your-allowlist-is-inside-the-attacker-process/</guid>
+      <pubDate>Tue, 04 Nov 2026 00:00:00 +0300</pubDate>
+      <description>Loopback binds, IP allowlists and VPC boundaries all fail the same way: they check where a request came from, when the attacker is already there.</description>
+      <category>AppSec</category>
+      <category>Cloud</category>
+    </item>
+    <item>
+      <title>The AI assistant kept a diary</title>
+      <link>https://www.usamaarshad.me/blog/the-ai-assistant-kept-a-diary/</link>
+      <guid isPermaLink="true">https://www.usamaarshad.me/blog/the-ai-assistant-kept-a-diary/</guid>
+      <pubDate>Tue, 04 Nov 2026 00:00:00 +0300</pubDate>
+      <description>Local LLM prompt histories are a new DFIR artifact class: plaintext, timestamped records of intent, and often the passphrase.</description>
+      <category>DFIR</category>
+      <category>LLM Security</category>
     </item>
   </channel>
 </rss>

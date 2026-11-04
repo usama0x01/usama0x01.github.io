@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>free-agentic-tool · BlackHat MEA 2026 writeup</title>
+<meta name="description" content="The distributed binary is a dropper. Its real payload is a reflectively-loaded second Go executable that speaks gRPC to a C2, and that stage.">
+<link rel="canonical" href="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/free-agentic-tool/">
+<link rel="alternate" type="application/rss+xml" title="Usama Arshad, Writing" href="/feed.xml">
+<link rel="icon" href="/assets/favicon.ico">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#131110">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Usama Arshad">
+<meta property="og:title" content="free-agentic-tool · BlackHat MEA 2026 writeup">
+<meta property="og:description" content="The distributed binary is a dropper. Its real payload is a reflectively-loaded second Go executable that speaks gRPC to a C2, and that stage.">
+<meta property="og:url" content="https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/free-agentic-tool/">
+<meta property="og:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@usama0x01">
+<meta name="twitter:title" content="free-agentic-tool · BlackHat MEA 2026 writeup">
+<meta name="twitter:description" content="The distributed binary is a dropper. Its real payload is a reflectively-loaded second Go executable that speaks gRPC to a C2, and that stage.">
+<meta name="twitter:image" content="https://www.usamaarshad.me/assets/og.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "free-agentic-tool: BlackHat MEA 2026 CTF writeup",
+  "description": "The distributed binary is a dropper. Its real payload is a reflectively-loaded second Go executable that speaks gRPC to a C2, and that stage.",
+  "datePublished": "2026-11-04",
+  "author": {
+    "@type": "Person",
+    "name": "Usama Arshad",
+    "url": "https://www.usamaarshad.me/"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/free-agentic-tool/"
+  },
+  "articleSection": "Reversing",
+  "proficiencyLevel": "Expert",
+  "isPartOf": {
+    "@type": "Article",
+    "name": "BlackHat MEA 2026 CTF qualifiers",
+    "url": "https://www.usamaarshad.me/blog/blackhat-mea-2026-quals/"
+  }
+}
+</script>
+<link rel="preload" href="/assets/fonts/fraunces-normal-340-640.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/inter-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/jetbrainsmono-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.classList.add("js");</script>
+<link rel="stylesheet" href="/assets/css/writeup.css">
+</head>
+<body>
+<div class="progress" id="prog" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head" id="top">
+  <div class="container head-inner">
+    <a class="wordmark" href="/" aria-label="Usama Arshad, home">Usama Arshad<span class="dot">.</span></a>
+    <nav aria-label="Breadcrumb">
+      <a class="back-link" href="/blog/blackhat-mea-2026-quals/"><span class="arr" aria-hidden="true">←</span><span class="txt">All 15 challenges</span></a>
+    </nav>
+    <a class="btn btn-ghost head-cta" href="/assets/Usama-Arshad-Resume.pdf" download>Résumé</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" aria-labelledby="pt">
+    <div class="container">
+      <div class="masthead" data-reveal>
+        <p class="masthead-meta">
+          <span>Challenge 10 of 15</span>
+          <span>Reversing</span>
+          <span class="live">Solved · 100 pts</span>
+        </p>
+      </div>
+      <div class="hero-deck">
+        <div class="deck-copy" data-reveal style="--d:.08s">
+          <p class="kicker">BlackHat MEA 2026 · Qualifiers</p>
+          <h1 class="hero-title" id="pt">free-agentic-tool<span class="dot">.</span></h1>
+          <p class="deck">A “free” AI agent CLI, its session debug bundle, and a packet capture of the traffic it produced.</p>
+          <p class="wu-meta">
+            <span class="cat cat-reversing">Reversing</span><span class="sep">·</span>
+            <span>100 points</span><span class="sep">·</span>
+            <span>4 November 2026</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="wu-layout">
+        <article class="wu" data-reveal>
+          <div class="tldr"><p class="lab">TL;DR</p><p>The distributed binary is a dropper. Its real payload is a reflectively-loaded second Go executable that speaks gRPC to a C2, and that stage derives its X25519 private key from &lt;code&gt;sha256(USERNAME + "_" + COMPUTERNAME)&lt;/code&gt; instead of generating one, so the whole captured session decrypts from the pcap alone.</p></div>
+          <div class="flagbox"><span class="lab">Captured</span><span class="flagval">BHFlagY{wh4t_y0u_5Ee_15n&#x27;t_wh4t_y0u_G3t_8cc56ad688964fd5f72f3c414971b1d6}</span><button class="reveal-btn" type="button" aria-label="Reveal flag">Reveal</button></div><p class="flag-note">Instances are provisioned per run, so these are the values our instances returned.</p>
+          <section id="recon"><h2><span class="hn">01</span>Recon</h2><p>Three artifacts ship together:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>free-agent.exe                   ~11 MB Go PE32+
+free-agent_session_debug.zip     15 encrypted "diagnostics" entries
+traffic.pcapng                   gRPC to 192.168.137.1:50051, service /free.model/*</code></pre></figure>
+<p><code>free-agent.exe</code> is Go with an intact pclntab, so app symbols (fagent/internal/...) survive. The load- bearing tooling detail: Ghidra headless must be given -processor x86:LE:64:default -cspec golang. With the golang compiler spec the decompilation is near-source quality and Ghidra recovers each function's real file:line from pclntab; with the default windows cspec every Go register-ABI argument decompiles as unaff_RBX / extraout_RAX noise. Applying the 4,801 recovered symbols created 1,557 functions and renamed 3,244.</p>
+<p>Scanning every e8 rel32 in.text for crypto/aes.NewCipher gives exactly one application call site, in diagnostics.writeFieldFiles @ <code>0x4ede60</code>:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>4edebd: lea rax,[rip+0x3836bc]   # 0x871580
+4edec4: mov ebx,0x20             ; AES-256
+4edecc: call 0x4d5300            &lt;crypto/aes.NewCipher&gt;</code></pre></figure>
+<p>The key is a plain static array, not derived, VA <code>0x871580</code>, file offset <code>0x46f180</code>:</p>
+<p class="codelabel">6e1ac4f78b33905ed20f77a94cb821e63d9512da607ecf1b48a3590ce42db673</p>
+<p>Only two instructions in the whole binary reference <code>0x871580</code>, and nothing writes it. diagnostics.sealValue @ <code>0x4edbc0</code> confirms the container format: iv(16 from crypto/rand) then AES-256-CBC(key, iv, PKCS#7(value)).</p>
+<p>All 15 zip entries decrypt with valid padding, and none contains the flag. <code>user_input.txt</code> is just /help. The real yield is the victim identity: user lightlight on DESKTOP-DD6SS6U. The stage-1 binary contains no gRPC code at all, so it cannot be what produced the capture.</p></section><section id="the-bug"><h2><span class="hn">02</span>The bug</h2><p>Two bugs, one hiding the other.</p>
+<ol class="steps"><li><code>free-agent.exe</code> is a dropper, and its loader is disguised as archive/zip. The binary's archive/zip package contains seven functions that do not exist in the Go standard library, all claiming source archive/ zip/writer.go:666+:</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>initDeflate@0x6406e0   readStream@0x6407a0    inflateBlock@0x6409c0
+parseLocalHeader       flushStream@0x641760   rebaseOffsets   resolveTable</code></pre></figure>
+<p>Together they are a reflective PE loader, triggered by a planted sync.Once in (*Writer).compressor. The UI meanwhile prints a fake HTTP 401 as cover.</p>
+<p>initDeflate decompiles to readStream(payload, &amp;DAT_00871580, <code>0x20</code>), the diagnostics AES key is reused as the loader's XOR key. The payload is a []byte at global <code>0xf6f610</code> pointing at <code>0x8a1d40</code> (file offset <code>0x49f940</code>), <code>0x6cc5ad</code> bytes, magic FALZ\x01:</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>require buf[0:4] == "FALZ" and buf[4] == 1
+n     = BE32(buf[6:10])
+inner = LZSS_inflate(buf[10:10+n])            # outLen = BE32(src[0:4])
+out[i] = (inner[i] ^ key[(7*i + 3) % 32]) - key[i % 32]</code></pre></figure>
+<p>That yields a 9,649,152-byte PE32+ (Go 1.20.5, 10,876 functions) which does contain real gRPC and protobuf. flushStream maps it with VirtualAlloc(base, SizeOfImage, MEM_COMMIT|MEM_RESERVE, PAGE_EXECUTE_READWRITE), applies relocations and imports, then jumps to its entry point. Every DLL and procedure name is built byte-by-byte via makeslice + slicebytetostring in archive/zip.init, so none of them appear as strings.</p>
+<ol class="steps" start="2"><li>Stage 2 never generates a key pair. In stage 2, main.OOGOOOGOGOOOGGOOO @ <code>0x8617a0</code> does:</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>u := getenvOr("USERNAME", "?")
+h := getenvOr("COMPUTERNAME", "")
+if h == "" { h, _ = os.Hostname() }
+return sha256(u + "_" + h)</code></pre></figure>
+<p>and feeds that straight into crypto/ecdh.(*x25519Curve).NewPrivateKey. GenerateKey is never called. The private key is a deterministic function of two values that are printed in the capture's own handshake, which is the "unlimited tokens" joke and the actual vulnerability.</p></section><section id="exploitation"><h2><span class="hn">03</span>Exploitation</h2><ol class="steps"><li>Unpack stage 2. Carve the FALZ blob, LZSS-inflate, unmask with the stage-1 AES key, and write out <code>falz_decoded.bin</code>, the gRPC-speaking stage-2 PE.</li><li>Locate the crypto in stage 2. Its protobuf lives in package gogogooogogogo/gogoogogoo with type and method names made only of the letters G and O; main.* (<code>0x849e20</code>–<code>0x86df0f</code>) is obfuscated with control-flow flattening and MBA arithmetic (the dispatcher uses the murmur3 finalizer constants <code>0xff51afd7ed558ccd</code> and <code>0x94d049bb133111eb</code>). Ghidra headless with the golang cspec still decompiles it.</li><li>Recover the private key from the pcap. The Init message carries agent@DESKTOP-DD6SS6U, and the diagnostics bundle gave the username:</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>priv = sha256("lightlight_DESKTOP-DD6SS6U")
+     = a68c071a078d0011ae5ea9698d2a561d57ddb124f11fd2ff34ab7d1076c140a6
+pub = X25519(priv) = fcce28708604b98004450d32ea2ab2ffb9e4dc1961cc7257af2f80c8c8b1fa76</code></pre></figure>
+<p>which is an exact match for Init field 2 in the capture. The derivation is confirmed.</p>
+<ol class="steps" start="4"><li>Derive the session key. main.GOOGOOGOOOOGGOO @ <code>0x8660c0</code> computes</li></ol>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>key = sha256( sha256(sessionID XOR T8) || sha256(X25519(priv, serverPub)) )</code></pre></figure>
+<p>where main.GGGOOGGGGOOGGOO @ <code>0x864fe0</code> is just out[i] = in[i] ^ T[i % 8] with T = 8c f1 a7 13 9e 02 d6 7f at VA <code>0x00ccc708</code>. (The transform was also confirmed by emulating that single function under Unicorn, stubbing makeslice / growslice.) With sessionID = "f3bbb50728251459":</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>shared = 14488f97ebdc8e8bad1e48057af735b86dbecbea2c6e7105eb7c38145d1e3072
+session = 7c29d2dc03567d188b844a11d08d5c82707bb052ea012e0729658948fc832b93</code></pre></figure>
+<ol class="steps" start="5"><li>Decrypt the C2 transcript. AES-256-GCM, 12-byte nonce carried in each message, no AAD (empty AAD verifies; using the sessionID as AAD fails). The recovered session reads whoami → dir D:\ → dir D:\BlackHat → exfiltration of a 73-byte <code>flag.txt</code>.</li></ol>
+<p>Key code def unfalz(buf, key): assert buf[0:4] == b"FALZ" and buf[4] == 1 n = int.from_bytes(buf[6:10], "big") inner = lzss_inflate(buf[10:10+n]) # outLen = BE32(src[0:4]) return bytes(((inner[i] ^ key[(7*i + 3) % 32]) - key[i % 32]) &amp; <code>0xFF</code> for i in range(len(inner)))</p>
+<figure class="code"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-lang">snippet</span><button class="code-copy" type="button" aria-label="Copy snippet">Copy</button></div><pre><code>priv    = hashlib.sha256(b"lightlight_DESKTOP-DD6SS6U").digest()
+shared = x25519(priv, server_pub)
+T8      = bytes.fromhex("8cf1a7139e02d67f")
+sid_x   = bytes(c ^ T8[i % 8] for i, c in enumerate(session_id))
+session = hashlib.sha256(sha256(sid_x) + sha256(shared)).digest()
+plain   = AESGCM(session).decrypt(nonce, ct, None)      # no AAD</code></pre></figure></section><section id="dead-ends"><h2><span class="hn">04</span>Dead ends</h2><ul class="bullets"><li>Ghidra without -cspec golang is unusable here. Every Go register-ABI argument decompiles as unaff_RBX / extraout_RAX. The spec id is golang in Ghidra/Processors/x86/data/languages/x86-64- golang.cspec.</li><li>The stage-1 AES key is not derived. Time was spent looking for a Getenv / sha256 / hkdf derivation near the NewCipher call. There is none, it is a static array, and the same 32 bytes are reused as the dropper's XOR key.</li><li>Decrypting the debug bundle is a dead end for the flag. All 15 entries decrypt cleanly and none contains it; their value is the victim identity that the key derivation needs.</li><li>The hostname in the task brief had a typo (DESKTOP-DD6SS6EU). The capture's Init says agent@DESKTOP-DD6SS6U (21 bytes, <code>0x15</code>), and only the correct spelling makes the key derivation reproduce the observed public key.</li><li>report.tryUpload POSTs to http://not-malicious-website.ctf/upload, a decoy that never appears in the capture.</li><li>AAD matters: GCM verifies with empty AAD; passing the sessionID as AAD fails every frame.</li></ul></section>
+          <nav class="pager" aria-label="Challenge navigation"><a href="/blog/blackhat-mea-2026-quals/extended-license/"><span class="dir">← Previous</span><span class="t">extended-license</span></a><a class="nx" href="/blog/blackhat-mea-2026-quals/upyx/"><span class="dir">Next →</span><span class="t">upyx</span></a></nav>
+        </article>
+        <aside class="wu-rail">
+          <h2>On this page</h2>
+          <ol><li><a href="#recon">Recon</a></li><li><a href="#the-bug">The bug</a></li><li><a href="#exploitation">Exploitation</a></li><li><a href="#dead-ends">Dead ends</a></li></ol>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="wordmark" href="/">Usama Arshad<span class="dot">.</span></a>
+        <p>Offensive Security Lead. Red team, AppSec, and cloud security for fintech at scale. Based in Riyadh, Saudi Arabia.</p>
+      </div>
+      <nav class="foot-col" aria-label="Site index">
+        <h2>Index</h2>
+        <ul>
+          <li><a href="/">Portfolio</a></li>
+          <li><a href="/blog/">Writing</a></li>
+          <li><a href="/research/">Research</a></li>
+          <li><a href="/dorks/">Dork library</a></li>
+          <li><a href="/#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="foot-col">
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://github.com/usama0x01" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://wpscan.com/leaderboard/" target="_blank" rel="noopener">WPScan leaderboard</a></li>
+          <li><a href="https://medium.com/@usama0x01" target="_blank" rel="noopener">Medium</a></li>
+          <li><a href="mailto:gusama21@gmail.com">gusama21@gmail.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>© 2026 Usama Arshad · Riyadh, Saudi Arabia</span>
+      <span class="colophon">Set in Fraunces, Inter &amp; JetBrains Mono, self-hosted · No trackers, no cookies</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var head = document.querySelector(".site-head");
+  function onScroll(){ head.classList.toggle("scrolled", window.scrollY > 8); }
+  window.addEventListener("scroll", onScroll, { passive:true }); onScroll();
+
+  var prog = document.getElementById("prog");
+  if (prog) {
+    var tick = function () {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      prog.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
+    };
+    window.addEventListener("scroll", tick, { passive:true });
+    window.addEventListener("resize", tick); tick();
+  }
+
+  var revealEls = Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
+  if (reduceMotion || !("IntersectionObserver" in window)) {
+    revealEls.forEach(function (el) { el.classList.add("in"); });
+  } else {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold:0.08, rootMargin:"0px 0px -5% 0px" });
+    revealEls.forEach(function (el) { io.observe(el); });
+    var geo = function () {
+      revealEls.forEach(function (el) {
+        if (!el.classList.contains("in") && el.getBoundingClientRect().top < window.innerHeight*0.95) el.classList.add("in");
+      });
+    };
+    window.addEventListener("scroll", geo, { passive:true });
+    window.addEventListener("resize", geo); geo();
+  }
+
+  document.querySelectorAll(".code-copy").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var pre = btn.closest(".code").querySelector("code");
+      var text = pre ? pre.textContent : "";
+      var done = function () {
+        btn.textContent = "Copied"; btn.classList.add("done");
+        setTimeout(function(){ btn.textContent = "Copy"; btn.classList.remove("done"); }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function(){});
+      else {
+        var ta=document.createElement("textarea"); ta.value=text; ta.style.position="absolute"; ta.style.left="-9999px";
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy"); done(); } catch(e){}
+        document.body.removeChild(ta);
+      }
+    });
+  });
+
+  document.querySelectorAll(".flagbox .reveal-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var box = btn.closest(".flagbox");
+      btn.textContent = box.classList.toggle("shown") ? "Hide" : "Reveal";
+    });
+  });
+
+  var rail = document.querySelector(".wu-rail");
+  if (rail && "IntersectionObserver" in window) {
+    var links = Array.prototype.slice.call(rail.querySelectorAll("a"));
+    var secs = links.map(function (a) { return document.querySelector(a.getAttribute("href")); }).filter(Boolean);
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        links.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id); });
+      });
+    }, { rootMargin:"-20% 0px -70% 0px" });
+    secs.forEach(function (s) { spy.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>
