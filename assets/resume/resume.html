@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Usama Arshad — Résumé</title>
+<style>
+@font-face{font-family:'Fraunces';font-style:normal;font-weight:340 640;font-display:block;src:url(../fonts/fraunces-normal-340-640.woff2) format('woff2');}
+@font-face{font-family:'Inter';font-style:normal;font-weight:400;font-display:block;src:url(../fonts/inter-normal-400.woff2) format('woff2');}
+@font-face{font-family:'Inter';font-style:normal;font-weight:500;font-display:block;src:url(../fonts/inter-normal-500.woff2) format('woff2');}
+@font-face{font-family:'Inter';font-style:normal;font-weight:600;font-display:block;src:url(../fonts/inter-normal-600.woff2) format('woff2');}
+@font-face{font-family:'JBM';font-style:normal;font-weight:400;font-display:block;src:url(../fonts/jetbrainsmono-normal-400.woff2) format('woff2');}
+@font-face{font-family:'JBM';font-style:normal;font-weight:500;font-display:block;src:url(../fonts/jetbrainsmono-normal-500.woff2) format('woff2');}
+
+@page{ size:A4; margin:12mm 12mm 10mm; }
+:root{
+  --ink:#16130f; --body:#2f2a24; --muted:#6d6459; --faint:#9b9287;
+  --rule:#d8d1c6; --rule-soft:#e7e1d7; --accent:#c8343a; --bg:#fbf9f5;
+  --serif:'Fraunces',Georgia,serif; --sans:'Inter',Helvetica,Arial,sans-serif; --mono:'JBM',Menlo,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{ background:var(--bg); color:var(--body); font-family:var(--sans); font-size:7.85pt; line-height:1.46; -webkit-font-smoothing:antialiased; }
+a{ color:inherit; text-decoration:none; }
+h1,h2,h3{ font-family:var(--serif); color:var(--ink); font-weight:600; line-height:1.1; }
+.mono{ font-family:var(--mono); }
+.up{ text-transform:uppercase; letter-spacing:.12em; }
+
+/* ---------- masthead ---------- */
+.head{ display:flex; justify-content:space-between; align-items:flex-start; gap:12mm; }
+.name{ font-size:25pt; letter-spacing:-.02em; }
+.name .dot{ color:var(--accent); }
+.role{ font-family:var(--mono); font-size:6.1pt; color:var(--muted); margin-top:2.2mm; }
+.contact{ text-align:right; font-family:var(--mono); font-size:6.3pt; color:var(--muted); line-height:1.75; }
+.contact .mail{ color:var(--accent); }
+.links{
+  margin-top:3.4mm; padding:1.8mm 0; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule);
+  font-family:var(--mono); font-size:6.1pt; color:var(--muted);
+}
+.links b{ color:var(--ink); font-weight:500; }
+.links span{ margin-right:3.6mm; }
+
+/* ---------- sections ---------- */
+section{ margin-top:3.6mm; }
+.sh{ display:flex; align-items:center; gap:2.2mm; margin-bottom:1.9mm; }
+.sh::before{ content:""; width:1.7mm; height:1.7mm; background:var(--accent); flex:none; }
+.sh h2{ font-size:11pt; }
+.sh .line{ flex:1; height:1px; background:var(--rule); }
+
+p{ margin-bottom:1.6mm; }
+b,strong{ color:var(--ink); font-weight:600; }
+
+/* ---------- research ---------- */
+.statline{
+  font-family:var(--mono); font-size:6.5pt; color:var(--muted);
+  padding:1.6mm 0; border-bottom:1px solid var(--rule-soft); margin-bottom:2.6mm;
+}
+.statline b{ color:var(--ink); font-weight:500; }
+.flag{ border:1px solid var(--rule); border-left:2px solid var(--accent); padding:2mm 2.4mm; margin-bottom:2.3mm; }
+.flag-top{ display:flex; flex-wrap:wrap; align-items:center; gap:2mm; margin-bottom:1.8mm; }
+.tag{ font-family:var(--mono); font-size:5.5pt; letter-spacing:.11em; text-transform:uppercase; padding:.5mm 1.2mm; border:1px solid var(--rule); color:var(--muted); }
+.tag.red{ color:#fff; background:var(--accent); border-color:var(--accent); }
+.tag.ghost{ color:var(--accent); border-color:var(--accent); }
+.flag h3{ font-size:9.2pt; display:inline; }
+.flag .cve{ font-family:var(--mono); font-size:7.4pt; color:var(--ink); letter-spacing:.03em; }
+.flag p{ font-size:7.7pt; margin:0 0 1.4mm; }
+.credit{ font-family:var(--mono); font-size:5.6pt; color:var(--faint); letter-spacing:.08em; text-transform:uppercase; }
+.credit b{ color:var(--muted); font-weight:400; }
+
+.cvehdr{ font-family:var(--mono); font-size:5.6pt; color:var(--faint); letter-spacing:.14em; text-transform:uppercase; margin-bottom:1.6mm; }
+.cve-row{ display:grid; grid-template-columns:16mm 1fr; gap:2.6mm; padding:1.2mm 0; border-top:1px solid var(--rule-soft); }
+.cve-row:first-of-type{ border-top:0; }
+.cve-sev{ font-family:var(--mono); font-size:6.6pt; color:var(--accent); letter-spacing:.04em; }
+.cve-t{ font-size:7.8pt; color:var(--ink); }
+.cve-m{ font-family:var(--mono); font-size:5.8pt; color:var(--muted); letter-spacing:.07em; text-transform:uppercase; margin-top:.5mm; }
+.more{ font-size:7.5pt; color:var(--muted); margin-top:2mm; }
+.method{ font-size:7.4pt; color:var(--muted); margin-top:2.2mm; line-height:1.55; }
+
+/* ---------- experience ---------- */
+.job{ margin-bottom:2.5mm; }
+.job-top{ display:flex; justify-content:space-between; align-items:baseline; gap:6mm; }
+.job h3{ font-size:9.4pt; }
+.job .when{ font-family:var(--mono); font-size:5.9pt; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; white-space:nowrap; }
+.job .when .badge{ color:var(--accent); border:1px solid var(--accent); padding:.3mm 1mm; margin-left:1.4mm; }
+.job .org{ font-size:7.6pt; color:var(--muted); margin:.6mm 0 1.2mm; }
+.job .org b{ color:var(--ink); font-weight:600; }
+.job ul{ list-style:none; }
+.job li{ position:relative; padding-left:3.2mm; font-size:7.8pt; line-height:1.52; margin-bottom:.7mm; }
+.job li::before{ content:"–"; position:absolute; left:0; color:var(--accent); font-family:var(--mono); }
+
+/* ---------- grids ---------- */
+.grid2{ display:grid; grid-template-columns:1fr 1fr; gap:2.1mm 7mm; }
+.dom .n{ font-family:var(--mono); font-size:5.7pt; color:var(--accent); letter-spacing:.13em; text-transform:uppercase; margin-bottom:.9mm; }
+.dom p{ font-size:7.3pt; color:var(--body); line-height:1.55; margin:0; }
+
+/* ---------- achievements ---------- */
+.ach{ padding:1.35mm 0; border-top:1px solid var(--rule-soft); }
+.ach:first-of-type{ border-top:0; }
+.ach-top{ display:flex; justify-content:space-between; align-items:baseline; gap:6mm; }
+.ach h3{ font-size:8.8pt; }
+.ach .when{ font-family:var(--mono); font-size:5.9pt; color:var(--accent); letter-spacing:.1em; white-space:nowrap; }
+.ach p{ font-size:7.5pt; color:var(--body); margin:.7mm 0 0; line-height:1.52; }
+
+/* ---------- credentials ---------- */
+.credwrap{ display:grid; grid-template-columns:1fr 46mm; gap:7mm; }
+.cert{ padding:1.2mm 0; border-top:1px solid var(--rule-soft); }
+.cert:first-of-type{ border-top:0; }
+.cert .ct{ display:flex; align-items:baseline; gap:2.4mm; }
+.cert h3{ font-size:8.4pt; }
+.cert .full{ font-size:7.5pt; color:var(--body); }
+.cert .iss{ font-family:var(--mono); font-size:5.5pt; color:var(--faint); letter-spacing:.13em; text-transform:uppercase; margin-top:.4mm; }
+.side .lab{ font-family:var(--mono); font-size:5.7pt; color:var(--accent); letter-spacing:.13em; text-transform:uppercase; margin-bottom:1mm; }
+.side h3{ font-size:8.6pt; }
+.side p{ font-size:7.4pt; color:var(--muted); margin:.5mm 0 3.4mm; }
+
+/* ---------- footer ---------- */
+.foot{
+  margin-top:3.6mm; padding-top:1.8mm; border-top:1px solid var(--rule);
+  display:flex; justify-content:space-between; gap:5mm;
+  font-family:var(--mono); font-size:5.5pt; color:var(--faint); letter-spacing:.1em; text-transform:uppercase;
+}
+.pb{ break-before:page; }
+.avoid{ break-inside:avoid; }
+</style>
+</head>
+<body>
+
+<header class="head">
+  <div>
+    <h1 class="name">Usama Arshad<span class="dot">.</span></h1>
+    <p class="role up">Offensive Security Lead · Red Team · Fintech &amp; Cloud</p>
+  </div>
+  <div class="contact">
+    Riyadh, Saudi Arabia<br>
+    +966 56 913 7225<br>
+    <span class="mail">gusama21@gmail.com</span><br>
+    usamaarshad.me
+  </div>
+</header>
+
+<div class="links">
+  <span><b>GitHub</b> github.com/usama0x01</span>
+  <span><b>LinkedIn</b> in/usama0x01</span>
+  <span><b>X</b> @usama0x01</span>
+  <span><b>Bugcrowd</b> Xam_3xPloiTeR</span>
+  <span><b>Synack SRT</b> usama-arshad</span>
+  <span><b>Medium</b> @usama0x01</span>
+</div>
+
+<section>
+  <div class="sh"><h2>Profile</h2><span class="line"></span></div>
+  <p>OSCP-certified Offensive Security Lead with <b>9+ years</b> across red team, application security, and cloud, spanning web, mobile, API, GCP, AWS, and Kubernetes. Currently leads the offensive security function at <b>Tabby</b>, MENA's largest BNPL fintech (<b>14M+ users</b>), where I build autonomous VAPT pipelines, embed AppSec gates into GitLab CI/CD, and harden GKE workloads. <b>150+ engagements</b> delivered for Fortune 500 companies and SAMA-regulated financial institutions, alongside a standing vulnerability-research practice: <b>59 assigned CVE IDs</b> and an active WordPress disclosure pipeline that turns exploitation chains into decisions executives can act on.</p>
+</section>
+
+<section>
+  <div class="sh"><h2>Vulnerability Research &amp; Disclosure</h2><span class="line"></span></div>
+  <p class="statline"><b>59</b> CVE IDs assigned · <b>55</b> advisories live on WPScan · <b>52</b> verified submissions · ranked <b>9th</b> on the WPScan researcher leaderboard</p>
+
+  <div class="flag avoid">
+    <div class="flag-top">
+      <span class="tag red">Flagship</span>
+      <span class="cve">CheckView · CVE-2026-18786</span>
+      <span class="tag ghost">CVSS 8.8 · High</span>
+      <span class="tag">Unauthenticated</span>
+      <span class="tag">Fixed 2.3.2</span>
+      <span class="tag">Published 2026-08-07</span>
+    </div>
+    <p>Unauthenticated administrator-account creation via a REST API authentication bypass in the CheckView WordPress plugin (fixed in 2.3.2): full site takeover from a single unauthenticated request. Original discovery and coordinated disclosure, verified and published by WPScan.</p>
+    <p class="credit">Advisory <b>WPScan</b> · Credit <b>Original researcher, Usama Arshad</b></p>
+  </div>
+
+  <p class="cvehdr">Published disclosures, top by CVSS</p>
+  <div class="cve-row"><span class="cve-sev">7.5 · High</span><div><p class="cve-t">Ezoic, unauthenticated database export via content-export REST routes</p><p class="cve-m">CVE-2026-18789 · Unauthenticated · Fixed 2.23.1 · 2026-08-10</p></div></div>
+  <div class="cve-row"><span class="cve-sev">6.5 · Med</span><div><p class="cve-t">WP Travel Engine, unauthenticated booking-details disclosure and modification</p><p class="cve-m">CVE-2026-16737 · Unauthenticated · Fixed 6.8.5 · 2026-08-10</p></div></div>
+  <div class="cve-row"><span class="cve-sev">6.5 · Med</span><div><p class="cve-t">Surfer, contributor+ privilege escalation via editor API key disclosure</p><p class="cve-m">CVE-2026-118639 · Contributor+ · Fixed 1.8.1.759 · 2026-11-03</p></div></div>
+  <div class="cve-row"><span class="cve-sev">6.1 · Med</span><div><p class="cve-t">Interactive World Maps, reflected cross-site scripting (CWE-79)</p><p class="cve-m">CVE-2024-3681 · Unauthenticated (UI:R) · NVD / MITRE / Wordfence</p></div></div>
+  <div class="cve-row"><span class="cve-sev">5.3 · Med</span><div><p class="cve-t">GeoDirectory, unauthenticated pending/draft listing disclosure via markers REST endpoint</p><p class="cve-m">CVE-2026-16988 · Unauthenticated · Fixed 2.8.169 · 2026-08-03</p></div></div>
+
+  <p class="more"><b>+54 further assigned CVEs</b> across CheckView, Dokan, MultiVendorX, Rank Math SEO, Directorist, Modern Events Calendar, Royal MCP, Kali Forms, GamiPress, Pie Register, WP Project Manager and more. Full catalogue: <b>usamaarshad.me/research</b></p>
+
+  <p class="method">Findings are reproduced in a local WordPress lab, deduplicated against the NVD and Patchstack catalogues, and reported through WPScan under coordinated disclosure. Nothing is published while a finding is unpatched: not the plugin name, version, endpoint, parameter, or proof of concept. Full disclosure log: <b>usamaarshad.me/research</b></p>
+</section>
+
+<section>
+  <div class="sh"><h2>Experience</h2><span class="line"></span></div>
+
+  <div class="job avoid">
+    <div class="job-top"><h3>Offensive Security Lead</h3><span class="when">Jun 2025 – Present <span class="badge">Current</span></span></div>
+    <p class="org"><b>Tabby</b> · MENA's largest BNPL fintech · Riyadh, Saudi Arabia</p>
+    <ul>
+      <li>Lead the offensive security function for 14M+ users: red team, AppSec, and cloud security across web, mobile, API, GCP, and GKE.</li>
+      <li>Architected autonomous VAPT dashboards with Jira and tracker automation, cutting assessment cycle time 60% and eliminating manual reporting.</li>
+      <li>Run continuous red team and adversary simulations, surfacing real-world attack chains before release.</li>
+      <li>Embedded SAST, DAST, secret scanning, and container scanning into GitLab CI/CD, gating insecure releases at merge time.</li>
+      <li>Hardened GKE workloads via Workload Identity, network policies, admission controllers, and runtime detection.</li>
+    </ul>
+  </div>
+
+  <div class="job avoid">
+    <div class="job-top"><h3>ISM Consultant &amp; Team Lead</h3><span class="when">Aug 2024 – May 2025</span></div>
+    <p class="org"><b>SecurEyes</b> · Riyadh, Saudi Arabia</p>
+    <ul>
+      <li>Led large-scale SAMA fintech security assessments for major Saudi financial institutions: end-to-end VAPT, source code review, red team.</li>
+      <li>Full-scope red team operations: external and internal infrastructure, web, mobile, API, Active Directory, WiFi, physical, cloud, DLP/EDR evasion.</li>
+      <li>Mentored consultants, reviewed deliverables, and presented findings to executives and regulators.</li>
+    </ul>
+  </div>
+
+  <div class="job avoid">
+    <div class="job-top"><h3>Senior Security Engineer</h3><span class="when">Dec 2021 – Jul 2024</span></div>
+    <p class="org"><b>Ebryx</b> · Lahore, Pakistan</p>
+    <ul>
+      <li>Delivered 80+ offensive engagements for Fortune 500 clients: pentesting, source code review, red teaming.</li>
+      <li>Led a sub-team of consultants; owned scoping, execution, peer review, and report quality.</li>
+      <li>Translated complex exploitation chains into business-impact narratives for executives.</li>
+    </ul>
+  </div>
+
+  <div class="job avoid">
+    <div class="job-top"><h3>Red Team Member</h3><span class="when">Mar 2021 – Present <span class="badge">Part-time</span></span></div>
+    <p class="org"><b>Synack Red Team</b> · Remote</p>
+    <ul>
+      <li>Continuous vulnerability discovery and exploitation on private enterprise targets.</li>
+      <li>High-impact findings: IDOR, BOLA, authentication bypass, and business-logic flaws.</li>
+    </ul>
+  </div>
+
+  <div class="job avoid">
+    <div class="job-top"><h3>Penetration Tester</h3><span class="when">Mar 2018 – May 2021</span></div>
+    <p class="org"><b>Security Wall</b> · Lahore, Pakistan</p>
+    <ul>
+      <li>Validated vulnerabilities across 50+ engagements spanning web, mobile, and network.</li>
+      <li>Built reusable internal tooling and methodologies that raised team throughput.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="avoid">
+  <div class="sh"><h2>Areas of Expertise</h2><span class="line"></span></div>
+  <div class="grid2">
+    <div class="dom"><p class="n">01 Red Team &amp; Adversary Simulation</p><p>MITRE ATT&amp;CK · Purple Team · Physical Intrusion · OSINT · Cobalt Strike · Sliver · Mythic · Initial Access · Lateral Movement · Persistence · Defense Evasion</p></div>
+    <div class="dom"><p class="n">02 Offensive Testing</p><p>Web / OWASP Top 10 · Mobile / MASVS · iOS &amp; Android · REST · GraphQL · gRPC · Network &amp; Infrastructure · Active Directory · WiFi · Thick Client · Source Code Review</p></div>
+    <div class="dom"><p class="n">03 Cloud &amp; Container Security</p><p>GCP · AWS · GKE / Kubernetes · Container Escape · IAM Privilege Escalation · Metadata Abuse · Workload Identity · Terraform IaC Scanning · CIS Benchmarks</p></div>
+    <div class="dom"><p class="n">04 AppSec &amp; DevSecOps</p><p>GitLab CI/CD Security Gates · SAST · DAST · SCA · Secret Scanning · Threat Modeling / STRIDE · Secure SDLC · Code Review: Python, Go, Node, Java</p></div>
+    <div class="dom"><p class="n">05 Tooling &amp; Automation</p><p>Burp Suite Pro · Frida · Ghidra · IDA · Nmap · Nuclei · Nessus · Metasploit · BloodHound · Sliver · FFUF · Sqlmap · Wireshark · Custom Python &amp; Go</p></div>
+    <div class="dom"><p class="n">06 Compliance &amp; Frameworks</p><p>SAMA CSF · PCI DSS · ISO 27001 · OWASP ASVS · NIST CSF</p></div>
+  </div>
+</section>
+
+<section class="avoid">
+  <div class="sh"><h2>Achievements</h2><span class="line"></span></div>
+
+  <div class="ach">
+    <div class="ach-top"><h3>59 Assigned CVE IDs, WordPress Plugin Security</h3><span class="when">2024 · 2026</span></div>
+    <p>Flagship CVE-2026-18786 (CheckView, CVSS 8.8), plus Ezoic, WP Travel Engine, Surfer, Interactive World Maps, GeoDirectory, Dokan, MultiVendorX, Rank Math SEO and more. 55 advisories live on WPScan; ranked <b>9th</b> on the WPScan researcher leaderboard.</p>
+  </div>
+
+  <div class="ach">
+    <div class="ach-top"><h3>BlackHat MEA CTF, Finalist</h3><span class="when">2023 · 2024</span></div>
+    <p>Top 32 (2023) and Top 29 (2024) of 250+ teams globally, representing Pakistan. Captured 14 of 15 challenges in the 2026 qualification round.</p>
+  </div>
+
+  <div class="ach">
+    <div class="ach-top"><h3>National CTF Hat-Trick, Team SafeCottage</h3><span class="when">2021 – 2023</span></div>
+    <p>Three consecutive podium finishes at Pakistan's Digital Pakistan National Cyber Security Hackathon: 2nd runner-up (2022) and 1st runner-up (2023) per the national CERT reports. Awarded by the President, the Prime Minister, and the IT Minister.</p>
+  </div>
+
+  <div class="ach">
+    <div class="ach-top"><h3>Four Halls of Fame</h3><span class="when">×4</span></div>
+    <p>Responsible-disclosure recognition from the <b>United Nations</b>, <b>Walmart</b>, <b>Achmea</b>, and <b>The Sun</b>.</p>
+  </div>
+
+  <div class="ach">
+    <div class="ach-top"><h3>Speaker</h3><span class="when">Ongoing</span></div>
+    <p>Recurring talks at universities and security conferences on offensive security and AI-driven attack automation.</p>
+  </div>
+</section>
+
+<section class="avoid">
+  <div class="sh"><h2>Certifications &amp; Education</h2><span class="line"></span></div>
+  <div class="credwrap">
+    <div>
+      <div class="cert"><div class="ct"><h3>OSCP</h3><span class="full">Offensive Security Certified Professional</span></div><p class="iss">Offensive Security</p></div>
+      <div class="cert"><div class="ct"><h3>HTB Offshore</h3><span class="full">Pro Lab, Active Directory &amp; banking infrastructure</span></div><p class="iss">Hack The Box</p></div>
+      <div class="cert"><div class="ct"><h3>PEH</h3><span class="full">Practical Ethical Hacker</span></div><p class="iss">TCM Security</p></div>
+      <div class="cert"><div class="ct"><h3>CNSS</h3><span class="full">Certified Network Security Specialist</span></div><p class="iss">ICSI</p></div>
+    </div>
+    <div class="side">
+      <p class="lab">Education</p>
+      <h3>BSc Computer Science</h3>
+      <p>COMSATS University, Lahore · 2018–2021</p>
+      <p class="lab">Languages</p>
+      <h3 style="font-size:7.8pt">English, Professional · Urdu, Native</h3>
+    </div>
+  </div>
+</section>
+
+<div class="foot">
+  <span>Usama Arshad · Offensive Security Lead</span>
+  <span>gusama21@gmail.com · usamaarshad.me</span>
+  <span>References &amp; full disclosure log on request</span>
+</div>
+
+</body>
+</html>
