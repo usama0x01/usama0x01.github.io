@@ -1,0 +1,76 @@
+/* ============================================================
+   PRINT — legible on paper. Redefines the design tokens so the
+   whole token-driven palette recolors consistently for paper.
+   Screen rendering is untouched (media="print").
+   ============================================================ */
+@page { margin: 16mm 15mm; }
+
+@media print {
+  :root {
+    --bg:#fff !important; --bg-elev:#fff !important; --bg-elev-2:#f4f2ef !important;
+    --ink:#000 !important; --text:#1a1a1a !important; --muted:#555 !important;
+    --hairline:#ccc !important; --hairline-mid:#aaa !important; --hairline-hard:#888 !important;
+    --accent:#b3242a !important; --accent-bright:#b3242a !important;
+    --accent-ink:#fff !important; --accent-wash:transparent !important;
+  }
+
+  html, body { background:#fff !important; color:#1a1a1a !important; font-size:10.5pt; line-height:1.5; }
+  body::after { display:none !important; }                 /* film grain */
+
+  /* chrome that doesn't belong on paper */
+  .progress, .site-head, .mobile-menu, .menu-btn, .site-foot, .skip,
+  .tools, .chips, .tcount, .lchips, .lcount, .ledger-tools,
+  .reveal-btn, .code-copy, .dact, .wu-rail, .pager,
+  .back-link, .head-cta, .flagbox .reveal-btn { display:none !important; }
+
+  [data-reveal], [data-stagger] > * { opacity:1 !important; transform:none !important; }
+
+  /* identify the printout */
+  main::before {
+    content:"Usama Arshad — Offensive Security Lead — usamaarshad.me";
+    display:block; font-family:Georgia,"Times New Roman",serif;
+    font-size:10.5pt; font-weight:700; color:#000;
+    border-bottom:1.3pt solid #000; padding-bottom:5pt; margin-bottom:14pt;
+  }
+
+  h1,h2,h3 { color:#000 !important; page-break-after:avoid; break-after:avoid; }
+  h1 { font-size:21pt; } h2 { font-size:14pt; margin-top:15pt; } h3 { font-size:11.5pt; }
+  p, li { orphans:3; widows:3; }
+  a { color:#000 !important; text-decoration:underline; }
+
+  /* dense advisory/link lists: do NOT dump long UUID URLs into the page */
+
+  /* layout → single column, full width */
+  .container,.wu,.wu-layout,.prose,.hero-deck,.deck { max-width:none !important; }
+  .wu-layout { display:block !important; }
+
+  /* stat bands & cards: outline instead of filled dark blocks */
+  .funnel,.scoreband,.stats { border:1pt solid #bbb !important; background:#fff !important; }
+  .fstat,.sb,.stat { background:#fff !important; }
+  .flagship { background:#fff !important; border:1pt solid #999 !important; }
+  .flagship::before { display:none !important; }
+  .flag-score { background:#fff !important; border:1pt solid #000 !important; }
+  .flag-cvss,.flag-sev,.flag-scale { color:#000 !important; }
+
+  /* code: light box, wrap, keep together */
+  .code,figure.code { border:1pt solid #bbb !important; background:#f6f6f6 !important; break-inside:avoid; }
+  .code-bar { background:#eee !important; border-bottom:1pt solid #ccc !important; }
+  .code pre { background:#f6f6f6 !important; }
+  .code pre,.code code,.code pre code { color:#111 !important; background:#f6f6f6 !important;
+    white-space:pre-wrap !important; word-break:break-word; }
+  code { background:#f0f0f0 !important; color:#111 !important; border:1pt solid #ddd; }
+
+  /* keep logical blocks intact across pages */
+  .cve,.chal,.post,.flagbox,.tldr,.callout,.notice,.datatable,
+  .meme,.honor,.job,.ach,.cred,.dork,.xp,.domain { break-inside:avoid; }
+
+  table,.datatable table { border-collapse:collapse; width:100%; }
+  .datatable th,.datatable td { border-bottom:1pt solid #ccc; color:#111 !important; }
+
+  .meme svg { max-height:55mm; }
+
+  /* pills & tags: outline, readable */
+  .cat,.ptag,.pts,.sev,.flag-tag,.flagstate,.lab,.chip,.tag {
+    color:#111 !important; border-color:#999 !important; background:none !important;
+  }
+}

@@ -12,6 +12,7 @@
 <link rel="icon" href="/assets/favicon.ico">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <meta name="theme-color" content="#131110">
+<link rel="stylesheet" href="/assets/css/print.css" media="print">
 
 <!-- Open Graph -->
 <meta property="og:type" content="website">
@@ -422,7 +423,7 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
   letter-spacing:.1em; color:var(--muted);
 }
 .flag-body .kicker{ color:var(--accent); margin-bottom:.75rem; }
-.flag-body h3{ font-size:clamp(1.5rem, 3.2vw, 2.15rem); letter-spacing:-.02em; }
+.flag-body h2{ font-size:clamp(1.5rem, 3.2vw, 2.15rem); letter-spacing:-.02em; }
 .flag-body p{ font-size:var(--fs-small); color:var(--text); max-width:46em; margin-top:1rem; }
 .flag-facts{
   display:flex; flex-wrap:wrap; gap:.5rem 1.6rem;
@@ -769,7 +770,7 @@ section[id]{ scroll-margin-top:calc(var(--head-h) + 1rem); }
         </div>
         <div class="flag-body">
           <p class="kicker">CheckView · CVE-2026-18786</p>
-          <h3 id="flagship-title">Unauthenticated Administrator Account Creation via REST API Authentication Bypass</h3>
+          <h2 id="flagship-title">Unauthenticated Administrator Account Creation via REST API Authentication Bypass</h2>
           <p>An unauthenticated request could bypass REST API authentication and create a full administrator account: a complete site takeover with no credentials required. Discovered in a local lab, reported through WPScan under coordinated disclosure, and resolved by the vendor before public release.</p>
           <p class="flag-facts">
             <span>Access <b>Unauthenticated</b></span>
