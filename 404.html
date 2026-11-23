@@ -7,6 +7,7 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="description" content="Page not found. Head back to the portfolio, the research log, or the writing archive.">
 <title>404 · Usama Arshad</title>
+<script>try{var _t=localStorage.getItem("theme");if(_t)document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
 <meta name="robots" content="noindex">
 <link rel="icon" href="/assets/favicon.ico">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
@@ -63,6 +64,7 @@ footer p{
   padding:1.3rem 0;
 }
 </style>
+<link rel="stylesheet" href="/assets/css/theme.css">
 </head>
 <body>
 <header class="wrap">
@@ -81,5 +83,6 @@ footer p{
 <footer class="wrap">
   <p>© 2026 Usama Arshad · www.usamaarshad.me</p>
 </footer>
+<script>(function(){var b=document.getElementById("themeToggle");if(!b)return;b.addEventListener("click",function(){var cur=document.documentElement.getAttribute("data-theme")||(window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");var next=cur==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",next);try{localStorage.setItem("theme",next);}catch(e){}});})();</script>
 </body>
 </html>

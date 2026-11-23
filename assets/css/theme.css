@@ -1,0 +1,63 @@
+/* ============================================================
+   THEME · light palette + toggle. Loads after the dark :root,
+   so these overrides win. Dark stays the default; a light
+   system preference or an explicit toggle switches it.
+   ============================================================ */
+
+/* ---- light tokens: explicit choice ---- */
+:root[data-theme="light"]{
+  --bg:#f6f2ea; --bg-elev:#fffdf7; --bg-elev-2:#ece6da;
+  --ink:#1b1613; --text:#413a30; --muted:#776c5c;
+  --hairline:rgba(27,22,19,.13); --hairline-mid:rgba(27,22,19,.24); --hairline-hard:rgba(27,22,19,.46);
+  --accent:#bf2d31; --accent-bright:#d23a3f; --accent-ink:#ffffff; --accent-wash:rgba(191,45,49,.08);
+}
+/* ---- light tokens: system preference, no explicit choice ---- */
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#f6f2ea; --bg-elev:#fffdf7; --bg-elev-2:#ece6da;
+    --ink:#1b1613; --text:#413a30; --muted:#776c5c;
+    --hairline:rgba(27,22,19,.13); --hairline-mid:rgba(27,22,19,.24); --hairline-hard:rgba(27,22,19,.46);
+    --accent:#bf2d31; --accent-bright:#d23a3f; --accent-ink:#ffffff; --accent-wash:rgba(191,45,49,.08);
+  }
+}
+
+/* ---- non-token overrides that must flip with the theme ---- */
+:root[data-theme="light"] .head-inner{
+  background:rgba(252,249,243,.72);
+  box-shadow:0 10px 30px -12px rgba(60,45,30,.18);
+}
+:root[data-theme="light"] .site-head.scrolled .head-inner{
+  background:rgba(252,249,243,.92);
+  box-shadow:0 14px 34px -14px rgba(60,45,30,.22);
+}
+:root[data-theme="light"] body::after{ opacity:.03; }  /* calm the grain on paper */
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]) .head-inner{
+    background:rgba(252,249,243,.72);
+    box-shadow:0 10px 30px -12px rgba(60,45,30,.18);
+  }
+  :root:not([data-theme="dark"]) .site-head.scrolled .head-inner{
+    background:rgba(252,249,243,.92);
+    box-shadow:0 14px 34px -14px rgba(60,45,30,.22);
+  }
+  :root:not([data-theme="dark"]) body::after{ opacity:.03; }
+}
+
+/* ---- theme toggle button (lives in the navbar) ---- */
+.theme-toggle{
+  flex:none; width:2.3rem; height:2.3rem; display:inline-grid; place-items:center;
+  border:1px solid var(--hairline-mid); border-radius:999px; color:var(--ink);
+  background:none; cursor:pointer;
+  transition:color var(--t-fast,.22s) var(--ease,cubic-bezier(.33,.72,.3,1)), border-color var(--t-fast,.22s) var(--ease,cubic-bezier(.33,.72,.3,1)), background var(--t-fast,.22s) var(--ease,cubic-bezier(.33,.72,.3,1));
+}
+.theme-toggle:hover{ color:var(--accent); border-color:var(--accent); }
+.theme-toggle svg{ width:1.05rem; height:1.05rem; }
+.theme-toggle .ico-moon{ display:none; }
+.theme-toggle .ico-sun{ display:inline-flex; }
+:root[data-theme="light"] .theme-toggle .ico-sun{ display:none; }
+:root[data-theme="light"] .theme-toggle .ico-moon{ display:inline-flex; }
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]) .theme-toggle .ico-sun{ display:none; }
+  :root:not([data-theme="dark"]) .theme-toggle .ico-moon{ display:inline-flex; }
+}
+@media (max-width:480px){ .theme-toggle{ width:2.1rem; height:2.1rem; } }
